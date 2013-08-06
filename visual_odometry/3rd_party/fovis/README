@@ -1,0 +1,71 @@
+This software is constructed according to the Pods software policies and
+templates.  The policies and templates can be found at:
+
+  http://sourceforge.net/projects/pods
+
+About this project
+==================
+
+Name:         libfovis
+Authors:      Albert Huang <ashuang@gmail.com>
+              Abraham Bachrach <abachrach@gmail.com>
+              Daniel Maturana <dimatura@gmail.com>
+
+Summary:      Visual odometry with a depth camera (e.g., Kinect/Primesense) or
+              stereo camera.
+
+Requirements:
+
+  CMake       (http://www.cmake.org)
+  Eigen 3     (http://eigen.tuxfamily.org)
+  Intel SSE2
+
+  Fovis was developed on Ubuntu, but may work with other platforms.
+
+
+Build Instructions
+==================
+
+For system-wide installation:
+
+  $ mkdir build
+  $ cd build
+  $ cmake ..
+  $ make
+  $ sudo make install
+  $ sudo ldconfig
+
+  This usually installs Fovis to /usr/local or something like that.
+
+For use in the source directory:
+
+  $ mkdir build
+  $ make
+
+
+Documentation
+=============
+
+  Fovis is documented using Doxygen (http://www.doxygen.org).  To build the documentation:
+
+  $ cd doc
+  $ doxygen
+
+  Following that, open up doc/html/index.html in your web browser.
+
+
+License
+=======
+
+  fovis is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  fovis is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with fovis.  If not, see <http://www.gnu.org/licenses/>.

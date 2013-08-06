@@ -1,0 +1,7 @@
+This example produces visual odometry estimates for a Microsoft Kinect using
+libfreenect.
+
+You must have libfreenect installed.  It is strongly recommended that you
+install libfreenect from source to get the latest version possible.  For more
+information on libfreenect, see here:
+  http://openkinect.org/wiki/Getting_Started

@@ -1,0 +1,19 @@
+This example obtains depth images using the OpenNI API.  It's designed to work
+with either a Microsoft Kinect, or PrimeSense sensor, although I haven't
+actually tested it on a PrimeSense.
+
+You must have OpenNI installed, and either the Kinect or PrimeSense.
+
+OpenNI:
+  http://www.openni.org
+
+Kinect modules:
+  As of Apr 21, 2011, there's no "official" repository of Kinect modules for
+  OpenNI, but there are community-developed forks of the PrimeSense module.  One
+  promising such fork is here: 
+
+  https://github.com/avin2/SensorKinect
+
+PrimeSense modules:
+  http://www.openni.org
+
