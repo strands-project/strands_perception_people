@@ -40,16 +40,16 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>libeigen3-dev</build_depend>
+  <build_depend>eigen</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>strands_perception_people</build_depend>
-  <run_depend>libeigen3-dev</run_depend>
+  <build_depend>strands_perception_people_msgs</build_depend>
+  <run_depend>eigen</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>strands_perception_people</run_depend>
+  <run_depend>strands_perception_people_msgs</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
