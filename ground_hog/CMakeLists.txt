@@ -4,7 +4,7 @@ project(ground_hog)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs)
 
 ## Include Qt
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
@@ -24,10 +24,10 @@ include(${QT_USE_FILE})
 #######################################
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   Detections.msg
- )
+# add_message_files(
+#   FILES
+#   Detections.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -37,10 +37,10 @@ include(${QT_USE_FILE})
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -83,7 +83,7 @@ add_executable(groundHOG src/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(groundHOG ground_hog_generate_messages_cpp)
+add_dependencies(groundHOG strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(groundHOG

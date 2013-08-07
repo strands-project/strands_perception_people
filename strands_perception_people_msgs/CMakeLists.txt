@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
 add_message_files(
   FILES
   VisualOdometry.msg
+  Detections.msg
 )
 
 ## Generate services in the 'srv' folder
