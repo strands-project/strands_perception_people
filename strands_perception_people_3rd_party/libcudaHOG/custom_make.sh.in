@@ -1,0 +1,4 @@
+#!/bin/bash
+
+PATH=@CUDA@/bin:$PATH
+make
