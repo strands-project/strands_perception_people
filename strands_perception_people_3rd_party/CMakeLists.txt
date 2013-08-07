@@ -49,15 +49,26 @@ ExternalProject_Add(
     URL ${groundHOG_tar}
     PATCH_COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/rpath_patch.sh
     CONFIGURE_COMMAND qmake -makefile <SOURCE_DIR>
-    # BUILD_IN_SOURCE 1 #TODO: Check if necessary.
     BUILD_COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/custom_make.sh
 )
 ##################################################################################################################
 ### Use catkin to install files ###
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/cudaHOG/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/libcudaHOG/
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".git" EXCLUDE
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/cudaHOG/ext
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/libcudaHOG/ext
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".git" EXCLUDE
+)
+
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/libcudaHOG-build/cudaHOG/libcudaHOG.so
   ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/libcudaHOG-build/cudaHOG/libcudaHOG.so.1
   ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/libcudaHOG-build/cudaHOG/libcudaHOG.so.1.0
   ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/libcudaHOG-build/cudaHOG/libcudaHOG.so.1.0.0
-  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}/libcudaHOG/
 )
