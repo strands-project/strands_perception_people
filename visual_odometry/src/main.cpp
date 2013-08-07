@@ -7,7 +7,7 @@
 
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/CameraInfo.h"
-#include "visual_odometry/VisualOdometry.h"
+#include "strands_perception_people_msgs/VisualOdometry.h"
 
 #include "string.h"
 #include "boost/thread.hpp"
@@ -68,7 +68,7 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     Eigen::Isometry3d cam_to_local = odom->getPose();
     Eigen::Matrix4d m1 = cam_to_local.matrix().inverse();
 
-    visual_odometry::VisualOdometry fovis_info_msg;
+    strands_perception_people_msgs::VisualOdometry fovis_info_msg;
     fovis_info_msg.header = image->header;
 
     fovis_info_msg.change_reference_frame =
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
     sync.registerCallback(boost::bind(&callback, _1, _2, _3));
     // Create a topic publisher
     private_node_handle_.param("motion_parameters", pub_topic, string("/visual_odometry/motion_matrix"));
-    pub_message = n.advertise<visual_odometry::VisualOdometry>(pub_topic.c_str(), 10);
+    pub_message = n.advertise<strands_perception_people_msgs::VisualOdometry>(pub_topic.c_str(), 10);
 
     ros::spin();
 

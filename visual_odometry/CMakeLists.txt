@@ -5,7 +5,7 @@ project(visual_odometry)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(PkgConfig REQUIRED)
-find_package(catkin REQUIRED COMPONENTS message_generation roscpp sensor_msgs std_msgs message_filters)
+find_package(catkin REQUIRED COMPONENTS message_generation roscpp sensor_msgs std_msgs message_filters strands_perception_people_msgs)
 pkg_check_modules(EIGEN REQUIRED eigen3)
 
 
@@ -23,10 +23,10 @@ pkg_check_modules(EIGEN REQUIRED eigen3)
 #######################################
 
 ## Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   VisualOdometry.msg
- )
+# add_message_files(
+#   FILES
+#   VisualOdometry.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -36,10 +36,10 @@ pkg_check_modules(EIGEN REQUIRED eigen3)
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -83,7 +83,7 @@ add_executable(visual_odometry src/main.cpp ${FOVIS_CPP} ${FOVIS_C})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(visual_odometry visual_odometry_generate_messages_cpp)
+add_dependencies(visual_odometry strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(visual_odometry
