@@ -16,6 +16,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <cv_bridge/cv_bridge.h>
+
+
 
 
 
@@ -33,8 +36,12 @@ ros::Publisher pub_message;
 fovis::VisualOdometry* odom = NULL;
 fovis::CameraIntrinsicsParameters cam_params;
 
+cv::Mat img_depth_;
+cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
+
 void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const CameraInfoConstPtr &info)
 {
+
     if(odom==NULL)
     {
         memset(&cam_params, 0, sizeof(fovis::CameraIntrinsicsParameters));
@@ -50,18 +57,14 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
         fovis_rect = new fovis::Rectification(cam_params);
         fovis::VisualOdometryOptions options = fovis::VisualOdometry::getDefaultOptions();
         odom = new fovis::VisualOdometry(fovis_rect, options);
-
-        ofstream aStream("/home/mitzel/Desktop/depth.txt");
-        for (int i = 0; i < depth->width*depth->height; i++)
-        {
-            aStream << (double) depth->data[i] << endl;
-        }
-        ROS_INFO("Created: /home/mitzel/Desktop/depth.txt");
     }
+
+    cv_depth_ptr = cv_bridge::toCvCopy(depth);
+    img_depth_ = cv_depth_ptr->image;
 
     ros::WallTime start_time = ros::WallTime::now();
     fovis::DepthImage* fv_dp = new fovis::DepthImage(cam_params,info->width,info->height);
-    fv_dp->setDepthImage((float*) &depth->data[0]);
+    fv_dp->setDepthImage((float*)(img_depth_.data));
 
     odom->processFrame(&image->data[0], fv_dp);
 
@@ -133,8 +136,8 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
-    private_node_handle_.param("mono_image", topic_image_mono, string("/camera/rgb/image_rect"));
-    private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image_rect"));
+    private_node_handle_.param("mono_image", topic_image_mono, string("/camera/rgb/image_mono"));
+    private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
 
     // Create a subscriber.
