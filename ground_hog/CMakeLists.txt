@@ -5,7 +5,7 @@ project(ground_hog)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs)
-find_package(3rdparty REQUIRED strands_perception_people_3rd_party)
+#find_package(3rdparty REQUIRED strands_perception_people_3rd_party)
 
 ## Include Qt
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
@@ -68,7 +68,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${3rdparty_INCLUDE_DIRS}/libcudaHOG
+  /home/mitzel/Desktop/sandbox/groundHOG_v1.1_b/cudaHOG
   
 )
 
@@ -77,7 +77,7 @@ include_directories(
 #   src/${PROJECT_NAME}/groundHOG.cpp
 # )
 
-#LINK_DIRECTORIES(/home/mitzel/Desktop/sandbox/groundHOG_v1.1_b/cudaHOG)
+LINK_DIRECTORIES(/home/mitzel/Desktop/sandbox/groundHOG_v1.1_b/cudaHOG)
 
 ## Declare a cpp executable
 add_executable(groundHOG src/main.cpp)
@@ -92,7 +92,7 @@ add_dependencies(groundHOG strands_perception_people_msgs_generate_messages_cpp 
    ${QT_LIBRARIES}
    ${QT_QTCORE_LIBRARY}
    ${QT_QTGUI_LIBRARY}
-   ${3rdparty_LIBRARIES}
+   cudaHOG
  )
 
 #############
