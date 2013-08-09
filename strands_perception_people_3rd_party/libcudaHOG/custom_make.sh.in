@@ -2,3 +2,6 @@
 
 PATH=@CUDA@/bin:$PATH
 make
+cp -v @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG/cudaHOG/*.h @CMAKE_CURRENT_SOURCE_DIR@/libcudaHOG/include/
+cp -vr @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG/cudaHOG/ext @CMAKE_CURRENT_SOURCE_DIR@/libcudaHOG/include/
+cp -v @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG-build/cudaHOG/libcudaHOG.so* @CATKIN_DEVEL_PREFIX@/lib

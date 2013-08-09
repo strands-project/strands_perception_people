@@ -7,8 +7,8 @@ project(strands_perception_people_3rd_party)
 find_package(catkin REQUIRED)
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES strands_perception_people_3rd_party
+  INCLUDE_DIRS libcudaHOG/include
+  LIBRARIES cudaHOG
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -28,7 +28,7 @@ else(NOT DEFINED ENV{CUDA_PATH})
 endif(NOT DEFINED ENV{CUDA_PATH})
 ##################################################################################################################
 ### CUDA HOG ###
-message(STATUS "Preparing libcudaHOB")
+message(STATUS "Preparing libcudaHOG")
 message(STATUS "Created patch script: ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/rpath_patch.sh")
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/libcudaHOG/rpath_patch.sh.in
@@ -52,6 +52,9 @@ ExternalProject_Add(
     BUILD_COMMAND sh ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/custom_make.sh
 )
 ##################################################################################################################
+
+#add_library(cudaHOG libcudaHOG/src/bar.cpp)
+
 ### Use catkin to install files ###
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libcudaHOG/src/cudaHOG/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/libcudaHOG/
