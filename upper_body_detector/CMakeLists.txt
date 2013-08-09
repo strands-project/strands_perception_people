@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_perception_people_msgs)
+project(upper_body_detector)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp cv_bridge sensor_msgs std_msgs strands_perception_people_msgs message_filters)
+
+find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
+include(${QT_USE_FILE})
+
+set(CMAKE_BUILD_TYPE Release)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "-O3")        ## Optimize
+endif()
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -12,7 +21,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
-## See http://ros.org/doc/groovy/api/catkin/html/user_guide/setup_dot_py.html
+## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 # catkin_python_setup()
 
 #######################################
@@ -20,13 +29,11 @@ find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
 #######################################
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  VisualOdometry.msg
-  Detections.msg
-  UpperBodyDetector.msg
-  GroundPlane.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -36,23 +43,24 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   sensor_msgs#   std_msgs#   strands_perception_people_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
 ## Declare things to be passed to dependent projects
+## INCLUDE_DIRS: uncomment this if you package contains header files
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES strands_perception_people_msgs
-#  CATKIN_DEPENDS message_generation std_msgs
+  INCLUDE_DIRS include
+#  LIBRARIES upper_body_detector
+#  CATKIN_DEPENDS cv_bridge rosccp sensor_msgs std_msgs strands_perception_people_msgs
 #  DEPENDS system_lib
 )
 
@@ -62,31 +70,37 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+# include_directories(include)
+include_directories( include
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a cpp library
-# add_library(strands_perception_people_msgs
-#   src/${PROJECT_NAME}/strands_perception_people_msgs.cpp
+# add_library(upper_body_detector
+#   src/${PROJECT_NAME}/upper_body_detector.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(strands_perception_people_msgs_node src/strands_perception_people_msgs_node.cpp)
+add_executable(upper_body_detector src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/groundplaneestimator.cpp src/KConnectedComponentLabeler.cpp src/Math.cpp src/pointcloud.cpp src/ROI.cpp src/CPoint.cpp src/detector.cpp src/AncillaryMethods.cpp src/Hypo.cpp src/FrameInlier.cpp) 
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(strands_perception_people_msgs_node strands_perception_people_msgs_generate_messages_cpp)
+add_dependencies(upper_body_detector strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(strands_perception_people_msgs_node
-#   ${catkin_LIBRARIES}
-# )
+ target_link_libraries(upper_body_detector
+   ${catkin_LIBRARIES}
+   ${QT_LIBRARIES}
+   ${QT_QTCORE_LIBRARY}
+   ${QT_QTGUI_LIBRARY}
+ )
 
 #############
 ## Install ##
 #############
 
 # all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/groovy/api/catkin/html/adv_user_guide/variables.html
+# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
@@ -96,7 +110,7 @@ catkin_package(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS strands_perception_people_msgs strands_perception_people_msgs_node
+# install(TARGETS upper_body_detector upper_body_detector_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -121,7 +135,7 @@ catkin_package(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_strands_perception_people_msgs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_upper_body_detector.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
