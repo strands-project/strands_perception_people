@@ -5,6 +5,9 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+#include <QImage>
+#include <QPainter>
+
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/CameraInfo.h"
 
@@ -19,25 +22,25 @@
 #include "Matrix.h"
 #include "Vector.h"
 #include "Camera.h"
-#include "pointcloud.h"
-#include "detector.h"
 #include "Globals.h"
-#include "groundplaneestimator.h"
 #include "ConfigFile.h"
+#include "Hypo.h"
+#include "Detections.h"
+#include "AncillaryMethods.h"
+#include "Tracker.h"
 
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
-
-#include <QImage>
-#include <QPainter>
-
-
+#include "strands_perception_people_msgs/GroundHOGDetections.h"
+#include "strands_perception_people_msgs/VisualOdometry.h"
+#include "strands_perception_people_msgs/PedestrianTracking.h"
+#include "strands_perception_people_msgs/PedestrianTrackingArray.h"
 
 
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
-
+using namespace strands_perception_people_msgs;
 //sensor_msgs::CameraInfo* camera_info = NULL;
 //boost::mutex camera_info_mutex;
 /*--------------------------------------------------------------------
@@ -45,46 +48,72 @@ using namespace message_filters;
  * Main function to set up ROS node.
  *------------------------------------------------------------------*/
 ros::Publisher pub_message;
-ros::Publisher pub_result_image;
-ros::Publisher pub_ground_plane;
-
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
-GroundPlaneEstimator GPEstimator;
-Matrix<double> upper_body_template;
-Detector* detector;
-
-
 string path_config_file = "/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/config_Asus.inp";
 
+Vector< Hypo > HyposAll;
+Detections *det_comb;
+Tracker tracker;
+int cnt = 0;
 
-void render_bbox_2D(strands_perception_people_msgs::UpperBodyDetector& detections, QImage& image,
-                    int r, int g, int b, int lineWidth)
+CImgDisplay* main_disp;
+CImg<unsigned char> cim(640,480,1,3);
+
+Vector<double> fromCam2World(Vector<double> posInCamera, Camera cam)
 {
+    Matrix<double> rotMat = cam.get_R();
 
-    QPainter painter(&image);
+    Vector<double> posCam = cam.get_t();
 
-    QColor qColor;
-    qColor.setRgb(r, g, b);
+    Matrix<double> trMat(4,4,0.0);
+    trMat(3,3) = 1;
+    trMat(0,0) = rotMat(0,0);
+    trMat(0,1) = rotMat(0,1);
+    trMat(0,2) = rotMat(0,2);
+    trMat(1,0) = rotMat(1,0);
+    trMat(1,1) = rotMat(1,1);
+    trMat(1,2) = rotMat(1,2);
+    trMat(2,0) = rotMat(2,0);
+    trMat(2,1) = rotMat(2,1);
+    trMat(2,2) = rotMat(2,2);
 
-    QPen pen;
-    pen.setColor(qColor);
-    pen.setWidth(lineWidth);
+    posCam *= Globals::WORLD_SCALE;
 
-    painter.setPen(pen);
+    trMat(3,0) = posCam(0);
+    trMat(3,1) = posCam(1);
+    trMat(3,2) = posCam(2);
 
-    for(int i = 0; i < detections.pos_x.size(); i++){
-        int x =(int) detections.pos_x[i];
-        int y =(int) detections.pos_y[i];
-        int w =(int) detections.width[i];
-        int h =(int) detections.height[i];
+    Vector<double> transpoint = trMat*posInCamera;
+    return transpoint;
 
-        painter.drawLine(x,y, x+w,y);
-        painter.drawLine(x,y, x,y+h);
-        painter.drawLine(x+w,y, x+w,y+h);
-        painter.drawLine(x,y+h, x+w,y+h);
+}
+
+double computeDepth(Vector<double> vbbox, Camera cam)
+{
+    Vector<double> pos3D;
+    double distance;
+
+    cam.bbToDetection(vbbox, pos3D, Globals::WORLD_SCALE, distance);
+    Vector<double> posInCamCord(pos3D(0), pos3D(1), pos3D(2), 1);
+    Vector<double> posInWorld = fromCam2World(posInCamCord, cam);
+    return posInWorld(2);
+}
+
+void get_image(unsigned char* b_image, uint w, uint h, CImg<unsigned char>& cim)
+{
+    unsigned char* ptr = b_image;
+    for (unsigned int row = 0; row < h; ++row)
+    {
+        for (unsigned int col = 0; col < w; ++col)
+        {
+            // access the viewerImage as column, row
+            cim(col,row,0,0) = *(ptr++); // red component
+            cim(col,row,0,1) = *(ptr++); // green
+            cim(col,row,0,2) = *(ptr++); // blue
+        }
     }
 }
 
@@ -318,28 +347,11 @@ void ReadConfigFile()
     Globals::hog_score_thresh = config.read<float>("hog_score_thresh",0.4);
 }
 
-void ReadUpperBodyTemplate()
+
+void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const CameraInfoConstPtr &info,
+              const GroundPlane::ConstPtr &gp, const GroundHOGDetections::ConstPtr& groundHOGDet,
+              const UpperBodyDetector::ConstPtr &upper, const VisualOdometry::ConstPtr &vo)
 {
-    // read template from file
-    upper_body_template.ReadFromTXT("/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/upper_temp_n.txt", 150, 150);
-
-    // resize it to the fixed size that is defined in Config File
-    if(upper_body_template.x_size() > Globals::template_size)
-    {
-        upper_body_template.DownSample(Globals::template_size, Globals::template_size);
-    }
-    else if(upper_body_template.x_size() < Globals::template_size)
-    {
-        upper_body_template.UpSample(Globals::template_size, Globals::template_size);
-    }
-}
-
-void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const CameraInfoConstPtr &info)
-{
-
-    // Get color image
-    QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888);
-
     // Get depth
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
     img_depth_ = cv_depth_ptr->image;
@@ -351,74 +363,106 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
         }
     }
 
-    // Generate base camera
-    Matrix<double> R = Eye<double>(3);
-    Vector<double> t(3, 0.0);
-    Vector<double> GP(0.0, 0.99, 0.0, 1.8); // just some placeholders which will be replaced after GP Estimation
+    // Get camera from VO and GP
+    Vector<double> GP(3, (double*) &gp->n[0]);
+    GP.pushBack((double) gp->d);
+
+    Matrix<double> motion_matrix(4,4, (double*) (&vo->transformation_matrix[0]));
+    Matrix<double> R(motion_matrix, 0,2,0,2);
+    Vector<double> t(motion_matrix(3,0), motion_matrix(3,1), motion_matrix(3,2));
     Matrix<double> K(3,3, (double*)&info->K[0]);
 
-    Camera camera(K,R,t,GP);
-    PointCloud point_cloud(camera, matrix_depth);
+    Camera camera(K, R, t, GP);
+    Vector<double> GP_world = AncillaryMethods::PlaneToWorld(camera, GP);
+    camera = Camera(K, R, t, GP_world);
 
-
-    GP = GPEstimator.ComputeGroundPlane(point_cloud);
-
-    camera = Camera(K,R,t,GP);
-
+    // Get detections from HOG and upper body
+    Vector<double> single_detection(9);
     Vector<Vector< double > > detected_bounding_boxes;
 
-    detector->ProcessFrame(camera, matrix_depth, point_cloud, upper_body_template, detected_bounding_boxes);
-
-    strands_perception_people_msgs::UpperBodyDetector detection_msg;
-    detection_msg.header = depth->header;
-
-    for(int i = 0; i < detected_bounding_boxes.getSize(); i++)
+    for(int i = 0; i < groundHOGDet->pos_x.size(); i++)
     {
-        detection_msg.pos_x.push_back(detected_bounding_boxes(i)(0));
-        detection_msg.pos_y.push_back(detected_bounding_boxes(i)(1));
-        detection_msg.width.push_back(detected_bounding_boxes(i)(2));
-        detection_msg.height.push_back(detected_bounding_boxes(i)(3));
-        detection_msg.dist.push_back(detected_bounding_boxes(i)(4));
-        detection_msg.median_depth.push_back(detected_bounding_boxes(i)(5));
+        single_detection(0) = cnt;
+        single_detection(1) = i;
+        single_detection(2) = 1;
+        single_detection(3) = groundHOGDet->score[i];
+        single_detection(4) = groundHOGDet->pos_x[i];
+        single_detection(5) = groundHOGDet->pos_y[i];
+        single_detection(6) = groundHOGDet->width[i];
+        single_detection(7) = groundHOGDet->height[i];
+        Vector<double> bbox(single_detection(3), single_detection(4), single_detection(5), single_detection(6));
+        single_detection(8) = computeDepth(bbox, camera);
+        detected_bounding_boxes.pushBack(single_detection);
     }
 
-    render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
-
-    sensor_msgs::Image sensor_image;
-    sensor_image.header = color->header;
-    sensor_image.height = image_rgb.height();
-    sensor_image.width  = image_rgb.width();
-    vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
-    sensor_image.data = image_bits;
-    sensor_image.encoding = color->encoding;
-
-    // Generate Ground Plane Message
-    strands_perception_people_msgs::GroundPlane ground_plane_msg;
-    ground_plane_msg.header = depth->header;
-    ground_plane_msg.d = GP(3);
-    ground_plane_msg.n.push_back(GP(0));
-    ground_plane_msg.n.push_back(GP(1));
-    ground_plane_msg.n.push_back(GP(2));
+    for(int i = 0; i < upper->pos_x.size(); i++)
+    {
+        single_detection(0) = cnt;
+        single_detection(1) = groundHOGDet->pos_x.size()+i;
+        single_detection(2) = 1;
+        single_detection(3) = 1 - upper->dist[i]; // make sure that the score is always positive
+        single_detection(4) = upper->pos_x[i];
+        single_detection(5) = upper->pos_y[i];
+        single_detection(6) = upper->width[i];
+        single_detection(7) = upper->height[i] * 3;
+        single_detection(8) = upper->median_depth[i];
+        detected_bounding_boxes.pushBack(single_detection);
+    }
 
 
-    pub_result_image.publish(sensor_image);
-    pub_message.publish(detection_msg);
-    pub_ground_plane.publish(ground_plane_msg);
+    get_image((unsigned char*)(&color->data[0]),info->width,info->height,cim);
+    ///////////////////////////////////////////TRACKING///////////////////////////
 
+    tracker.process_tracking_oneFrame(HyposAll, *det_comb, cnt, detected_bounding_boxes, cim, camera);
+    Vector<Hypo> hyposMDL = tracker.getHyposMDL();
+
+
+    PedestrianTrackingArray allHypoMsg;
+    allHypoMsg.header = depth->header;
+    Vector<Vector<double> > trajPts;
+    Vector<double> dir;
+    for(int i = 0; i < hyposMDL.getSize(); i++)
+    {
+        PedestrianTracking oneHypoMsg;
+        oneHypoMsg.header = depth->header;
+        hyposMDL(i).getTrajPts(trajPts);
+        for(int j = 0; j < trajPts.getSize(); j++)
+        {
+            oneHypoMsg.traj_x.push_back(trajPts(j)(0));
+            oneHypoMsg.traj_y.push_back(trajPts(j)(1));
+            oneHypoMsg.traj_z.push_back(trajPts(j)(2));
+        }
+
+        oneHypoMsg.id = hyposMDL(i).getHypoID();
+        oneHypoMsg.score = hyposMDL(i).getScoreMDL();
+        oneHypoMsg.speed = hyposMDL(i).getSpeed();
+        hyposMDL(i).getDir(dir);
+
+        oneHypoMsg.dir.push_back(dir(0));
+        oneHypoMsg.dir.push_back(dir(1));
+        oneHypoMsg.dir.push_back(dir(2));
+        allHypoMsg.pedestrians.push_back(oneHypoMsg);
+    }
+
+    pub_message.publish(allHypoMsg);
+    main_disp->display(cim);
+    cnt++;
 }
 
 int main(int argc, char **argv)
 {
     // Set up ROS.
-    ros::init(argc, argv, "upper_body_detector");
+    ros::init(argc, argv, "tracker");
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
     string topic_depth_image;
     string topic_color_image;
     string topic_camera_info;
-    string pub_topic_result_image;
-    string pub_topic_gp;
+    string topic_gp;
+    string topic_groundHOG;
+    string topic_upperbody;
+    string topic_vo;
 
     string pub_topic;
 
@@ -426,44 +470,56 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
+
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
 
+    private_node_handle_.param("gp", topic_gp, string("/ground_plane"));
+    private_node_handle_.param("groundHOG", topic_groundHOG, string("/groundHOG/detections"));
+    private_node_handle_.param("upperbody", topic_upperbody, string("/upper_body_detector/detections"));
+    private_node_handle_.param("vo", topic_vo, string("/visual_odometry/motion_matrix"));
+
+
+
     // Create a subscriber.
-    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 50);
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 50);
-    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 50);
+    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 100);
+    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 100);
+    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 100);
 
-    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(10);
-    MySyncPolicy.setAgePenalty(10);
+    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 100);
+    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 100);
+    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 100);
+    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 100);
 
-    ReadUpperBodyTemplate();
+    sync_policies::ApproximateTime<Image, Image, CameraInfo, GroundPlane,
+            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicy(100);
+
+    //    MySyncPolicy.setAgePenalty(10);
+
     ReadConfigFile();
-    detector = new Detector();
+    det_comb = new Detections(23, 0);
 
+    main_disp = new CImgDisplay(cim, "HIGH level Tracking Results");
 
-    const sync_policies::ApproximateTime<Image, Image, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
+    const sync_policies::ApproximateTime<Image, Image, CameraInfo, GroundPlane,
+            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MyConstSyncPolicy = MySyncPolicy;
 
-    Synchronizer< sync_policies::ApproximateTime<Image, Image, CameraInfo> > sync(MyConstSyncPolicy,
-                                                                                  subscriber_depth, subscriber_color, subscriber_camera_info);
+    Synchronizer< sync_policies::ApproximateTime<Image, Image, CameraInfo, GroundPlane,
+            GroundHOGDetections, UpperBodyDetector, VisualOdometry> >
+            sync(MyConstSyncPolicy, subscriber_depth, subscriber_color, subscriber_camera_info, subscriber_gp,
+                 subscriber_groundHOG, subscriber_upperbody, subscriber_vo);
 
-    sync.registerCallback(boost::bind(&callback, _1, _2, _3));
+    sync.registerCallback(boost::bind(&callback, _1, _2, _3, _4, _5, _6, _7));
 
 
     // Create a topic publisher
-    private_node_handle_.param("upperbody_detections", pub_topic, string("/upper_body_detector/detections"));
-    pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic.c_str(), 10);
+    private_node_handle_.param("pedestrain_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
+    pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10);
 
-    private_node_handle_.param("upperbody_result_image", pub_topic_result_image, string("/upper_body_detector/image"));
-    pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
-
-    private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
-    pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10);
 
 
     ros::spin();
-
     return 0;
 }
 

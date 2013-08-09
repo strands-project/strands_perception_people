@@ -8,7 +8,7 @@
 #include <QPainter>
 
 #include "cudaHOG.h"
-#include "strands_perception_people_msgs/Detections.h"
+#include "strands_perception_people_msgs/GroundHOGDetections.h"
 
 using namespace std;
 /*--------------------------------------------------------------------
@@ -19,7 +19,7 @@ cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
 ros::Publisher pub_result_image;
 
-void render_bbox_2D(strands_perception_people_msgs::Detections& detections, QImage& image, int r, int g, int b, int lineWidth)
+void render_bbox_2D(strands_perception_people_msgs::GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
 {
 
     QPainter painter(&image);
@@ -66,7 +66,7 @@ void messageCallback(const sensor_msgs::Image::ConstPtr &msg)
 
    int w = 64, h = 128;
    
-   strands_perception_people_msgs::Detections detections;
+   strands_perception_people_msgs::GroundHOGDetections detections;
   
    detections.header = msg->header;
    for(unsigned int i=0;i<detHog.size();i++)
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
   ros::Subscriber sub_message = n.subscribe(topic.c_str(), 50, &messageCallback);
   
   private_node_handle_.param("topic", pub_topic, string("/groundHOG/detections"));
-  pub_message = n.advertise<strands_perception_people_msgs::Detections>(pub_topic.c_str(), 10);
+  pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
   
   private_node_handle_.param("topic", pub_image_topic, string("/groundHOG/image"));
   pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
