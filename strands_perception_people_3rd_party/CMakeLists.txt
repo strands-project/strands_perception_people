@@ -7,8 +7,8 @@ project(strands_perception_people_3rd_party)
 find_package(catkin REQUIRED)
 
 catkin_package(
-  INCLUDE_DIRS libcudaHOG/include
-  LIBRARIES cudaHOG
+#  INCLUDE_DIRS libcudaHOG/include
+#  LIBRARIES cudaHOG
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
