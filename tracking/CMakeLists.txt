@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(visual_odometry)
+project(tracking)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(PkgConfig REQUIRED)
-find_package(catkin REQUIRED COMPONENTS message_generation roscpp sensor_msgs std_msgs message_filters strands_perception_people_msgs cv_bridge)
-pkg_check_modules(EIGEN REQUIRED eigen3)
+find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp sensor_msgs std_msgs strands_perception_people_msgs)
 
-set(CMAKE_BUILD_TYPE Release)
+find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
+include(${QT_USE_FILE})
+
+set(CMAKE_BUILD_TYPE Debug)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-O3")        ## Optimize
@@ -30,7 +31,8 @@ endif()
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
-#   VisualOdometry.msg
+#   Message1.msg
+#   Message2.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -43,7 +45,7 @@ endif()
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs
+#   sensor_msgs#   std_msgs#   strands_perception_people_msgs
 # )
 
 ###################################
@@ -56,9 +58,9 @@ endif()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES visual_odometry
-#  CATKIN_DEPENDS libeigen3-dev message_generation roscpp sensor_msgs std_msgs
+  INCLUDE_DIRS include
+#  LIBRARIES tracking
+#  CATKIN_DEPENDS cv_bridge message_filters roscpp sensor_msgs std_msgs strands_perception_people_msgs
 #  DEPENDS system_lib
 )
 
@@ -69,30 +71,29 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
+include_directories( include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis
 )
 
-FILE(GLOB FOVIS_CPP ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis/*.cpp)
-FILE(GLOB FOVIS_C ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis/*.c)
-
 ## Declare a cpp library
-# add_library(visual_odometry
-#   src/${PROJECT_NAME}/visual_odometry.cpp
+# add_library(tracking
+#   src/${PROJECT_NAME}/tracking.cpp
 # )
 
 ## Declare a cpp executable
-add_executable(visual_odometry src/main.cpp ${FOVIS_CPP} ${FOVIS_C})
+add_executable(tracking src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/AncillaryMethods.cpp src/Hypo.cpp src/FrameInlier.cpp src/Detections.cpp src/EKalman.cpp src/Kalman.cpp src/Math.cpp src/MDL.cpp src/Tracker.cpp src/Visualization.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(visual_odometry strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
+add_dependencies(tracking strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(visual_odometry
+ target_link_libraries(tracking
    ${catkin_LIBRARIES}
+   ${QT_LIBRARIES}
+   ${QT_QTCORE_LIBRARY}
+   ${QT_QTGUI_LIBRARY}
+   X11
  )
 
 #############
@@ -110,7 +111,7 @@ add_dependencies(visual_odometry strands_perception_people_msgs_generate_message
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS visual_odometry visual_odometry_node
+# install(TARGETS tracking tracking_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -135,7 +136,7 @@ add_dependencies(visual_odometry strands_perception_people_msgs_generate_message
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_visual_odometry.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_tracking.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
