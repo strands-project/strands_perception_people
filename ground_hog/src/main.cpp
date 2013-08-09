@@ -129,10 +129,10 @@ int main(int argc, char **argv)
   // Create a subscriber.
   // Name the topic, message queue, callback function with class name, and object containing callback function.
   ros::Subscriber sub_message = n.subscribe(topic.c_str(), 50, &messageCallback);
-  
+
   private_node_handle_.param("topic", pub_topic, string("/groundHOG/detections"));
   pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
-  
+
   private_node_handle_.param("topic", pub_image_topic, string("/groundHOG/image"));
   pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
   

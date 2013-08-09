@@ -11,6 +11,12 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strand
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
 include(${QT_USE_FILE})
 
+set(CMAKE_BUILD_TYPE Release)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "-O3")        ## Optimize
+endif()
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
