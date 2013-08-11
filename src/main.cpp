@@ -1,16 +1,24 @@
 // ROS includes.
-#include "ros/ros.h"
-#include "ros/time.h"
-#include "sensor_msgs/Image.h"
+#include <ros/ros.h>
+#include <ros/time.h>
+#include <sensor_msgs/Image.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
 
-#include "string.h"
+#include <string.h>
 #include <QImage>
 #include <QPainter>
 
-#include "cudaHOG.h"
+#include <cudaHOG.h>
+
 #include "strands_perception_people_msgs/GroundHOGDetections.h"
+#include "strands_perception_people_msgs/GroundPlane.h"
 
 using namespace std;
+using namespace sensor_msgs;
+using namespace message_filters;
+using namespace strands_perception_people_msgs;
 /*--------------------------------------------------------------------
  * main()
  * Main function to set up ROS node.
@@ -19,7 +27,7 @@ cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
 ros::Publisher pub_result_image;
 
-void render_bbox_2D(strands_perception_people_msgs::GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
+void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
 {
 
     QPainter painter(&image);
@@ -46,7 +54,7 @@ void render_bbox_2D(strands_perception_people_msgs::GroundHOGDetections& detecti
     }
 }
 
-void messageCallback(const sensor_msgs::Image::ConstPtr &msg)
+void imageCallback(const Image::ConstPtr &msg)
 {
 
     std::vector<cudaHOG::Detection> detHog;
@@ -66,7 +74,7 @@ void messageCallback(const sensor_msgs::Image::ConstPtr &msg)
 
     int w = 64, h = 128;
 
-    strands_perception_people_msgs::GroundHOGDetections detections;
+    GroundHOGDetections detections;
 
     detections.header = msg->header;
     for(unsigned int i=0;i<detHog.size();i++)
@@ -90,7 +98,7 @@ void messageCallback(const sensor_msgs::Image::ConstPtr &msg)
     
     render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
     
-    sensor_msgs::Image sensor_image;
+    Image sensor_image;
     sensor_image.header = msg->header;
     sensor_image.height = image_rgb.height();
     sensor_image.width  = image_rgb.width();
@@ -102,6 +110,11 @@ void messageCallback(const sensor_msgs::Image::ConstPtr &msg)
     pub_message.publish(detections);
 } 
 
+void imageGroundPlaneCallback(const ImageConstPtr &color, const GroundPlaneConstPtr &gp)
+{
+
+}
+
 int main(int argc, char **argv)
 {
     // Set up ROS.
@@ -109,7 +122,8 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
-    string topic;
+    string image_color;
+    string ground_plane;
     string pub_topic;
     string pub_image_topic;
     string conf;
@@ -119,7 +133,8 @@ int main(int argc, char **argv)
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("model", conf, string(""));
-    private_node_handle_.param("image_color", topic, string("/camera/rgb/image_color"));
+    private_node_handle_.param("image_color", image_color, string("/camera/rgb/image_color"));
+    private_node_handle_.param("ground_plane", ground_plane, string(""));
     private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
     private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
 
@@ -137,7 +152,21 @@ int main(int argc, char **argv)
     // Create a subscriber.
     // Name the topic, message queue, callback function with class name, and object containing callback function.
     //The bigger the queue, the bigger the dealy. 1 is the most real-time.
-    ros::Subscriber sub_message = n.subscribe(topic.c_str(), 1, &messageCallback);
+    ros::Subscriber sub_message; //Subscribeers have to be defined out of the if scope to have affect.
+    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 1);
+    Subscriber<Image> subscriber_color(n, image_color.c_str(), 1);
+
+    if(strcmp(ground_plane.c_str(), "") == 0) {
+        sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
+    } else {
+        sync_policies::ApproximateTime<Image, GroundPlane> MySyncPolicy(10);
+        const sync_policies::ApproximateTime<Image, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
+        Synchronizer< sync_policies::ApproximateTime<Image, GroundPlane> > sync(MyConstSyncPolicy,
+                                                                                      subscriber_color,
+                                                                                      subscriber_ground_plane);
+
+        sync.registerCallback(boost::bind(&imageGroundPlaneCallback, _1, _2));
+    }
 
     // Create publishers
     pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
