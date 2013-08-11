@@ -57,7 +57,7 @@ Matrix<double> upper_body_template;
 Detector* detector;
 
 
-string path_config_file = "/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/config_Asus.inp";
+//string path_config_file = "/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/config_Asus.inp";
 
 
 void render_bbox_2D(strands_perception_people_msgs::UpperBodyDetector& detections, QImage& image,
@@ -88,7 +88,7 @@ void render_bbox_2D(strands_perception_people_msgs::UpperBodyDetector& detection
     }
 }
 
-void ReadConfigFile()
+void ReadConfigFile(string path_config_file)
 {
 
     ConfigFile config(path_config_file);
@@ -318,10 +318,10 @@ void ReadConfigFile()
     Globals::hog_score_thresh = config.read<float>("hog_score_thresh",0.4);
 }
 
-void ReadUpperBodyTemplate()
+void ReadUpperBodyTemplate(string template_path)
 {
     // read template from file
-    upper_body_template.ReadFromTXT("/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/upper_temp_n.txt", 150, 150);
+    upper_body_template.ReadFromTXT(template_path, 150, 150);
 
     // resize it to the fixed size that is defined in Config File
     if(upper_body_template.x_size() > Globals::template_size)
@@ -419,6 +419,8 @@ int main(int argc, char **argv)
     string topic_camera_info;
     string pub_topic_result_image;
     string pub_topic_gp;
+    string config_file;
+    string template_path;
 
     string pub_topic;
 
@@ -426,9 +428,22 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
+    private_node_handle_.param("config_file", config_file, string(""));
+    private_node_handle_.param("template_file", template_path, string(""));
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
+
+    if(strcmp(config_file.c_str(),"") == 0) {
+        ROS_ERROR("No config file specified.");
+        ROS_ERROR("Run with: rosrun strands_ground_hog groundHOG _config_file:=/path/to/config");
+        exit(0);
+    }
+    if(strcmp(template_path.c_str(),"") == 0) {
+        ROS_ERROR("No template file specified.");
+        ROS_ERROR("Run with: rosrun strands_ground_hog groundHOG _template_path:=/path/to/template");
+        exit(0);
+    }
 
     // Create a subscriber.
     message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 50);
@@ -438,8 +453,8 @@ int main(int argc, char **argv)
     sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(10);
     MySyncPolicy.setAgePenalty(10);
 
-    ReadUpperBodyTemplate();
-    ReadConfigFile();
+    ReadUpperBodyTemplate(template_path);
+    ReadConfigFile(config_file);
     detector = new Detector();
 
 
