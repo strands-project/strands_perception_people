@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>upper_body_detector</name>
+  <name>strands_upper_body_detector</name>
   <version>0.0.0</version>
   <description>The upper_body_detector package</description>
 
