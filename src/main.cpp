@@ -118,13 +118,18 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
-    private_node_handle_.getParam("model", conf);
+    private_node_handle_.param("model", conf, string(""));
     private_node_handle_.param("image_color", topic, string("/camera/rgb/image_color"));
     private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
     private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
 
 
     //Initialise cudaHOG
+    if(strcmp(conf.c_str(),"") == 0) {
+        ROS_ERROR("No model path specified.");
+        ROS_ERROR("Run with: rosrun strands_ground_hog groundHOG _model:=/path/to/model");
+        exit(0);
+    }
     hog = new  cudaHOG::cudaHOGManager();
     hog->read_params_file(conf);
     hog->load_svm_models();
