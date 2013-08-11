@@ -1,0 +1,8 @@
+<launch>
+  <arg name="model_dir" default="$(find ground_hog)/model/config" />
+
+  <node pkg="ground_hog" type="groundHOG" name="groundHOG">
+		<param name="model" value="$(arg model_dir)" type="string"/>
+	</node>
+
+</launch> 
