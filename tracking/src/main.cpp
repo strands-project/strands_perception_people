@@ -52,7 +52,7 @@ ros::Publisher pub_message;
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
-string path_config_file = "/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/config_Asus.inp";
+//string path_config_file = "/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/config_Asus.inp";
 
 Vector< Hypo > HyposAll;
 Detections *det_comb;
@@ -117,7 +117,7 @@ void get_image(unsigned char* b_image, uint w, uint h, CImg<unsigned char>& cim)
     }
 }
 
-void ReadConfigFile()
+void ReadConfigFile(string path_config_file)
 {
 
     ConfigFile config(path_config_file);
@@ -456,6 +456,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
+    string config_file;
     string topic_depth_image;
     string topic_color_image;
     string topic_camera_info;
@@ -470,7 +471,7 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
-
+    private_node_handle_.param("config_file", config_file, string(""));
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
@@ -480,7 +481,11 @@ int main(int argc, char **argv)
     private_node_handle_.param("upperbody", topic_upperbody, string("/upper_body_detector/detections"));
     private_node_handle_.param("vo", topic_vo, string("/visual_odometry/motion_matrix"));
 
-
+    if(strcmp(config_file.c_str(),"") == 0) {
+        ROS_ERROR("No config file specified.");
+        ROS_ERROR("Run with: rosrun strands_pedestrian_tracking pedestrian_tracking _config_file:=/path/to/config");
+        exit(0);
+    }
 
     // Create a subscriber.
     message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 100);
@@ -497,7 +502,7 @@ int main(int argc, char **argv)
 
     //    MySyncPolicy.setAgePenalty(10);
 
-    ReadConfigFile();
+    ReadConfigFile(config_file);
     det_comb = new Detections(23, 0);
 
     main_disp = new CImgDisplay(cim, "HIGH level Tracking Results");
