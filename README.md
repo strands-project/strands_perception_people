@@ -16,6 +16,6 @@ As mentioned the cmake file will take care of almost everything. Just follow the
 * Create a build directory to keep it clean: `mkdir build; cd build`
 * Run cmake: `cmake ..` _This will install everything to /usr/local and requires sudo rights._
 	* To install it in a custom location: `cmake .. -DCMAKE_INSTALL_PREFIX=/my/path/`
-	* If you choose to install it in a custom location, you have to make sure that pkg-config finds it: `export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/my/path/lib/pkgconfig` _You can also add this to your .bashrc if you want but we only want to do this once so there is no real need to do it. If you installed the library to /usr/local, you do not have to export any paths._
+	* If you choose to install it in a custom location, you have to make sure that pkg-config finds it: `export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/my/path/lib/pkgconfig` _You can add this to your .bashrc because other projects may need to find it during compile time. If you installed the library to `/usr/local`, you do not have to export any paths._
 * Run make: `make`. _This will download, unpack and build the files._
 * Install library and headers: `sudo make install` _Omit the sudo if you chose a custom destination that does not require sudo rights._
