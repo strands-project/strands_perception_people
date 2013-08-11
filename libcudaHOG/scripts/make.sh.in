@@ -1,7 +1,0 @@
-#!/bin/bash
-
-### Add cuda to the PATH variable just to make sure that nvcc can be found.
-PATH=@CUDA@/bin:$PATH
-
-### Call generated Makefile
-make

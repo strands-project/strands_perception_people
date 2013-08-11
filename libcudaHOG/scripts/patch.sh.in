@@ -1,4 +1,0 @@
-#!/bin/bash
-
-### Append the rpath stetment to the qmake project file to allow linking without LD_LIBRARY_PATH
-echo "QMAKE_LFLAGS += -Wl,-rpath=@CUDA@/lib64" >> @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG/cudaHOG/cudaHOG.pro
