@@ -1,6 +1,0 @@
-#!/bin/bash
-
-cp -v @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG/cudaHOG/*.h @CMAKE_INSTALL_PREFIX@/include/cudaHOG/
-cp -vr @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG/cudaHOG/ext @CMAKE_INSTALL_PREFIX@/include/cudaHOG/
-cp -v @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/src/libcudaHOG-build/cudaHOG/libcudaHOG.so* @CMAKE_INSTALL_PREFIX@/lib
-cp -v @CMAKE_CURRENT_BINARY_DIR@/libcudaHOG/pkgconfig/cudaHOG.pc @CMAKE_INSTALL_PREFIX@/lib/pkgconfig
