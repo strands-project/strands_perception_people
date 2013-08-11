@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>tracking</name>
+  <name>strands_pedestrian_tracking</name>
   <version>0.0.0</version>
   <description>The tracking package</description>
 

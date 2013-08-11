@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(tracking)
+project(strands_pedestrian_tracking)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -71,7 +71,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories( include
+include_directories(include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -81,14 +81,14 @@ include_directories( include
 # )
 
 ## Declare a cpp executable
-add_executable(tracking src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/AncillaryMethods.cpp src/Hypo.cpp src/FrameInlier.cpp src/Detections.cpp src/EKalman.cpp src/Kalman.cpp src/Math.cpp src/MDL.cpp src/Tracker.cpp src/Visualization.cpp)
+add_executable(pedestrian_tracking src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/AncillaryMethods.cpp src/Hypo.cpp src/FrameInlier.cpp src/Detections.cpp src/EKalman.cpp src/Kalman.cpp src/Math.cpp src/MDL.cpp src/Tracker.cpp src/Visualization.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(tracking strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
+add_dependencies(pedestrian_tracking strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(tracking
+ target_link_libraries(pedestrian_tracking
    ${catkin_LIBRARIES}
    ${QT_LIBRARIES}
    ${QT_QTCORE_LIBRARY}
