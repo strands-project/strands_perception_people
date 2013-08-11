@@ -1,0 +1,5 @@
+<launch>
+  
+  <node pkg="strands_visual_odometry" type="visual_odometry" name="visual_odometry" />
+
+</launch> 

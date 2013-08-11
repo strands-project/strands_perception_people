@@ -1,16 +1,15 @@
 // ROS includes.
-#include "ros/ros.h"
-#include "ros/time.h"
+#include <ros/ros.h>
+#include <ros/time.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-#include "sensor_msgs/Image.h"
-#include "sensor_msgs/CameraInfo.h"
-#include "strands_perception_people_msgs/VisualOdometry.h"
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/CameraInfo.h>
 
-#include "string.h"
-#include "boost/thread.hpp"
+#include <string.h>
+#include <boost/thread.hpp>
 
 #include "fovis.hpp"
 #include <iostream>
@@ -18,13 +17,14 @@
 
 #include <cv_bridge/cv_bridge.h>
 
-
+#include "strands_perception_people_msgs/VisualOdometry.h"
 
 
 
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
+using namespace strands_perception_people_msgs;
 
 //sensor_msgs::CameraInfo* camera_info = NULL;
 //boost::mutex camera_info_mutex;
@@ -71,7 +71,7 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     Eigen::Isometry3d cam_to_local = odom->getPose();
     Eigen::Matrix4d m1 = cam_to_local.matrix().inverse();
 
-    strands_perception_people_msgs::VisualOdometry fovis_info_msg;
+    VisualOdometry fovis_info_msg;
     fovis_info_msg.header = image->header;
 
     fovis_info_msg.change_reference_frame =
@@ -141,9 +141,9 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
 
     // Create a subscriber.
-    message_filters::Subscriber<Image> subscriber_mono(n, topic_image_mono.c_str(), 50);
-    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 50);
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 50);
+    Subscriber<Image> subscriber_mono(n, topic_image_mono.c_str(), 50);
+    Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 50);
+    Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 50);
 
     sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(10);
     MySyncPolicy.setAgePenalty(10);
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
     sync.registerCallback(boost::bind(&callback, _1, _2, _3));
     // Create a topic publisher
     private_node_handle_.param("motion_parameters", pub_topic, string("/visual_odometry/motion_matrix"));
-    pub_message = n.advertise<strands_perception_people_msgs::VisualOdometry>(pub_topic.c_str(), 10);
+    pub_message = n.advertise<VisualOdometry>(pub_topic.c_str(), 10);
 
     ros::spin();
 
