@@ -114,7 +114,6 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   // Declare variables that can be modified by launch file or command line.
-  int rate;
   string topic;
   string pub_topic;
   string pub_image_topic;
@@ -123,12 +122,12 @@ int main(int argc, char **argv)
   // Use a private node handle so that multiple instances of the node can be run simultaneously
   // while using different parameters.
   ros::NodeHandle private_node_handle_("~");
-  private_node_handle_.param("rate", rate, int(40));
   private_node_handle_.param("topic", topic, string("/camera/rgb/image_color"));
 
   // Create a subscriber.
   // Name the topic, message queue, callback function with class name, and object containing callback function.
-  ros::Subscriber sub_message = n.subscribe(topic.c_str(), 50, &messageCallback);
+	//The bigger the queue, the bigger the dealy. 1 is the most real-time.
+  ros::Subscriber sub_message = n.subscribe(topic.c_str(), 1, &messageCallback);
 
   private_node_handle_.param("topic", pub_topic, string("/groundHOG/detections"));
   pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
