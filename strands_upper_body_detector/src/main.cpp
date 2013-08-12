@@ -441,7 +441,7 @@ int main(int argc, char **argv)
     }
     if(strcmp(template_path.c_str(),"") == 0) {
         ROS_ERROR("No template file specified.");
-        ROS_ERROR("Run with: rosrun strands_upper_body_detector upper_body_detector _template_path:=/path/to/template");
+        ROS_ERROR("Run with: rosrun strands_upper_body_detector upper_body_detector _template_file:=/path/to/template");
         exit(0);
     }
 
