@@ -119,8 +119,6 @@ void imageCallback(const Image::ConstPtr &msg)
 void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstPtr &camera_info,
                               const GroundPlaneConstPtr &gp)
 {
-
-    ROS_INFO("Entered the Callback");
     std::vector<cudaHOG::Detection> detHog;
 
     //  unsigned char image
@@ -138,13 +136,28 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
     Matrix<float> R = Eye<float>(3);
     Vector<float> t(3, 0.0);
     // Get GP
-    Vector<float> GPN(3, (float*) &gp->n[0]);
-    float GPd = ((float) gp->d)*(-1000.0);
+    Vector<double> GPN(3, (double*) &gp->n[0]);
+    double GPd = ((double) gp->d)*(-1000.0);
+    Matrix<double> K(3,3, (double*)&camera_info->K[0]);
 
-    Matrix<float> K(3,3, (float*)&camera_info->K[0]);
+    Vector<float> float_GPN(3);
+    float_GPN(0) = float(GPN(0));
+    float_GPN(1) = float(GPN(1));
+    float_GPN(2) = float(GPN(2));
 
-    hog->set_camera(R.data(), K.data(), t.data());
-    hog->set_groundplane(GPN.data(), &GPd);
+    float float_GPd = (float) GPd;
+    Matrix<float> float_K(3,3);
+    float_K(0,0) = K(0,0); float_K(1,0) = K(1,0); float_K(2,0) = K(2,0);
+    float_K(1,1) = K(1,1); float_K(0,1) = K(0,1); float_K(2,1) = K(2,1);
+    float_K(2,2) = K(2,2); float_K(0,2) = K(0,2); float_K(1,2) = K(1,2);
+
+
+//    float_K.Show();
+//    float_GPN.show();
+//    printf("%f\n", float_GPd);
+
+    hog->set_camera(R.data(), float_K.data(), t.data());
+    hog->set_groundplane(float_GPN.data(), &float_GPd);
     try
     {
         hog->prepare_roi_by_groundplane();
@@ -245,14 +258,13 @@ int main(int argc, char **argv)
     Subscriber<Image> subscriber_color(n, image_color.c_str(), 50);
     Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 50);
 
-    if(strcmp(ground_plane.c_str(), "") == 0)
-    {
-        sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
-    }
-    else
-    {
+//    if(strcmp(ground_plane.c_str(), "") == 0)
+//    {
+//        sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
+//    }
+//    else
+//    {
         sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(10);
-        MySyncPolicy.setAgePenalty(10);
 
         const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
 
@@ -262,7 +274,7 @@ int main(int argc, char **argv)
                                                                                             subscriber_ground_plane);
 
         sync.registerCallback(boost::bind(&imageGroundPlaneCallback, _1, _2, _3));
-    }
+//    }
 
     // Create publishers
     pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
