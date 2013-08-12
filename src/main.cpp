@@ -1,5 +1,7 @@
 // ROS includes.
 #include <ros/ros.h>
+
+#if WITH_CUDA
 #include <ros/time.h>
 #include <sensor_msgs/Image.h>
 #include "sensor_msgs/CameraInfo.h"
@@ -12,6 +14,7 @@
 #include <string.h>
 #include <QImage>
 #include <QPainter>
+
 
 #include <cudaHOG.h>
 
@@ -279,4 +282,18 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+#else
+
+int main(int argc, char **argv)
+{
+    // Set up ROS.
+    ros::init(argc, argv, "groundHOG");
+    ros::NodeHandle n;
+    ROS_ERROR("strands_ground_hog package has been compiled without libcudaHOG.");
+    ROS_ERROR("Please see strands_perception_people/3rd_party for instructions.");
+    ROS_ERROR("This node will have no functionality unless compiled with cuda support.");
+}
+
+#endif
 
