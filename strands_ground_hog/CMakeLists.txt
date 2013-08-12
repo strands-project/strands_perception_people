@@ -6,7 +6,7 @@ project(strands_ground_hog)
 ## is used, also find other catkin packages
 find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs message_filters)
-pkg_check_modules(CUDAHOG REQUIRED cudaHOG)
+pkg_check_modules(CUDAHOG cudaHOG)
 
 ## Include Qt
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
@@ -17,6 +17,12 @@ set(CMAKE_BUILD_TYPE Release)
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-O3")        ## Optimize
 endif()
+
+if(CUDAHOG_FOUND)
+    add_definitions(-DWITH_CUDA)
+else(CUDAHOG_FOUND)
+    message(WARNING "libcudaHOG not found: Compiling strands_ground_hog without any functionality. This is just a convenience function to not break compilation on systems without NVIDIA graphics cards. People detection will work without the ground_hog but won't be able to detect people far away from the robot. Please install libcudaHOG from the strands_perception_people/3rd_party directory if possible.")
+endif(CUDAHOG_FOUND)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
