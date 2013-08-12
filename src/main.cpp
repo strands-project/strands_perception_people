@@ -2,9 +2,12 @@
 #include <ros/ros.h>
 #include <ros/time.h>
 #include <sensor_msgs/Image.h>
+#include "sensor_msgs/CameraInfo.h"
+
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+
 
 #include <string.h>
 #include <QImage>
@@ -14,6 +17,9 @@
 
 #include "strands_perception_people_msgs/GroundHOGDetections.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
+
+#include "Matrix.h"
+#include "Vector.h"
 
 using namespace std;
 using namespace sensor_msgs;
@@ -95,9 +101,9 @@ void imageCallback(const Image::ConstPtr &msg)
         detections.height.push_back(height);
 
     }
-    
+
     render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
-    
+
     Image sensor_image;
     sensor_image.header = msg->header;
     sensor_image.height = image_rgb.height();
@@ -108,10 +114,86 @@ void imageCallback(const Image::ConstPtr &msg)
 
     pub_result_image.publish(sensor_image);
     pub_message.publish(detections);
-} 
+}
 
-void imageGroundPlaneCallback(const ImageConstPtr &color, const GroundPlaneConstPtr &gp)
+void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstPtr &camera_info,
+                              const GroundPlaneConstPtr &gp)
 {
+
+    ROS_INFO("Entered the Callback");
+    std::vector<cudaHOG::Detection> detHog;
+
+    //  unsigned char image
+    QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888);
+    int returnPrepare = hog->prepare_image(image_rgb.convertToFormat(QImage::Format_ARGB32).bits(),
+                                           (short unsigned int) color->width, (short unsigned int) color->height);
+
+    if(returnPrepare)
+    {
+        ROS_ERROR("Error by preparing the image");
+        return;
+    }
+
+    // Generate base camera
+    Matrix<float> R = Eye<float>(3);
+    Vector<float> t(3, 0.0);
+    // Get GP
+    Vector<float> GPN(3, (float*) &gp->n[0]);
+    float GPd = ((float) gp->d)*(-1000.0);
+
+    Matrix<float> K(3,3, (float*)&camera_info->K[0]);
+
+    hog->set_camera(R.data(), K.data(), t.data());
+    hog->set_groundplane(GPN.data(), &GPd);
+    try
+    {
+        hog->prepare_roi_by_groundplane();
+        hog->test_image(detHog);
+
+    }
+    catch(...)
+    {
+        ROS_ERROR("GroundHOG: Extracted Ground Plane can not be used for computation of ROIs");
+    }
+
+    hog->release_image();
+
+    int w = 64, h = 128;
+
+    GroundHOGDetections detections;
+
+    detections.header = color->header;
+    for(unsigned int i=0;i<detHog.size();i++)
+    {
+
+        float scale = detHog[i].scale;
+
+        float width = (w - 32.0f)*scale;
+        float height = (h - 32.0f)*scale;
+        float x = (detHog[i].x + 16.0f*scale);
+        float y = (detHog[i].y + 16.0f*scale);
+
+        detections.scale.push_back(detHog[i].scale);
+        detections.score.push_back(detHog[i].score);
+        detections.pos_x.push_back(x);
+        detections.pos_y.push_back(y);
+        detections.width.push_back(width);
+        detections.height.push_back(height);
+
+    }
+
+    render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
+
+    Image sensor_image;
+    sensor_image.header = color->header;
+    sensor_image.height = image_rgb.height();
+    sensor_image.width  = image_rgb.width();
+    vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
+    sensor_image.data = image_bits;
+    sensor_image.encoding = color->encoding;
+
+    pub_result_image.publish(sensor_image);
+    pub_message.publish(detections);
 
 }
 
@@ -124,6 +206,7 @@ int main(int argc, char **argv)
     // Declare variables that can be modified by launch file or command line.
     string image_color;
     string ground_plane;
+    string camera_info;
     string pub_topic;
     string pub_image_topic;
     string conf;
@@ -133,8 +216,13 @@ int main(int argc, char **argv)
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("model", conf, string(""));
+
     private_node_handle_.param("image_color", image_color, string("/camera/rgb/image_color"));
-    private_node_handle_.param("ground_plane", ground_plane, string(""));
+    private_node_handle_.param("camera_info", camera_info, string("/camera/rgb/camera_info"));
+    private_node_handle_.param("ground_plane", ground_plane, string("/ground_plane"));
+
+
+
     private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
     private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
 
@@ -153,19 +241,27 @@ int main(int argc, char **argv)
     // Name the topic, message queue, callback function with class name, and object containing callback function.
     //The bigger the queue, the bigger the dealy. 1 is the most real-time.
     ros::Subscriber sub_message; //Subscribeers have to be defined out of the if scope to have affect.
-    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 1);
-    Subscriber<Image> subscriber_color(n, image_color.c_str(), 1);
+    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 50);
+    Subscriber<Image> subscriber_color(n, image_color.c_str(), 50);
+    Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 50);
 
-    if(strcmp(ground_plane.c_str(), "") == 0) {
+    if(strcmp(ground_plane.c_str(), "") == 0)
+    {
         sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
-    } else {
-        sync_policies::ApproximateTime<Image, GroundPlane> MySyncPolicy(10);
-        const sync_policies::ApproximateTime<Image, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
-        Synchronizer< sync_policies::ApproximateTime<Image, GroundPlane> > sync(MyConstSyncPolicy,
-                                                                                      subscriber_color,
-                                                                                      subscriber_ground_plane);
+    }
+    else
+    {
+        sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(10);
+        MySyncPolicy.setAgePenalty(10);
 
-        sync.registerCallback(boost::bind(&imageGroundPlaneCallback, _1, _2));
+        const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
+
+        Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> > sync(MyConstSyncPolicy,
+                                                                                            subscriber_color,
+                                                                                            subscriber_camera_info,
+                                                                                            subscriber_ground_plane);
+
+        sync.registerCallback(boost::bind(&imageGroundPlaneCallback, _1, _2, _3));
     }
 
     // Create publishers
