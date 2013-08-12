@@ -1,9 +1,10 @@
 <launch>
   <arg name="model_dir" default="$(find strands_ground_hog)/model/config" />
+  <arg name="gp_topic" default="/ground_plane" />
 
   <node pkg="strands_ground_hog" type="groundHOG" name="groundHOG" output="screen">
 		<param name="model" value="$(arg model_dir)" type="string"/>
-                <param name="ground_plane" value="" type="string"/>
-	</node>
+                <param name="ground_plane" value="$(arg gp_topic)" type="string"/>
+  </node>
 
 </launch> 

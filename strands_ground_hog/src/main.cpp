@@ -25,10 +25,9 @@ using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_perception_people_msgs;
-/*--------------------------------------------------------------------
- * main()
- * Main function to set up ROS node.
- *------------------------------------------------------------------*/
+
+
+
 cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
 ros::Publisher pub_result_image;
@@ -62,7 +61,7 @@ void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g
 
 void imageCallback(const Image::ConstPtr &msg)
 {
-
+//    ROS_INFO("Entered img callback");
     std::vector<cudaHOG::Detection> detHog;
 
     //  unsigned char image
@@ -71,7 +70,7 @@ void imageCallback(const Image::ConstPtr &msg)
 
     if(returnPrepare)
     {
-        ROS_ERROR("Error by preparing the image");
+        ROS_ERROR("Error while preparing the image");
         return;
     }
 
@@ -119,6 +118,7 @@ void imageCallback(const Image::ConstPtr &msg)
 void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstPtr &camera_info,
                               const GroundPlaneConstPtr &gp)
 {
+//    ROS_INFO("Entered gp-img callback");
     std::vector<cudaHOG::Detection> detHog;
 
     //  unsigned char image
@@ -152,9 +152,9 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
     float_K(2,2) = K(2,2); float_K(0,2) = K(0,2); float_K(1,2) = K(1,2);
 
 
-//    float_K.Show();
-//    float_GPN.show();
-//    printf("%f\n", float_GPd);
+    //    float_K.Show();
+    //    float_GPN.show();
+    //    printf("%f\n", float_GPd);
 
     hog->set_camera(R.data(), float_K.data(), t.data());
     hog->set_groundplane(float_GPN.data(), &float_GPd);
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("image_color", image_color, string("/camera/rgb/image_color"));
     private_node_handle_.param("camera_info", camera_info, string("/camera/rgb/camera_info"));
-    private_node_handle_.param("ground_plane", ground_plane, string("/ground_plane"));
+    private_node_handle_.param("ground_plane", ground_plane, string(""));
 
 
 
@@ -253,28 +253,23 @@ int main(int argc, char **argv)
     // Create a subscriber.
     // Name the topic, message queue, callback function with class name, and object containing callback function.
     //The bigger the queue, the bigger the dealy. 1 is the most real-time.
-    ros::Subscriber sub_message; //Subscribeers have to be defined out of the if scope to have affect.
+    ros::Subscriber sub_message; //Subscribers have to be defined out of the if scope to have affect.
     Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 50);
     Subscriber<Image> subscriber_color(n, image_color.c_str(), 50);
     Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 50);
 
-//    if(strcmp(ground_plane.c_str(), "") == 0)
-//    {
-//        sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
-//    }
-//    else
-//    {
-        sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(10);
+    sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(100);
+    const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
+    Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> > sync(MyConstSyncPolicy,
+                                                                                        subscriber_color,
+                                                                                        subscriber_camera_info,
+                                                                                        subscriber_ground_plane);
 
-        const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
-
-        Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> > sync(MyConstSyncPolicy,
-                                                                                            subscriber_color,
-                                                                                            subscriber_camera_info,
-                                                                                            subscriber_ground_plane);
-
+    if(strcmp(ground_plane.c_str(), "") == 0) {
+        sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
+    } else {
         sync.registerCallback(boost::bind(&imageGroundPlaneCallback, _1, _2, _3));
-//    }
+    }
 
     // Create publishers
     pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
