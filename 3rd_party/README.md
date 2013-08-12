@@ -19,3 +19,9 @@ As mentioned the cmake file will take care of almost everything. Just follow the
 	* If you choose to install it in a custom location, you have to make sure that pkg-config finds it: `export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/my/path/lib/pkgconfig` _You can add this to your .bashrc because other projects may need to find it during compile time. If you installed the library to `/usr/local`, you do not have to export any paths._
 * Run make: `make`. _This will download, unpack and build the files._
 * Install library and headers: `sudo make install` _Omit the sudo if you chose a custom destination that does not require sudo rights._
+
+## Troubleshooting
+* If you are on a 32bit system, you will get an error when linking the library: `/usr/bin/ld: cannot find -lcudart`. To get rid of this you have to:
+	* Edit the `build/libcudaHOG/src/libcudaHOG/cudaHOG/cudaHOG.pro` file. _Note: you have to run make before doing so because this will download and unzip the tarball. Otherwise you do not have that file._ 
+	* Find the line that says: `LIBS += -lcudart -L/usr/local/cuda/lib64` and change it to: `LIBS += -lcudart -L/usr/local/cuda/lib`.
+	* Now run `make` again.
