@@ -2,10 +2,12 @@
 #include "Globals.h"
 #include "Vector.h"
 
+#include <limits.h>
+
 ROI::ROI()
 {
-    min_x = min_y = 1e10;
-    max_x = max_y = 1e-10;
+    min_x = min_y = INT_MAX;
+    max_x = max_y = INT_MIN;
     has_any_point = false;
 }
 
