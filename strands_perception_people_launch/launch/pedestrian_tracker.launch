@@ -17,7 +17,8 @@
 		<arg name="ground_hog_image" default="/groundHOG/image" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
-    <arg name="pedestrain_array" default="/pedestrian_tracking/pedestrian_array" />
+    <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
+    <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
 
 		<!-- Ground HOG -->
 		<include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch"/>
@@ -60,6 +61,7 @@
     <param name="pedestrian_tracking/ground_hog" value="$(arg ground_hog_detections)" type="string"/>
     <param name="pedestrian_tracking/upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
     <param name="pedestrian_tracking/visual_odometry" value="$(arg visual_odometry)" type="string"/>
-    <param name="pedestrian_tracking/pedestrain_array" value="$(arg pedestrain_array)" type="string"/>
+    <param name="pedestrian_tracking/pedestrain_array" value="$(arg pedestrian_array)" type="string"/>
+    <param name="pedestrian_tracking/pedestrian_image" value="$(arg pedestrian_image)" type="string"/>
 
 </launch> 

@@ -48,6 +48,7 @@ using namespace strands_perception_people_msgs;
  * Main function to set up ROS node.
  *------------------------------------------------------------------*/
 ros::Publisher pub_message;
+ros::Publisher pub_image;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -444,8 +445,19 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
         allHypoMsg.pedestrians.push_back(oneHypoMsg);
     }
 
+    Image res_img;
+    res_img.header = depth->header;
+    res_img.height = cim._height;
+    res_img.width = cim._width;
+    for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
+        res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
+        res_img.data.push_back(cim.data()[i+1*cim._height*cim._width]);
+        res_img.data.push_back(cim.data()[i+2*cim._height*cim._width]);
+    }
+    res_img.encoding = color->encoding;
+
     pub_message.publish(allHypoMsg);
-    main_disp->display(cim);
+    pub_image.publish(res_img);
     cnt++;
 }
 
@@ -467,6 +479,7 @@ int main(int argc, char **argv)
     string topic_vo;
 
     string pub_topic;
+    string pub_image_topic;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
@@ -523,8 +536,11 @@ int main(int argc, char **argv)
 
 
     // Create a topic publisher
-    private_node_handle_.param("pedestrain_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
+    private_node_handle_.param("pedestrian_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
     pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10);
+
+    private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
+    pub_image = n.advertise<Image>(pub_image_topic.c_str(), 10);
 
 
 
