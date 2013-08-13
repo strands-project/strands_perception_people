@@ -235,7 +235,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(20));
     private_node_handle_.param("model", conf, string(""));
 
-    private_node_handle_.param("image_color", image_color, string("/camera/rgb/image_color"));
+    private_node_handle_.param("color_image", image_color, string("/camera/rgb/image_color"));
     private_node_handle_.param("camera_info", camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("ground_plane", ground_plane, string(""));
 
