@@ -18,6 +18,7 @@ rosrun strands_visual_odometry visual_odometry [_parameter_name:=value]
 roslaunch:
 ```
 roslaunch strands_visual_odometry visual_odometry.launch [parameter_name:=value]
+```
 
 ### Troubleshooting
 If you get an error message that states: 
