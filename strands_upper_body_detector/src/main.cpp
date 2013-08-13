@@ -473,10 +473,10 @@ int main(int argc, char **argv)
 
 
     // Create a topic publisher
-    private_node_handle_.param("upperbody_detections", pub_topic, string("/upper_body_detector/detections"));
+    private_node_handle_.param("upper_body_detections", pub_topic, string("/upper_body_detector/detections"));
     pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic.c_str(), 10);
 
-    private_node_handle_.param("upperbody_result_image", pub_topic_result_image, string("/upper_body_detector/image"));
+    private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
 
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));

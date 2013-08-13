@@ -478,10 +478,10 @@ int main(int argc, char **argv)
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
-    private_node_handle_.param("gp", topic_gp, string("/ground_plane"));
-    private_node_handle_.param("groundHOG", topic_groundHOG, string("/groundHOG/detections"));
-    private_node_handle_.param("upperbody", topic_upperbody, string("/upper_body_detector/detections"));
-    private_node_handle_.param("vo", topic_vo, string("/visual_odometry/motion_matrix"));
+    private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
+    private_node_handle_.param("ground_hog", topic_groundHOG, string("/groundHOG/detections"));
+    private_node_handle_.param("upper_body_detections", topic_upperbody, string("/upper_body_detector/detections"));
+    private_node_handle_.param("visual_odometry", topic_vo, string("/visual_odometry/motion_matrix"));
 
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");
