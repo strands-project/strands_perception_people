@@ -64,7 +64,7 @@ void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g
 
 void imageCallback(const Image::ConstPtr &msg)
 {
-//    ROS_INFO("Entered img callback");
+    //    ROS_INFO("Entered img callback");
     std::vector<cudaHOG::Detection> detHog;
 
     //  unsigned char image
@@ -121,7 +121,7 @@ void imageCallback(const Image::ConstPtr &msg)
 void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstPtr &camera_info,
                               const GroundPlaneConstPtr &gp)
 {
-//    ROS_INFO("Entered gp-img callback");
+    //    ROS_INFO("Entered gp-img callback");
     std::vector<cudaHOG::Detection> detHog;
 
     //  unsigned char image
@@ -157,22 +157,22 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
 
     //    float_K.Show();
     //    float_GPN.show();
-    //    printf("%f\n", float_GPd);
+    //    printf("%f\n", float_GPd)
 
-    hog->set_camera(R.data(), float_K.data(), t.data());
-    hog->set_groundplane(float_GPN.data(), &float_GPd);
     try
     {
+        hog->set_camera(R.data(), float_K.data(), t.data());
+        hog->set_groundplane(float_GPN.data(), &float_GPd);
         hog->prepare_roi_by_groundplane();
         hog->test_image(detHog);
-
+        hog->release_image();
     }
     catch(...)
     {
-        ROS_ERROR("GroundHOG: Extracted Ground Plane can not be used for computation of ROIs");
+        ROS_WARN("GroundHOG: Extracted Ground Plane can not be used for computation of ROIs");
     }
 
-    hog->release_image();
+
 
     int w = 64, h = 128;
 
