@@ -127,6 +127,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
+    int queue_size;
     string topic_image_mono;
     string topic_depth_image;
     string topic_camera_info;
@@ -136,17 +137,22 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
+    private_node_handle_.param("queue_size", queue_size, int(5));
     private_node_handle_.param("mono_image", topic_image_mono, string("/camera/rgb/image_mono"));
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
 
-    // Create a subscriber.
-    Subscriber<Image> subscriber_mono(n, topic_image_mono.c_str(), 50);
-    Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 50);
-    Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 50);
+    ROS_DEBUG("visual_odometry: Queue size for synchronisation is set to: %i", queue_size);
 
-    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(10);
-    MySyncPolicy.setAgePenalty(10);
+    // Create a subscriber.
+    // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
+    Subscriber<Image> subscriber_mono(n, topic_image_mono.c_str(), 1);
+    Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
+    Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+
+    //The real queue size for synchronisation is set here.
+    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(queue_size);
+    MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     const sync_policies::ApproximateTime<Image, Image, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
 

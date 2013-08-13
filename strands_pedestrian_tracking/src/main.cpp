@@ -452,10 +452,11 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
 int main(int argc, char **argv)
 {
     // Set up ROS.
-    ros::init(argc, argv, "tracker");
+    ros::init(argc, argv, "pedestrian_tracking");
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
+    int queue_size;
     string config_file;
     string topic_depth_image;
     string topic_color_image;
@@ -471,15 +472,16 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
+    private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("config_file", config_file, string(""));
+
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
-
-    private_node_handle_.param("gp", topic_gp, string("/ground_plane"));
-    private_node_handle_.param("groundHOG", topic_groundHOG, string("/groundHOG/detections"));
-    private_node_handle_.param("upperbody", topic_upperbody, string("/upper_body_detector/detections"));
-    private_node_handle_.param("vo", topic_vo, string("/visual_odometry/motion_matrix"));
+    private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
+    private_node_handle_.param("ground_hog", topic_groundHOG, string("/groundHOG/detections"));
+    private_node_handle_.param("upper_body_detections", topic_upperbody, string("/upper_body_detector/detections"));
+    private_node_handle_.param("visual_odometry", topic_vo, string("/visual_odometry/motion_matrix"));
 
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");
@@ -487,20 +489,22 @@ int main(int argc, char **argv)
         exit(0);
     }
 
+    ROS_DEBUG("pedestrian_tracker: Queue size for synchronisation is set to: %i", queue_size);
+
     // Create a subscriber.
-    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 100);
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 100);
-    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 100);
+    // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
+    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
+    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
+    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1);
+    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1);
+    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 1);
+    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 1);
 
-    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 100);
-    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 100);
-    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 100);
-    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 100);
-
+    //The real queue size for synchronisation is set here.
     sync_policies::ApproximateTime<Image, Image, CameraInfo, GroundPlane,
-            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicy(100);
-
-    //    MySyncPolicy.setAgePenalty(10);
+            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicy(queue_size);
+    MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     ReadConfigFile(config_file);
     det_comb = new Detections(23, 0);
