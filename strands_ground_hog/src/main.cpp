@@ -220,6 +220,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
+    int queue_size;
     string image_color;
     string ground_plane;
     string camera_info;
@@ -231,6 +232,7 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
+    private_node_handle_.param("queue_size", queue_size, int(20));
     private_node_handle_.param("model", conf, string(""));
 
     private_node_handle_.param("image_color", image_color, string("/camera/rgb/image_color"));
@@ -249,6 +251,9 @@ int main(int argc, char **argv)
         ROS_ERROR("Run with: rosrun strands_ground_hog groundHOG _model:=/path/to/model");
         exit(0);
     }
+
+    ROS_DEBUG("groundHOG: Queue size for synchronisation is set to: %i", queue_size);
+
     hog = new  cudaHOG::cudaHOGManager();
     hog->read_params_file(conf);
     hog->load_svm_models();
@@ -261,8 +266,8 @@ int main(int argc, char **argv)
     Subscriber<Image> subscriber_color(n, image_color.c_str(), 1);
     Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 1);
 
-    //The real queue size for synchronisation is set here: 20
-    sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(20);
+    //The real queue size for synchronisation is set here.
+    sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(queue_size);
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MyConstSyncPolicy = MySyncPolicy;

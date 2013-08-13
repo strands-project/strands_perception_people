@@ -1,10 +1,12 @@
 <launch>
-  <arg name="conf" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
-  <arg name="temp" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
+    <arg name="conf" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="temp" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
+    <arg name="queue_size" default="5" />
 
-  <node pkg="strands_upper_body_detector" type="upper_body_detector" name="upper_body_detector">
-		<param name="config_file" value="$(arg conf)" type="string"/>
-    <param name="template_file" value="$(arg temp)" type="string"/>
-	</node>
+    <node pkg="strands_upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="screen">
+        <param name="config_file" value="$(arg conf)" type="string"/>
+        <param name="template_file" value="$(arg temp)" type="string"/>
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+    </node>
 
 </launch> 

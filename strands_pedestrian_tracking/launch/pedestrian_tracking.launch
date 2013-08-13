@@ -1,8 +1,10 @@
 <launch>
-  <arg name="conf" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="conf" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="queue_size" default="10" />
 
-  <node pkg="strands_pedestrian_tracking" type="pedestrian_tracking" name="pedestrian_tracking">
-		<param name="config_file" value="$(arg conf)" type="string"/>
-	</node>
+    <node pkg="strands_pedestrian_tracking" type="pedestrian_tracking" name="pedestrian_tracking" output="screen">
+        <param name="config_file" value="$(arg conf)" type="string"/>
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+    </node>
 
 </launch> 

@@ -1,5 +1,7 @@
 <launch>
-  
-  <node pkg="strands_visual_odometry" type="visual_odometry" name="visual_odometry" />
+    <arg name="queue_size" default="5" />
 
+    <node pkg="strands_visual_odometry" type="visual_odometry" name="visual_odometry" output="screen">
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+    </node>
 </launch> 

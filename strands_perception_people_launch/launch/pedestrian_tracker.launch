@@ -1,6 +1,15 @@
 <launch>
+    <arg name="gh_queue_size" default="2000000" />
+    <arg name="vo_queue_size" default="5" />
+    <arg name="ubd_queue_size" default="5" />
+    <arg name="pt_queue_size" default="10" />
+
     <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch"/>
+        <param name="groundHOG/queue_size" value="$(arg gh_queue_size)" type="int"/>
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch"/>
+        <param name="visual_odometry/queue_size" value="$(arg vo_queue_size)" type="int"/>
     <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
+        <param name="upper_body_detector/queue_size" value="$(arg ubd_queue_size)" type="int"/>
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch"/>
+        <param name="pedestrian_tracking/queue_size" value="$(arg pt_queue_size)" type="int"/>
 </launch> 

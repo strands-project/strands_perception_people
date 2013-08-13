@@ -414,6 +414,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
+    int queue_size;
     string topic_depth_image;
     string topic_color_image;
     string topic_camera_info;
@@ -428,6 +429,7 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
+    private_node_handle_.param("queue_size", queue_size, int(5));
     private_node_handle_.param("config_file", config_file, string(""));
     private_node_handle_.param("template_file", template_path, string(""));
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
@@ -445,14 +447,16 @@ int main(int argc, char **argv)
         exit(0);
     }
 
+    ROS_DEBUG("upper_body_detector: Queue size for synchronisation is set to: %i", queue_size);
+
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
     message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
     message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
 
-    //The real queue size for synchronisation is set here: 5
-    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(5);
+    //The real queue size for synchronisation is set here.
+    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(queue_size);
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     ReadUpperBodyTemplate(template_path);
