@@ -21,5 +21,5 @@ rosrun strands_ground_hog groundHOG [_parameter_name:=value]
 ```
 
 roslaunch:
-* Using only the RGB image: `roslaunch strands_ground_hog ground_hog.launch [model_dir:=/path/to/model] [queue_size:=int]`
-* Using ground plane to enhance detection `roslaunch strands_ground_hog ground_hog_with_GP.launch [model_dir:=/path/to/model] [queue_size:=int] [gp_topic:=/topic/name]`
+* Using only the RGB image: `roslaunch strands_ground_hog ground_hog.launch [parameter_name:=value]`
+* Using ground plane to enhance detection `roslaunch strands_ground_hog ground_hog_with_GP.launch [parameter_name:=value]`
