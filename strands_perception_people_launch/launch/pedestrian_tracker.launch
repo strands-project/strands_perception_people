@@ -1,6 +1,6 @@
 <launch>
-  <include file="$(find strands_ground_hog)/launch/ground_hog.launch"/>
-	<include file="$(find strands_visual_odometry)/launch/visual_odometry.launch"/>
-	<include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
-	<include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch"/>
+    <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch"/>
+    <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch"/>
+    <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
+    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch"/>
 </launch> 

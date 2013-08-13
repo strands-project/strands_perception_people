@@ -446,12 +446,14 @@ int main(int argc, char **argv)
     }
 
     // Create a subscriber.
-    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 50);
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 50);
-    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 50);
+    // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
+    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
+    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
 
-    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(10);
-    MySyncPolicy.setAgePenalty(10);
+    //The real queue size for synchronisation is set here: 5
+    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(5);
+    MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     ReadUpperBodyTemplate(template_path);
     ReadConfigFile(config_file);

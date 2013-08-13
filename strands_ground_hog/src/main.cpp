@@ -255,19 +255,23 @@ int main(int argc, char **argv)
 
     // Create a subscriber.
     // Name the topic, message queue, callback function with class name, and object containing callback function.
-    //The bigger the queue, the bigger the dealy. 1 is the most real-time.
+    // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     ros::Subscriber sub_message; //Subscribers have to be defined out of the if scope to have affect.
-    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 50);
-    Subscriber<Image> subscriber_color(n, image_color.c_str(), 50);
-    Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 50);
+    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 1);
+    Subscriber<Image> subscriber_color(n, image_color.c_str(), 1);
+    Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 1);
 
-    sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(100);
+    //The real queue size for synchronisation is set here: 20
+    sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(20);
+    MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
+
     const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MyConstSyncPolicy = MySyncPolicy;
     Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> > sync(MyConstSyncPolicy,
                                                                                         subscriber_color,
                                                                                         subscriber_camera_info,
                                                                                         subscriber_ground_plane);
 
+    // Decide which call back should be used.
     if(strcmp(ground_plane.c_str(), "") == 0) {
         sub_message = n.subscribe(image_color.c_str(), 1, &imageCallback);
     } else {

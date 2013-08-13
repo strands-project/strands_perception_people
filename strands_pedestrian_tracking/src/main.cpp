@@ -488,19 +488,19 @@ int main(int argc, char **argv)
     }
 
     // Create a subscriber.
-    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 100);
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 100);
-    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 100);
+    // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
+    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
+    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
+    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1);
+    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1);
+    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 1);
+    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 1);
 
-    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 100);
-    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 100);
-    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 100);
-    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 100);
-
+    //The real queue size for synchronisation is set here: 10
     sync_policies::ApproximateTime<Image, Image, CameraInfo, GroundPlane,
-            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicy(100);
-
-    //    MySyncPolicy.setAgePenalty(10);
+            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicy(10);
+    MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     ReadConfigFile(config_file);
     det_comb = new Detections(23, 0);
