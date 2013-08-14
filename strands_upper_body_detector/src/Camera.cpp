@@ -137,8 +137,9 @@ void Camera::WorldToImage(const Vector<double>& pos3D, double world_scale, Vecto
     pos2D.setSize(3);
     if(vKrt(2) == 0)
     {
-        if(Globals::verbose)
-            cout <<"'Warning in WorldToImage(): transformed point is invalid!'" << endl;
+        ROS_DEBUG("'Warning in WorldToImage(): transformed point is invalid!'");
+//        if(Globals::verbose)
+//            cout <<"'Warning in WorldToImage(): transformed point is invalid!'" << endl;
     }else
     {
         pos2D(0) = (vKrt(0)/vKrt(2));

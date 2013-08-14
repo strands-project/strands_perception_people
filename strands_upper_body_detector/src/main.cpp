@@ -164,7 +164,7 @@ void ReadConfigFile(string path_config_file)
     //======================================
     // Console output
     //======================================
-    Globals::verbose = config.read("verbose", false);
+    //Globals::verbose = config.read("verbose", false);
 
     //=====================================
     // Determines if save bounding boxes or not

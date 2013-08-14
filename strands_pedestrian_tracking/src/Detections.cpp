@@ -234,10 +234,11 @@ int Detections::prepareDet(Vector<double> &detContent, Vector<Vector <double> >&
 
     if(posInCamCord(2) < 0)
     {
-        if(Globals::verbose)
-        {
-            cout << "Detection rejected due to inconsistency with DEPTH!!!" << endl;
-        }
+//        if(Globals::verbose)
+//        {
+//            cout << "Detection rejected due to inconsistency with DEPTH!!!" << endl;
+//        }
+        ROS_DEBUG("Detection rejected due to inconsistency with DEPTH!!!");
         return 0;
     }
 
@@ -610,10 +611,11 @@ void Detections::compute3DPosition(Vector<double>& detection, Camera cam)
     if(exp(-((Globals::dObjHeight - f_height)*(Globals::dObjHeight - f_height)) /
            (2 * Globals::dObjHVar * Globals::dObjHVar))  < Globals::probHeight || distance < 0)
     {
-        if(Globals::verbose)
-        {
-            cout << "Height Test Failed! " << f_height << endl;
-        }
+//        if(Globals::verbose)
+//        {
+//            cout << "Height Test Failed! " << f_height << endl;
+//        }
+        ROS_DEBUG("Height Test Failed! %f", f_height);
         detection(0) *= -1;
     }
 }

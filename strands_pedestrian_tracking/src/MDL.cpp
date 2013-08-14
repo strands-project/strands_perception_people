@@ -87,10 +87,12 @@ void MDL::build_mdl_matrix(Matrix<double>& Q, Vector<Hypo>& hypos, int t, double
     //*******************************************************************
 
     Q.set_size(nrHypos, nrHypos, 0.0);
-    if(Globals::verbose){
-        cout << "MDL hypothesis selection" << endl;
-        cout << "   Building up interaction matrix..." << endl;
-    }
+//    if(Globals::verbose){
+//        cout << "MDL hypothesis selection" << endl;
+//        cout << "   Building up interaction matrix..." << endl;
+//    }
+    ROS_DEBUG("MDL hypothesis selection");
+    ROS_DEBUG("   Building up interaction matrix...");
 
     //*******************************************************************
     // Enter the diagonal terms => simple hypothesis scores

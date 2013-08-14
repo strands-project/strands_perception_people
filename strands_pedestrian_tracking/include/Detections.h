@@ -13,6 +13,8 @@
 
 #include "CImageHeader.h"
 
+#include <ros/ros.h>
+
 #ifndef cim_v
 #include <QImage>
 #include <QColor>

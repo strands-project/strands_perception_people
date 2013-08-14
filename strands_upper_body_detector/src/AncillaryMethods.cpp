@@ -94,8 +94,9 @@ void AncillaryMethods::GreedyNonMaxSuppression(Vector<Vector<double> >& all_boxe
         }
     }
 
-    if(Globals::verbose)
-        cout << "Reduced the Number of BBoxes from " << all_boxes.getSize() << " to " << final_bboxes_unfiltered.getSize() << endl;
+    ROS_DEBUG("Reduced the Number of BBoxes from %i to %i", all_boxes.getSize(), final_bboxes_unfiltered.getSize());
+    //        if(Globals::verbose)
+    //          cout << "Reduced the Number of BBoxes from " << all_boxes.getSize() << " to " << final_bboxes_unfiltered.getSize() << endl;
 }
 
 Vector<double> AncillaryMethods::PlaneToCam(const Camera& camera)
@@ -447,7 +448,7 @@ Vector<double> AncillaryMethods::conv1D(const Vector<double> &vec, const Vector<
 
 void AncillaryMethods::MorphologyErode(Matrix<double> &img)
 {
-//    int st[3][3] = {{0,1,0}, {1,1,1}, {0,1,0}};
+    //    int st[3][3] = {{0,1,0}, {1,1,1}, {0,1,0}};
     int x_size = img.x_size(), y_size = img.y_size();
 
     Matrix<double> img_extend(x_size+2, y_size+2);
@@ -482,7 +483,7 @@ void AncillaryMethods::MorphologyErode(Matrix<double> &img)
 
 void AncillaryMethods::MorphologyDilate(Matrix<double> &img)
 {
-//    int st[3][3] = {{0,1,0}, {1,1,1}, {0,1,0}};
+    //    int st[3][3] = {{0,1,0}, {1,1,1}, {0,1,0}};
     int x_size = img.x_size(), y_size = img.y_size();
 
     Matrix<double> img_extend(x_size+2, y_size+2);
@@ -830,7 +831,7 @@ void AncillaryMethods::ExtractSlopsOnBorder(const Matrix<double>& image, Vector<
         ys(x - start_x) = end_y - y0;
     }
 
-//    Vector<double> ys = ys;
+    //    Vector<double> ys = ys;
     ys = AncillaryMethods::conv1D(ys, AncillaryMethods::getGaussian1D(3,1));
 
     for(int i=0; i<ys.getSize()-1; ++i)
@@ -924,5 +925,5 @@ void AncillaryMethods::ExtractBorder(const Matrix<double>& image, Vector<double>
         ys(x - start_x) = end_y - y0;
     }
 
-//    ys = AncillaryMethods::conv1D(ys, AncillaryMethods::getGaussian1D(3,1));
+    //    ys = AncillaryMethods::conv1D(ys, AncillaryMethods::getGaussian1D(3,1));
 }
