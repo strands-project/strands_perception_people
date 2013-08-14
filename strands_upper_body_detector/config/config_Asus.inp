@@ -68,8 +68,9 @@ nOffset = 0
 
 #====================================
 # Console output
+# +++ Not used anymore use rqt_logger_level and rqt_console +++
 #====================================
-verbose = false
+#verbose = false
 
 #====================================
 #Determines if save bounding boxes or not

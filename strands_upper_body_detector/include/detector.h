@@ -8,6 +8,8 @@
 #include "pointcloud.h"
 #include "AncillaryMethods.h"
 
+#include <ros/ros.h>
+
 class Detector
 {
 public:

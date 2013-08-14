@@ -17,6 +17,8 @@
 #include "Vector.h"
 #include "Math.h"
 
+#include <ros/ros.h>
+
 
 class MDL
 {

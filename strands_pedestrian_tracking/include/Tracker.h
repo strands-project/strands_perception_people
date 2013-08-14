@@ -25,6 +25,8 @@
 
 #include "CImageHeader.h"
 
+#include <ros/ros.h>
+
 class Tracker
 {
 

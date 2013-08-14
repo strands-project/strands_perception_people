@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <ros/ros.h>
+
 #include "Vector.h"
 #include "Matrix.h"
 

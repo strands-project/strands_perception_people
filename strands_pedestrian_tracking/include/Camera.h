@@ -15,6 +15,8 @@
 #include "Vector.h"
 #include "Matrix.h"
 
+#include <ros/ros.h>
+
 class Camera
 {
 public:

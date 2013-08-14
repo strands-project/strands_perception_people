@@ -263,8 +263,9 @@ Vector<Vector<double> >  Detector::EvaluateTemplate(const Matrix<double> &upper_
         if( close_range_BBoxes(i)(1)+cropped_height >= Globals::dImHeight)
             cropped_height = Globals::dImHeight - (int)close_range_BBoxes(i)(1) - 1;
 
-        if(Globals::verbose)
-            cout << "(distances(i) " << distances(i)(0) << " radius " << distances(i)(1)/2.0 << endl;
+        ROS_DEBUG("(distances(i) %f radius %f", distances(i)(0), distances(i)(1)/2.0);
+//        if(Globals::verbose)
+//            cout << "(distances(i) " << distances(i)(0) << " radius " << distances(i)(1)/2.0 << endl;
 
         // Cropped and Filter depth_map with respect to distance from camera
         int start_column = (int)close_range_BBoxes(i)(0);
