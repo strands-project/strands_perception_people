@@ -235,10 +235,11 @@ void ReadConfigFile(string path_config_file)
 
     //======================================
     // Visualisation
+    // Handled by visualise parameter now
     //======================================
-    Globals::render_bbox3D = config.read("render_bbox3D", true);
-    Globals::render_bbox2D = config.read("render_bbox2D", false);
-    Globals::render_tracking_numbers = config.read("render_tracking_numbers", false);
+    //Globals::render_bbox3D = config.read("render_bbox3D", true);
+    //Globals::render_bbox2D = config.read("render_bbox2D", false);
+    //Globals::render_tracking_numbers = config.read("render_tracking_numbers", false);
 
     //======================================
     // MDL parameters for trajectories
@@ -482,8 +483,15 @@ int main(int argc, char **argv)
     pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic.c_str(), 10);
 
     if(visualise) {
+        Globals::render_bbox3D = true;
+        Globals::render_bbox2D = false;
+        Globals::render_tracking_numbers = false;
         private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
         pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
+    } else {
+        Globals::render_bbox3D = false;
+        Globals::render_bbox2D = false;
+        Globals::render_tracking_numbers = false;
     }
 
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
