@@ -35,6 +35,8 @@ cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
 ros::Publisher pub_result_image;
 
+bool visualise;
+
 void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
 {
 
@@ -73,7 +75,7 @@ void imageCallback(const Image::ConstPtr &msg)
 
     if(returnPrepare)
     {
-        ROS_ERROR("Error while preparing the image");
+        ROS_ERROR("groundHOG: Error while preparing the image");
         return;
     }
 
@@ -104,17 +106,20 @@ void imageCallback(const Image::ConstPtr &msg)
 
     }
 
-    render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
+    if(visualise) {
+        render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
 
-    Image sensor_image;
-    sensor_image.header = msg->header;
-    sensor_image.height = image_rgb.height();
-    sensor_image.width  = image_rgb.width();
-    vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
-    sensor_image.data = image_bits;
-    sensor_image.encoding = msg->encoding;
+        Image sensor_image;
+        sensor_image.header = msg->header;
+        sensor_image.height = image_rgb.height();
+        sensor_image.width  = image_rgb.width();
+        vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
+        sensor_image.data = image_bits;
+        sensor_image.encoding = msg->encoding;
 
-    pub_result_image.publish(sensor_image);
+        pub_result_image.publish(sensor_image);
+    }
+
     pub_message.publish(detections);
 }
 
@@ -198,17 +203,20 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
 
     }
 
-    render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
+    if(visualise) {
+        render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
 
-    Image sensor_image;
-    sensor_image.header = color->header;
-    sensor_image.height = image_rgb.height();
-    sensor_image.width  = image_rgb.width();
-    vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
-    sensor_image.data = image_bits;
-    sensor_image.encoding = color->encoding;
+        Image sensor_image;
+        sensor_image.header = color->header;
+        sensor_image.height = image_rgb.height();
+        sensor_image.width  = image_rgb.width();
+        vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
+        sensor_image.data = image_bits;
+        sensor_image.encoding = color->encoding;
 
-    pub_result_image.publish(sensor_image);
+        pub_result_image.publish(sensor_image);
+    }
+
     pub_message.publish(detections);
 
 }
@@ -232,18 +240,13 @@ int main(int argc, char **argv)
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
-    private_node_handle_.param("queue_size", queue_size, int(20));
+    private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("model", conf, string(""));
+    private_node_handle_.param("visualise", visualise, bool(false));
 
     private_node_handle_.param("color_image", image_color, string("/camera/rgb/image_color"));
     private_node_handle_.param("camera_info", camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("ground_plane", ground_plane, string(""));
-
-
-
-    private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
-    private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
-
 
     //Initialise cudaHOG
     if(strcmp(conf.c_str(),"") == 0) {
@@ -284,8 +287,13 @@ int main(int argc, char **argv)
     }
 
     // Create publishers
+    private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
     pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
-    pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
+
+    if(visualise) {
+        private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
+        pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
+    }
 
     ros::spin();
 

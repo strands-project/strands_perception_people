@@ -48,6 +48,7 @@ ros::Publisher pub_message;
 ros::Publisher pub_result_image;
 ros::Publisher pub_ground_plane;
 
+bool visualise;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -382,16 +383,6 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
         detection_msg.median_depth.push_back(detected_bounding_boxes(i)(5));
     }
 
-    render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
-
-    sensor_msgs::Image sensor_image;
-    sensor_image.header = color->header;
-    sensor_image.height = image_rgb.height();
-    sensor_image.width  = image_rgb.width();
-    vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
-    sensor_image.data = image_bits;
-    sensor_image.encoding = color->encoding;
-
     // Generate Ground Plane Message
     strands_perception_people_msgs::GroundPlane ground_plane_msg;
     ground_plane_msg.header = depth->header;
@@ -400,8 +391,20 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
     ground_plane_msg.n.push_back(GP(1));
     ground_plane_msg.n.push_back(GP(2));
 
+    if(visualise) {
+        render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
 
-    pub_result_image.publish(sensor_image);
+        sensor_msgs::Image sensor_image;
+        sensor_image.header = color->header;
+        sensor_image.height = image_rgb.height();
+        sensor_image.width  = image_rgb.width();
+        vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
+        sensor_image.data = image_bits;
+        sensor_image.encoding = color->encoding;
+
+        pub_result_image.publish(sensor_image);
+    }
+
     pub_message.publish(detection_msg);
     pub_ground_plane.publish(ground_plane_msg);
 
@@ -432,6 +435,8 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(5));
     private_node_handle_.param("config_file", config_file, string(""));
     private_node_handle_.param("template_file", template_path, string(""));
+    private_node_handle_.param("visualise", visualise, bool(false));
+
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
@@ -476,8 +481,10 @@ int main(int argc, char **argv)
     private_node_handle_.param("upper_body_detections", pub_topic, string("/upper_body_detector/detections"));
     pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic.c_str(), 10);
 
-    private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
-    pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
+    if(visualise) {
+        private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
+        pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
+    }
 
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
     pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10);
