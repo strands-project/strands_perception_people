@@ -140,10 +140,11 @@ probHeight = 0.2
 
 #====================================
 # Visualisation
+# Handled by visualise parameter now
 #====================================
-render_bbox3D = true
-render_bbox2D = false
-render_tracking_numbers = false
+#render_bbox3D = true
+#render_bbox2D = false
+#render_tracking_numbers = false
 
 #========================
 # MDL parameters for trajectories
