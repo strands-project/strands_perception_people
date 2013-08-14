@@ -50,6 +50,8 @@ using namespace strands_perception_people_msgs;
 ros::Publisher pub_message;
 ros::Publisher pub_image;
 
+bool visualise;
+
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
@@ -60,7 +62,7 @@ Detections *det_comb;
 Tracker tracker;
 int cnt = 0;
 
-CImgDisplay* main_disp;
+//CImgDisplay* main_disp;
 CImg<unsigned char> cim(640,480,1,3);
 
 Vector<double> fromCam2World(Vector<double> posInCamera, Camera cam)
@@ -445,19 +447,22 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
         allHypoMsg.pedestrians.push_back(oneHypoMsg);
     }
 
-    Image res_img;
-    res_img.header = depth->header;
-    res_img.height = cim._height;
-    res_img.width = cim._width;
-    for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
-        res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
-        res_img.data.push_back(cim.data()[i+1*cim._height*cim._width]);
-        res_img.data.push_back(cim.data()[i+2*cim._height*cim._width]);
+    if(visualise) {
+        Image res_img;
+        res_img.header = depth->header;
+        res_img.height = cim._height;
+        res_img.width = cim._width;
+        for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
+            res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
+            res_img.data.push_back(cim.data()[i+1*cim._height*cim._width]);
+            res_img.data.push_back(cim.data()[i+2*cim._height*cim._width]);
+        }
+        res_img.encoding = color->encoding;
+
+        pub_image.publish(res_img);
     }
-    res_img.encoding = color->encoding;
 
     pub_message.publish(allHypoMsg);
-    pub_image.publish(res_img);
     cnt++;
 }
 
@@ -487,6 +492,7 @@ int main(int argc, char **argv)
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("config_file", config_file, string(""));
+    private_node_handle_.param("visualise", visualise, bool(false));
 
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
@@ -522,7 +528,7 @@ int main(int argc, char **argv)
     ReadConfigFile(config_file);
     det_comb = new Detections(23, 0);
 
-    main_disp = new CImgDisplay(cim, "HIGH level Tracking Results");
+//    main_disp = new CImgDisplay(cim, "HIGH level Tracking Results");
 
     const sync_policies::ApproximateTime<Image, Image, CameraInfo, GroundPlane,
             GroundHOGDetections, UpperBodyDetector, VisualOdometry> MyConstSyncPolicy = MySyncPolicy;
@@ -539,9 +545,10 @@ int main(int argc, char **argv)
     private_node_handle_.param("pedestrian_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
     pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10);
 
-    private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
-    pub_image = n.advertise<Image>(pub_image_topic.c_str(), 10);
-
+    if(visualise) {
+        private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
+        pub_image = n.advertise<Image>(pub_image_topic.c_str(), 10);
+    }
 
 
     ros::spin();

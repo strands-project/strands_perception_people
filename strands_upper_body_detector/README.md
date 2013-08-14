@@ -3,6 +3,7 @@ This package detects the upper bodies of persons using depth and mono images.
 
 ### Run
 Parameters:
+* `visualise` _default = false_: Set to true to render and publish result images.
 * `queue_size` _default = 20_: The synchronisation queue size
 * `config_file` _default = ""_: The global config file. Can be found in strands_upper_bodydetector/config
 * `template_file` _default = ""_: The template file. Can be found in config.
