@@ -24,3 +24,13 @@ roslaunch:
 ```
 roslaunch strands_pedestrian_tracking pedestrian_tracking.launch [parameter_name:=value]
 ```
+
+To run the tracker without the groundHOG feture extraction running use:
+```
+rosrun strands_pedestrian_tracking pedestrian_tracker _ground_hog:=""
+```
+or
+
+```
+roslaunch strands_pedestrian_tracking pedestrian_tracking_no_HOG.launch [parameter_name:=value]
+```
