@@ -94,8 +94,9 @@ void AncillaryMethods::GreedyNonMaxSuppression(Vector<Vector<double> >& all_boxe
         }
     }
 
-    if(Globals::verbose)
-        cout << "Reduced the Number of BBoxes from " << all_boxes.getSize() << " to " << final_bboxes_unfiltered.getSize() << endl;
+//    if(Globals::verbose)
+//        cout << "Reduced the Number of BBoxes from " << all_boxes.getSize() << " to " << final_bboxes_unfiltered.getSize() << endl;
+    ROS_DEBUG("Reduced the Number of BBoxes from %i to %i", all_boxes.getSize(), final_bboxes_unfiltered.getSize());
 }
 
 Vector<double> AncillaryMethods::PlaneToCam(const Camera& camera)

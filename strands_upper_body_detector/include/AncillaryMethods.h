@@ -20,6 +20,8 @@
 #include "Camera.h"
 #include "Hypo.h"
 
+#include <ros/ros.h>
+
 class AncillaryMethods
 {
 
