@@ -5,7 +5,6 @@ This convenience package contains launch files to start-up the whole pedestrian 
 This depends on the strands_ground_hog package which has to be built with the libcudaHOG. See README file of 3rd_party directory.
 
 Parameters:
-* `visualise` _default = false_: Set to true to render and publish result images.
 * `gh_queue_size` _default = 20_: The ground plane sync queue size
 * `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
