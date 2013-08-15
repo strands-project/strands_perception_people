@@ -1,5 +1,4 @@
 <launch>
-    <arg name="visualise" default="false" />
     <arg name="config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
     <arg name="queue_size" default="10" />
     <arg name="depth_image" default="/camera/depth/image" />
@@ -13,7 +12,6 @@
 
 
     <node pkg="strands_pedestrian_tracking" type="pedestrian_tracking" name="pedestrian_tracking" output="screen">
-        <param name="visualise" value="$(arg visualise)" type="bool"/>
         <param name="config_file" value="$(arg config_file)" type="string"/>
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="depth_image" value="$(arg depth_image)" type="string"/>

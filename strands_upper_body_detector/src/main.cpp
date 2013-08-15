@@ -48,17 +48,12 @@ ros::Publisher pub_message;
 ros::Publisher pub_result_image;
 ros::Publisher pub_ground_plane;
 
-bool visualise;
-
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
 GroundPlaneEstimator GPEstimator;
 Matrix<double> upper_body_template;
 Detector* detector;
-
-
-//string path_config_file = "/home/mitzel/Desktop/sandbox/Demo/upper_and_cuda/bin/config_Asus.inp";
 
 
 void render_bbox_2D(strands_perception_people_msgs::UpperBodyDetector& detections, QImage& image,
@@ -338,7 +333,7 @@ void ReadUpperBodyTemplate(string template_path)
 
 void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const CameraInfoConstPtr &info)
 {
-
+    Globals::render_bbox3D = pub_result_image.getNumSubscribers() > 0 ? true : false;
     // Get color image
     QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888);
 
@@ -392,7 +387,8 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
     ground_plane_msg.n.push_back(GP(1));
     ground_plane_msg.n.push_back(GP(2));
 
-    if(visualise) {
+    if(pub_result_image.getNumSubscribers()) {
+        ROS_DEBUG("Publishing image");
         render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
 
         sensor_msgs::Image sensor_image;
@@ -413,6 +409,9 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
 
 int main(int argc, char **argv)
 {
+    Globals::render_bbox2D = false;
+    Globals::render_tracking_numbers = false;
+
     // Set up ROS.
     ros::init(argc, argv, "upper_body_detector");
     ros::NodeHandle n;
@@ -436,7 +435,6 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(5));
     private_node_handle_.param("config_file", config_file, string(""));
     private_node_handle_.param("template_file", template_path, string(""));
-    private_node_handle_.param("visualise", visualise, bool(false));
 
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
@@ -482,17 +480,8 @@ int main(int argc, char **argv)
     private_node_handle_.param("upper_body_detections", pub_topic, string("/upper_body_detector/detections"));
     pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic.c_str(), 10);
 
-    if(visualise) {
-        Globals::render_bbox3D = true;
-        Globals::render_bbox2D = false;
-        Globals::render_tracking_numbers = false;
-        private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
-        pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
-    } else {
-        Globals::render_bbox3D = false;
-        Globals::render_bbox2D = false;
-        Globals::render_tracking_numbers = false;
-    }
+    private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
+    pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
 
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
     pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10);

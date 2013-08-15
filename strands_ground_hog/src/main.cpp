@@ -35,8 +35,6 @@ cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
 ros::Publisher pub_result_image;
 
-bool visualise;
-
 void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
 {
 
@@ -106,7 +104,8 @@ void imageCallback(const Image::ConstPtr &msg)
 
     }
 
-    if(visualise) {
+    if(pub_result_image.getNumSubscribers()) {
+        ROS_DEBUG("Publishing image");
         render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
 
         Image sensor_image;
@@ -203,7 +202,8 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
 
     }
 
-    if(visualise) {
+    if(pub_result_image.getNumSubscribers()) {
+        ROS_DEBUG("Publishing image");
         render_bbox_2D(detections, image_rgb, 255, 0, 0, 2);
 
         Image sensor_image;
@@ -242,7 +242,6 @@ int main(int argc, char **argv)
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("model", conf, string(""));
-    private_node_handle_.param("visualise", visualise, bool(false));
 
     private_node_handle_.param("color_image", image_color, string("/camera/rgb/image_color"));
     private_node_handle_.param("camera_info", camera_info, string("/camera/rgb/camera_info"));
@@ -290,10 +289,8 @@ int main(int argc, char **argv)
     private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
     pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
 
-    if(visualise) {
-        private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
-        pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
-    }
+    private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
+    pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
 
     ros::spin();
 
