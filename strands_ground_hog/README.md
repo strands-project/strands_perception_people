@@ -7,7 +7,6 @@ _If this dependency is not met, the package will still compile but won't have an
 
 ### Run
 Parameters:
-* `visualise` _default = false_: Set to true to render and publish result images.
 * `queue_size` _default = 20_: The synchronisation queue size
 * `model` _default = ""_: The model file, can be found in model/config
 * `image_color` _default = /camera/rgb/image_color_: The Kincet colour image

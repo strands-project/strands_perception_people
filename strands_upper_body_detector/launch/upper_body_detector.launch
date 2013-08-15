@@ -1,5 +1,4 @@
 <launch>
-    <arg name="visualise" default="false" />
     <arg name="config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="queue_size" default="5" />
@@ -12,7 +11,6 @@
 
 
     <node pkg="strands_upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="screen">
-        <param name="visualise" value="$(arg visualise)" type="bool"/>
         <param name="config_file" value="$(arg config_file)" type="string"/>
         <param name="template_file" value="$(arg template_file)" type="string"/>
         <param name="queue_size" value="$(arg queue_size)" type="int"/>

@@ -45,8 +45,6 @@ using namespace strands_perception_people_msgs;
 ros::Publisher pub_message;
 ros::Publisher pub_image;
 
-bool visualise;
-
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
@@ -366,6 +364,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
               const VisualOdometry::ConstPtr &vo)
 {
     ROS_DEBUG("Entered callback without groundHOG data");
+    Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
 
     // Get camera from VO and GP
     Vector<double> GP(3, (double*) &gp->n[0]);
@@ -425,7 +424,8 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         allHypoMsg.pedestrians.push_back(oneHypoMsg);
     }
 
-    if(visualise) {
+    if(pub_image.getNumSubscribers()) {
+        ROS_DEBUG("Publishing image");
         Image res_img;
         res_img.header = color->header;
         res_img.height = cim._height;
@@ -452,6 +452,8 @@ void callbackWithHOG(const ImageConstPtr &color,
               const VisualOdometry::ConstPtr &vo)
 {
     ROS_DEBUG("Entered callback with groundHOG data");
+    Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
+
 
     // Get camera from VO and GP
     Vector<double> GP(3, (double*) &gp->n[0]);
@@ -527,7 +529,8 @@ void callbackWithHOG(const ImageConstPtr &color,
         allHypoMsg.pedestrians.push_back(oneHypoMsg);
     }
 
-    if(visualise) {
+    if(pub_image.getNumSubscribers()) {
+        ROS_DEBUG("Publishing image");
         Image res_img;
         res_img.header = color->header;
         res_img.height = cim._height;
@@ -548,6 +551,9 @@ void callbackWithHOG(const ImageConstPtr &color,
 
 int main(int argc, char **argv)
 {
+    Globals::render_bbox2D = false;
+    Globals::render_tracking_numbers = false;
+
     // Set up ROS.
     ros::init(argc, argv, "pedestrian_tracking");
     ros::NodeHandle n;
@@ -572,7 +578,6 @@ int main(int argc, char **argv)
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("config_file", config_file, string(""));
-    private_node_handle_.param("visualise", visualise, bool(false));
 
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
@@ -639,18 +644,8 @@ int main(int argc, char **argv)
     private_node_handle_.param("pedestrian_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
     pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10);
 
-    if(visualise) {
-        Globals::render_bbox3D = true;
-        Globals::render_bbox2D = false;
-        Globals::render_tracking_numbers = false;
-        private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
-        pub_image = n.advertise<Image>(pub_image_topic.c_str(), 10);
-    } else {
-        Globals::render_bbox3D = false;
-        Globals::render_bbox2D = false;
-        Globals::render_tracking_numbers = false;
-    }
-
+    private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
+    pub_image = n.advertise<Image>(pub_image_topic.c_str(), 10);
 
     ros::spin();
     return 0;

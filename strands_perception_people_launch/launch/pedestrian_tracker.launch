@@ -1,6 +1,5 @@
 <launch>
     <!-- Global paramters -->
-    <arg name="visualise" default="false" />
     <arg name="gh_queue_size" default="10" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />
@@ -23,7 +22,6 @@
 
     <!-- Ground HOG -->
     <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch"/>
-        <param name="groundHOG/visualise" value="$(arg visualise)" type="bool"/>
         <param name="groundHOG/queue_size" value="$(arg gh_queue_size)" type="int"/>
         <param name="groundHOG/model" value="$(arg model)" type="string"/>
         <param name="groundHOG/ground_plane" value="$(arg ground_plane)" type="string"/>
@@ -42,7 +40,6 @@
 
     <!-- Upper Body Detector -->
     <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
-        <param name="upper_body_detector/visualise" value="$(arg visualise)" type="bool"/>
         <param name="upper_body_detector/queue_size" value="$(arg ubd_queue_size)" type="int"/>
         <param name="upper_body_detector/config_file" value="$(arg config_file)" type="string"/>
         <param name="upper_body_detector/template_file" value="$(arg template_file)" type="string"/>
@@ -55,7 +52,6 @@
 
     <!-- Pedestrian Tracking -->
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch"/>
-        <param name="pedestrian_tracking/visualise" value="$(arg visualise)" type="bool"/>
         <param name="pedestrian_tracking/queue_size" value="$(arg pt_queue_size)" type="int"/>
         <param name="pedestrian_tracking/config_file" value="$(arg config_file)" type="string"/>
         <param name="pedestrian_tracking/depth_image" value="$(arg depth_image)" type="string"/>
