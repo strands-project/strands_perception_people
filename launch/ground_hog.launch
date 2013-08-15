@@ -1,5 +1,4 @@
 <launch>
-    <arg name="visualise" default="false" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
     <arg name="color_image" default="/camera/rgb/image_color" />
     <arg name="camera_info" default="/camera/rgb/camera_info" />
@@ -7,7 +6,6 @@
     <arg name="result_image" default="/groundHOG/image" />
 
     <node pkg="strands_ground_hog" type="groundHOG" name="groundHOG" output="screen">
-        <param name="visualise" value="$(arg visualise)" type="bool"/>
         <param name="model" value="$(arg model)" type="string"/>
         <param name="ground_plane" value="" type="string"/>
         <param name="color_image" value="$(arg color_image)" type="string"/>
