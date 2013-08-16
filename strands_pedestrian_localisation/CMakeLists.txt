@@ -48,7 +48,7 @@ find_package(catkin REQUIRED COMPONENTS geometry_msgs roscpp strands_perception_
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES strands_pedestrian_localisation
 #  CATKIN_DEPENDS geometry_msgs roscpp strands_perception_people_msgs tf
 #  DEPENDS system_lib
