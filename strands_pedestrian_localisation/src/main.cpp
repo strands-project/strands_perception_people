@@ -14,22 +14,24 @@ ros::Publisher pub_message;
 
 void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
 {
-    ROS_DEBUG("Entered pta callback");
-    for(int i = 0; i , pta->pedestrians.size(); i++) {
+    ROS_INFO("Entered pta callback");
+    for(int i = 0; i < pta->pedestrians.size(); i++) {
         PedestrianTracking pt = pta->pedestrians[i];
-        ROS_INFO("Position tracking x: %f, y: %f, z: %f", pt.traj_x[0], pt.traj_y[0], pt.traj_z[0]);
-        pt.traj_x[0];
-        pt.traj_y[0];
-        pt.traj_z[0];
+        if(pt.traj_x.size() && pt.traj_y.size() && pt.traj_z.size())
+            ROS_INFO("Position tracking x: %f, y: %f, z: %f", pt.traj_x[0], pt.traj_y[0], pt.traj_z[0]);
+//        else
+//            ROS_WARN("pt is zero");
     }
     //TODO: Fill with magic
 }
 
 void ubdCallback(const UpperBodyDetector::ConstPtr &msg)
 {
-    ROS_DEBUG("Entered ubd callback");
-    for(int i = 0; i , msg->pos_x.size(); i++) {
-        ROS_INFO("Position ubd x: %i, y: %i, z: %i", (int)msg->pos_x[i], (int)msg->pos_y[i], (int)msg->dist[i]);
+    ROS_INFO("Entered ubd callback: %i", msg->pos_x.size());
+    for(int i = 0; i < msg->pos_x.size(); i++) {
+        if(msg->pos_x.size()>i && msg->pos_y.size()>i && msg->dist.size()>i) {
+            ROS_INFO("Position ubd x: %i, y: %i, z: %i", (int)msg->pos_x[i], (int)msg->pos_y[i], (int)msg->dist[i]);
+        }
     }
     //TODO: Fill with magic
 }
