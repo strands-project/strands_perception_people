@@ -28,6 +28,7 @@
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
 
+
 #include <QImage>
 #include <QPainter>
 
@@ -37,6 +38,8 @@
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
+using namespace strands_perception_people_msgs;
+
 
 //sensor_msgs::CameraInfo* camera_info = NULL;
 //boost::mutex camera_info_mutex;
@@ -331,7 +334,7 @@ void ReadUpperBodyTemplate(string template_path)
     }
 }
 
-void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const CameraInfoConstPtr &info)
+void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     Globals::render_bbox3D = pub_result_image.getNumSubscribers() > 0 ? true : false;
     // Get color image
@@ -351,16 +354,14 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
     // Generate base camera
     Matrix<double> R = Eye<double>(3);
     Vector<double> t(3, 0.0);
-    Vector<double> GP(0.0, 0.99, 0.0, 1.8); // just some placeholders which will be replaced after GP Estimation
     Matrix<double> K(3,3, (double*)&info->K[0]);
+
+    // Get GP
+    Vector<double> GP(3, (double*) &gp->n[0]);
+    GP.pushBack((double) gp->d);
 
     Camera camera(K,R,t,GP);
     PointCloud point_cloud(camera, matrix_depth);
-
-
-    GP = GPEstimator.ComputeGroundPlane(point_cloud);
-
-    camera = Camera(K,R,t,GP);
 
     Vector<Vector< double > > detected_bounding_boxes;
 
@@ -379,14 +380,6 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
         detection_msg.median_depth.push_back(detected_bounding_boxes(i)(5));
     }
 
-    // Generate Ground Plane Message
-    strands_perception_people_msgs::GroundPlane ground_plane_msg;
-    ground_plane_msg.header = depth->header;
-    ground_plane_msg.d = GP(3);
-    ground_plane_msg.n.push_back(GP(0));
-    ground_plane_msg.n.push_back(GP(1));
-    ground_plane_msg.n.push_back(GP(2));
-
     if(pub_result_image.getNumSubscribers()) {
         ROS_DEBUG("Publishing image");
         render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
@@ -403,7 +396,6 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color, const Cam
     }
 
     pub_message.publish(detection_msg);
-    pub_ground_plane.publish(ground_plane_msg);
 
 }
 
@@ -422,9 +414,9 @@ int main(int argc, char **argv)
     string topic_color_image;
     string topic_camera_info;
     string pub_topic_result_image;
-    string pub_topic_gp;
     string config_file;
     string template_path;
+    string topic_gp;
 
     string pub_topic;
 
@@ -439,15 +431,23 @@ int main(int argc, char **argv)
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
+    private_node_handle_.param("ground_plane", topic_gp, string(""));
 
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");
         ROS_ERROR("Run with: rosrun strands_upperbody_detector upper_body_detector _config_file:=/path/to/config");
         exit(0);
     }
+
     if(strcmp(template_path.c_str(),"") == 0) {
         ROS_ERROR("No template file specified.");
         ROS_ERROR("Run with: rosrun strands_upper_body_detector upper_body_detector _template_file:=/path/to/template");
+        exit(0);
+    }
+
+    if(strcmp(topic_gp.c_str(),"") == 0) {
+        ROS_ERROR("No ground plane topic specified.");
+        ROS_ERROR("Run with: rosrun strands_upperbody_detector upper_body_detector _ground_plane:=/topic_name");
         exit(0);
     }
 
@@ -458,9 +458,10 @@ int main(int argc, char **argv)
     message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
     message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
     message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
+    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1);
 
     //The real queue size for synchronisation is set here.
-    sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(queue_size);
+    sync_policies::ApproximateTime<Image, Image, GroundPlane, CameraInfo> MySyncPolicy(queue_size);
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     ReadUpperBodyTemplate(template_path);
@@ -468,12 +469,12 @@ int main(int argc, char **argv)
     detector = new Detector();
 
 
-    const sync_policies::ApproximateTime<Image, Image, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
+    const sync_policies::ApproximateTime<Image, Image, GroundPlane, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
 
-    Synchronizer< sync_policies::ApproximateTime<Image, Image, CameraInfo> > sync(MyConstSyncPolicy,
-                                                                                  subscriber_depth, subscriber_color, subscriber_camera_info);
+    Synchronizer< sync_policies::ApproximateTime<Image, Image, GroundPlane, CameraInfo> > sync(MyConstSyncPolicy,
+                                                                                               subscriber_depth, subscriber_color, subscriber_gp, subscriber_camera_info);
 
-    sync.registerCallback(boost::bind(&callback, _1, _2, _3));
+    sync.registerCallback(boost::bind(&callback, _1, _2, _3, _4));
 
 
     // Create a topic publisher
@@ -482,10 +483,6 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
-
-    private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
-    pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10);
-
 
     ros::spin();
 
