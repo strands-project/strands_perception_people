@@ -137,9 +137,9 @@ void Camera::WorldToImage(const Vector<double>& pos3D, double world_scale, Vecto
     pos2D.setSize(3);
     if(vKrt(2) == 0)
     {
+        ROS_DEBUG("'Warning in WorldToImage(): transformed point is invalid!'");
 //        if(Globals::verbose)
 //            cout <<"'Warning in WorldToImage(): transformed point is invalid!'" << endl;
-        ROS_DEBUG("'Warning in WorldToImage(): transformed point is invalid!'");
     }else
     {
         pos2D(0) = (vKrt(0)/vKrt(2));
@@ -276,12 +276,6 @@ void Camera::intersectPlane(Vector<double>& gp, double gpd, Vector<double>& ray1
     diffRay -= (ray1);
     diffRay *= t;
     point += diffRay;
-}
-
-Matrix<double> Camera::getCameraRotT() const
-{
-	Matrix<double> rotT = Transpose(R_);
-    return rotT;
 }
 
 void Camera::jacFor3DCov(Vector<double>& X, Matrix<double>& Cov)
