@@ -67,7 +67,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories( include
+include_directories(include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -77,14 +77,14 @@ include_directories( include
 # )
 
 ## Declare a cpp executable
-add_executable(strands_ground_plane src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
+add_executable(ground_plane src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 # add_dependencies(strands_ground_plane_node strands_ground_plane_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(strands_ground_plane
+ target_link_libraries(ground_plane
    ${catkin_LIBRARIES}
 )
 
