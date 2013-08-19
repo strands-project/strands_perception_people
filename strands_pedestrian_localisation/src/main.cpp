@@ -154,8 +154,8 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             distances.push_back(polar[0]);
             angles.push_back(polar[1]);
 
-            min_dist = polar[0] < min_dist ? polar[0] : min_dist;
             angle = polar[0] < min_dist ? polar[1] : angle;
+            min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
         publishDetections(ppl, distances, angles, min_dist, angle);
         if(markers)
