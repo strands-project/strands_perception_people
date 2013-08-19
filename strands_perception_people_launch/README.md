@@ -1,6 +1,13 @@
 ## Launch package
 This convenience package contains launch files to start-up the whole pedestrian tracker system.
 
+### Important
+This is still under heavy development and therefore not optimized for use with the robot. By default it subscribes to /camera to ease development. Please use:
+```
+roslaunch strands_perception_people_launch pedestrian_tracker_no_HOG.launch color_image:=/head_xtion/rgb/image_color depth_image:=/head_xtion/depth/image mono_image:=/head_xtion/rgb/image_mono visualise:=true camera_info:=/head_xtion/rgb/camera_info
+```
+to run it on the robot. This will be changed soon. See issue #17
+
 ### Launching the whole system
 This depends on the strands_ground_hog package which has to be built with the libcudaHOG. See README file of 3rd_party directory.
 
