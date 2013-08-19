@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_perception_people_msgs)
+project(strands_pedestrian_localisation)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS message_generation std_msgs geometry_msgs)
+find_package(catkin REQUIRED COMPONENTS geometry_msgs roscpp strands_perception_people_msgs tf)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -20,16 +20,11 @@ find_package(catkin REQUIRED COMPONENTS message_generation std_msgs geometry_msg
 #######################################
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  VisualOdometry.msg
-  GroundHOGDetections.msg
-  UpperBodyDetector.msg
-  GroundPlane.msg
-  PedestrianTracking.msg
-  PedestrianTrackingArray.msg
-  PedestrianLocations.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -39,11 +34,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   geometry_msgs#   strands_perception_people_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -55,8 +49,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES strands_perception_people_msgs
-#  CATKIN_DEPENDS message_generation std_msgs
+#  LIBRARIES strands_pedestrian_localisation
+#  CATKIN_DEPENDS geometry_msgs roscpp strands_perception_people_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -66,24 +60,26 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
+include_directories(include
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a cpp library
-# add_library(strands_perception_people_msgs
-#   src/${PROJECT_NAME}/strands_perception_people_msgs.cpp
+# add_library(strands_pedestrian_localisation
+#   src/${PROJECT_NAME}/strands_pedestrian_localisation.cpp
 # )
 
 ## Declare a cpp executable
-# add_executable(strands_perception_people_msgs_node src/strands_perception_people_msgs_node.cpp)
+add_executable(pedestrian_localisation src/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(strands_perception_people_msgs_node strands_perception_people_msgs_generate_messages_cpp)
+add_dependencies(pedestrian_localisation strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(strands_perception_people_msgs_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(pedestrian_localisation
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -100,7 +96,7 @@ catkin_package(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS strands_perception_people_msgs strands_perception_people_msgs_node
+# install(TARGETS strands_pedestrian_localisation strands_pedestrian_localisation_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -125,7 +121,7 @@ catkin_package(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_strands_perception_people_msgs.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_strands_pedestrian_localisation.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
