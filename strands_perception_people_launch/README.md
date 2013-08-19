@@ -26,6 +26,9 @@ Parameters:
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
+* `tf_target_frame` _default = /base_link_: The coordinate system into which the localisations should be transformed
+* `pd_localisations` _default = /pedestrian_localisation/localisations_: The pedestrian localisations
+* `pd_marker` _default = /pedestrian_localisation/marker_array_: A marker arry to visualise found people in rviz
 
 
 * Launch everything:
@@ -59,6 +62,9 @@ Parameters:
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
+* `tf_target_frame` _default = /base_link_: The coordinate system into which the localisations should be transformed
+* `pd_localisations` _default = /pedestrian_localisation/localisations_: The pedestrian localisations
+* `pd_marker` _default = /pedestrian_localisation/marker_array_: A marker arry to visualise found people in rviz
 
 
 * Launch everything:
