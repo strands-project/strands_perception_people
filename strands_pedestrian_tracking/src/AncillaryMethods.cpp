@@ -927,3 +927,14 @@ void AncillaryMethods::ExtractBorder(const Matrix<double>& image, Vector<double>
 
 //    ys = AncillaryMethods::conv1D(ys, AncillaryMethods::getGaussian1D(3,1));
 }
+
+Vector<double> AncillaryMethods::fromWorldToCamera(Vector<double>& posInWorld, Camera& cam)
+{
+    Matrix<double> RT = cam.getCameraRotT();
+
+    Vector<double> t = cam.get_t();
+    t *= Globals::WORLD_SCALE;
+
+    Vector<double> posInCam = RT*(posInWorld-t);
+    return posInCam;
+}
