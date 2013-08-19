@@ -19,6 +19,9 @@
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
+    <arg name="tf_target_frame" default="/base_link" />
+    <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
+    <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
 
     <!-- Visual Odometry -->
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch"/>
@@ -61,5 +64,12 @@
         <param name="pedestrian_tracking/visual_odometry" value="$(arg visual_odometry)" type="string"/>
         <param name="pedestrian_tracking/pedestrain_array" value="$(arg pedestrian_array)" type="string"/>
         <param name="pedestrian_tracking/pedestrian_image" value="$(arg pedestrian_image)" type="string"/>
+
+    <!-- Pedestrian Localisation -->
+    <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch"/>
+        <param name="pedestrian_localisation/target_frame" value="$(arg tf_target_frame)" type="string"/>
+        <param name="pedestrian_localisation/pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
+        <param name="pedestrian_localisation/localisations" value="$(arg pd_localisations)" type="string"/>
+        <param name="pedestrian_localisation/marker" value="$(arg pd_marker)" type="string"/>
 
 </launch> 
