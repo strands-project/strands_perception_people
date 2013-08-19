@@ -1,0 +1,17 @@
+<launch>
+    <arg name="config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
+    <arg name="queue_size" default="5" />
+    <arg name="depth_image" default="/camera/depth/image" />
+    <arg name="camera_info" default="/camera/rgb/camera_info" />
+    <arg name="ground_plane" default="/ground_plane" />
+
+
+    <node pkg="strands_ground_plane" type="ground_plane" name="ground_plane" output="screen">
+        <param name="config_file" value="$(arg config_file)" type="string"/>
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+        <param name="depth_image" value="$(arg depth_image)" type="string"/>
+        <param name="camera_info" value="$(arg camera_info)" type="string"/>
+        <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
+    </node>
+
+</launch> 
