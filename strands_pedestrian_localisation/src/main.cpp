@@ -51,7 +51,9 @@ void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distance
                  pose.position.z);
     }
     result.distances = distances;
+    result.angles = angles;
     result.min_distance = min_dist;
+    result.min_distance_angle = angle;
     pub_detect.publish(result);
 }
 
