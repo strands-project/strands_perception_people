@@ -94,6 +94,8 @@ public:
     static void compute_rectangle(Vector<double>& main4D, Vector<double>& ort4D, Vector<double>& Lmax, Vector<double>& x, Matrix<double>& result);
 
 
+    static Vector<double> fromWorldToCamera(Vector<double>& posInWorld, Camera& cam);
+
     ///////////////// Segmentation part /////////////////////////////////////////
     static Matrix<double> conv1D(Matrix<double> &im, Vector<double> &kernel, bool dirFlag);
 

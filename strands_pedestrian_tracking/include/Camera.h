@@ -49,6 +49,7 @@ public:
     void intersectPlane(Vector<double>& gp, double gpd, Vector<double>& ray1, Vector<double>& ray2, Vector<double>& point);
     void jacFor3DCov(Vector<double>& x3d, Matrix<double>& Cov);
     bool isPointInFrontOfCam(const Vector<double> &point) const;
+    Matrix<double> getCameraRotT() const;
 
 private:
 
