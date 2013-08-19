@@ -278,6 +278,12 @@ void Camera::intersectPlane(Vector<double>& gp, double gpd, Vector<double>& ray1
     point += diffRay;
 }
 
+Matrix<double> Camera::getCameraRotT() const
+{
+	Matrix<double> rotT = Transpose(R_);
+    return rotT;
+}
+
 void Camera::jacFor3DCov(Vector<double>& X, Matrix<double>& Cov)
 {
     Matrix<double> R = Transpose(R_);

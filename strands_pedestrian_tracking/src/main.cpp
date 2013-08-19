@@ -411,6 +411,12 @@ void callbackWithoutHOG(const ImageConstPtr &color,
             oneHypoMsg.traj_x.push_back(trajPts(j)(0));
             oneHypoMsg.traj_y.push_back(trajPts(j)(1));
             oneHypoMsg.traj_z.push_back(trajPts(j)(2));
+            
+             Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(j), camera);
+            
+            oneHypoMsg.traj_x_camera.push_back(posInCamera(0));
+            oneHypoMsg.traj_y_camera.push_back(posInCamera(1));
+            oneHypoMsg.traj_z_camera.push_back(posInCamera(2));
         }
 
         oneHypoMsg.id = hyposMDL(i).getHypoID();
@@ -516,6 +522,13 @@ void callbackWithHOG(const ImageConstPtr &color,
             oneHypoMsg.traj_x.push_back(trajPts(j)(0));
             oneHypoMsg.traj_y.push_back(trajPts(j)(1));
             oneHypoMsg.traj_z.push_back(trajPts(j)(2));
+            
+            Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(j), camera);
+            
+            oneHypoMsg.traj_x_camera.push_back(posInCamera(0));
+            oneHypoMsg.traj_y_camera.push_back(posInCamera(1));
+            oneHypoMsg.traj_z_camera.push_back(posInCamera(2));
+            
         }
 
         oneHypoMsg.id = hyposMDL(i).getHypoID();
