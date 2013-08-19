@@ -29,7 +29,7 @@ string target_frame;
 int detect_seq = 0;
 int marker_seq = 0;
 
-void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distances, double min_dist) {
+void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distances, vector<double> angles, double min_dist, double angle) {
     PedestrianLocations result;
     result.header.stamp = ros::Time::now();
     result.header.frame_id = target_frame;
@@ -86,11 +86,11 @@ void createVisualisation(std::vector<geometry_msgs::Point> points) {
     pub_marker.publish(marker_array);
 }
 
-vector<float> polarToCartesian(geometry_msgs::Point point) {
+vector<double> cartesianToPolar(geometry_msgs::Point point) {
     ROS_DEBUG("cartesianToPolar: Cartesian point: x: %f, y: %f, z %f", point.x, point.y, point.z);
-    vector<float> output;
-    float dist = sqrt(pow(point.x,2) + pow(point.y,2));
-    float angle = atan2(point.y, point.x);
+    vector<double> output;
+    double dist = sqrt(pow(point.x,2) + pow(point.y,2));
+    double angle = atan2(point.y, point.x);
     output.push_back(dist);
     output.push_back(angle);
     ROS_DEBUG("cartesianToPolar: Polar point: distance: %f, angle: %f", dist, angle);
@@ -101,7 +101,6 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
 {
     bool loc = pub_detect.getNumSubscribers();
     bool markers = pub_marker.getNumSubscribers();
-    bool dist;
     if(!loc && !markers) {
         ROS_DEBUG("No subscribers. Skipping calculation.");
         return;
@@ -110,7 +109,9 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
 
     vector<geometry_msgs::Point> ppl;
     vector<double> distances;
+    vector<double> angles;
     double min_dist = 10000.0d;
+    double angle;
     for(int i = 0; i < pta->pedestrians.size(); i++) {
         PedestrianTracking pt = pta->pedestrians[i];
         if(pt.traj_x.size() && pt.traj_y.size() && pt.traj_z.size()) {
@@ -132,13 +133,10 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             poseInCamCoords.pose.position.z = pt.traj_z_camera[0];
 
             //Counteracting rotation in tf because it is already done in the pedetrsian tracking.
-            //tf rotation 0.5 -0.5 0.5 0.5 or 1.571, -1.571 0.0
-            //tf::Quaternion rot;
-            //rot.setRPY(-1.571, 1.571, 0.0);
-            poseInCamCoords.pose.orientation.x = -0.5; //rot.getX()
-            poseInCamCoords.pose.orientation.y =  0.5; //rot.getY()
-            poseInCamCoords.pose.orientation.z =  0.5; //rot.getZ()
-            poseInCamCoords.pose.orientation.w =  0.5; //rot.getW()
+            poseInCamCoords.pose.orientation.x = -0.5;
+            poseInCamCoords.pose.orientation.y =  0.5;
+            poseInCamCoords.pose.orientation.z =  0.5;
+            poseInCamCoords.pose.orientation.w =  0.5;
 
             //Transform
             try {
@@ -150,25 +148,18 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
                 ROS_ERROR("Failed transform: %s", ex.what());
             }
             ppl.push_back(poseInRobotCoords.pose.position);
-            double dist = (double)polarToCartesian(poseInRobotCoords.pose.position)[0];
-            distances.push_back(dist);
-            min_dist = dist < min_dist ? dist : min_dist;
+            vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
+            distances.push_back(polar[0]);
+            angles.push_back(polar[1]);
+
+            min_dist = polar[0] < min_dist ? polar[0] : min_dist;
+            angle = polar[0] < min_dist ? polar[1] : angle;
         }
-        publishDetections(ppl, distances, min_dist);
+        publishDetections(ppl, distances, angles, min_dist, angle);
         if(markers)
             createVisualisation(ppl);
     }
 
-}
-
-void ubdCallback(const UpperBodyDetector::ConstPtr &msg)
-{
-    for(int i = 0; i < msg->pos_x.size(); i++) {
-        if(msg->pos_x.size()>i && msg->pos_y.size()>i && msg->dist.size()>i) {
-            ROS_DEBUG("ubd: Position x: %i, y: %i, z: %i", (int)msg->pos_x[i], (int)msg->pos_y[i], (int)msg->dist[i]);
-        }
-    }
-    //TODO: Fill with magic
 }
 
 int main(int argc, char **argv)
@@ -181,7 +172,6 @@ int main(int argc, char **argv)
 
     // Declare variables that can be modified by launch file or command line.
     string pta_topic;
-    string ubd_topic;
     string pub_topic;
     string pub_marker_topic;
 
@@ -191,11 +181,9 @@ int main(int argc, char **argv)
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("target_frame", target_frame, string("/base_link"));
     private_node_handle_.param("pedestrian_array", pta_topic, string("/pedestrian_tracking/pedestrian_array"));
-    private_node_handle_.param("upper_body_detections", ubd_topic, string("/upper_body_detector/detections"));
 
     // Create a subscriber.
     ros::Subscriber pta_sub = n.subscribe(pta_topic.c_str(), 10, &trackingCallback);
-//    ros::Subscriber ubd_sub = n.subscribe(ubd_topic.c_str(), 10, &ubdCallback);
 
     private_node_handle_.param("localisations", pub_topic, string("/pedestrian_localisation/localisations"));
     pub_detect = n.advertise<PedestrianLocations>(pub_topic.c_str(), 10);
