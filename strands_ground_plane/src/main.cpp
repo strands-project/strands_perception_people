@@ -26,19 +26,10 @@
 
 #include "strands_perception_people_msgs/GroundPlane.h"
 
-
-
-
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
 
-//sensor_msgs::CameraInfo* camera_info = NULL;
-//boost::mutex camera_info_mutex;
-/*--------------------------------------------------------------------
- * main()
- * Main function to set up ROS node.
- *------------------------------------------------------------------*/
 ros::Publisher pub_ground_plane;
 
 cv::Mat img_depth_;
@@ -124,7 +115,7 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    ROS_DEBUG("upper_body_detector: Queue size for synchronisation is set to: %i", queue_size);
+    ROS_DEBUG("ground_plane: Queue size for synchronisation is set to: %i", queue_size);
 
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
