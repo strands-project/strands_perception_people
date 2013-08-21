@@ -6,7 +6,7 @@
     <arg name="ground_plane" default="/ground_plane" />
 
 
-    <node pkg="strands_ground_plane" type="ground_plane" name="ground_plane" output="screen">
+    <node pkg="strands_ground_plane" type="ground_plane_estimated" name="ground_plane" output="screen">
         <param name="config_file" value="$(arg config_file)" type="string"/>
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="depth_image" value="$(arg depth_image)" type="string"/>
