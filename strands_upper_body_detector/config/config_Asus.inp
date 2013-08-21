@@ -9,7 +9,7 @@ path_to_planes = /data/corpora/aachen_inner_city/bumblebee/part6/ptsOnGP/plane/p
 #=====================================
 # Distance Range Accepted Detections
 #=====================================
-distance_range_accepted_detections = 7
+distance_range_accepted_detections = 5
 
 #=====================================
 # ROI
@@ -208,7 +208,7 @@ precisionX = 2;
 sigmaZ = 3;
 precisionZ = 3;
 
-max_height = 3.0
+max_height = 2.1
 min_height = 1.0
 
 
