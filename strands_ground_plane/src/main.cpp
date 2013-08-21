@@ -15,22 +15,28 @@ ros::Publisher pub_ground_plane;
 void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     double tilt = 0.0;
     for(int i = 0; i < msg->name.size(); i++){
-        if(strcmp(msg->name[i].c_str(),"tilt"))
+        if(strcmp(msg->name[i].c_str(),"tilt") == 0)
             tilt = msg->position[i];
     }
+    ROS_DEBUG_STREAM("Received tilt of: " << tilt);
 
     //Magic numbers!
     tf::Vector3 n(0.012713099792961273, -0.999862809242558, 0.010617899379562451);
     double d = 1.94430405427;
+    ROS_DEBUG_STREAM("Normal before rotation: " << n.getX() << ", " << n.getY() << ", " << n.getZ());
 
+    tf::Quaternion rot(tf::Vector3(1,0,0),tilt);
+    ROS_DEBUG_STREAM("Quaternion: " << rot.getX() << ", " << rot.getY() << ", " << rot.getZ() << ", " <<rot.getW());
     //Rotate
-    n.rotate(tf::Vector3(1,0,0),tilt);
+    n = n.rotate(tf::Vector3(1,0,0), tilt);
+    ROS_DEBUG_STREAM("Normal after rotation: " << n.getX() << ", " << n.getY() << ", " << n.getZ());
     GroundPlane gp;
     gp.header = msg->header;
     gp.n.push_back(n.getX());
     gp.n.push_back(n.getY());
     gp.n.push_back(n.getZ());
     gp.d = d;
+    ROS_DEBUG_STREAM("Publishing:\n" << gp);
     pub_ground_plane.publish(gp);
 }
 
