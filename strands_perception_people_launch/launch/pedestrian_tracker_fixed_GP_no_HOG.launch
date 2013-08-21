@@ -1,13 +1,15 @@
 <launch>
     <!-- Global paramters -->
+    <arg name="gh_queue_size" default="10" />
     <arg name="gp_queue_size" default="5" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />
     <arg name="pt_queue_size" default="10" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
     <arg name="ubd_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
-    <arg name="gp_config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
     <arg name="pt_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="gp_param_file" default="$(find strands_ground_plane)/config/fixed_gp.yaml" />
+    <arg name="ptu_state" default="/ptu/state" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="depth_image" default="/camera/depth/image" />
     <arg name="color_image" default="/camera/rgb/image_color" />
@@ -32,12 +34,10 @@
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
     </include>
 
-    <!-- Ground Plane -->
-    <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
-        <arg name="queue_size" value="$(arg gp_queue_size)"/>
-        <arg name="config_file" value="$(arg gp_config_file)"/>
-        <arg name="depth_image" value="$(arg depth_image)"/>
-        <arg name="camera_info" value="$(arg camera_info)"/>
+    <!-- Ground Plane - fixed -->
+    <include file="$(find strands_ground_plane)/launch/ground_plane_fixed.launch">
+        <arg name="param_file" value="$(arg gp_param_file)"/>
+        <arg name="ptu_state" value="$(arg ptu_state)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
 
@@ -75,5 +75,6 @@
         <arg name="localisations" value="$(arg pd_localisations)"/>
         <arg name="marker" value="$(arg pd_marker)"/>
     </include>
+
 
 </launch> 

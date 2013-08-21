@@ -443,7 +443,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
     private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
-    private_node_handle_.param("ground_plane", topic_gp, string(""));
+    private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
 
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");
