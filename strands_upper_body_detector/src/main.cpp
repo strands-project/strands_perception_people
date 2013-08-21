@@ -378,7 +378,19 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
         detection_msg.height.push_back(detected_bounding_boxes(i)(3));
         detection_msg.dist.push_back(detected_bounding_boxes(i)(4));
         detection_msg.median_depth.push_back(detected_bounding_boxes(i)(5));
+
+
+        detection_msg.pos_3d_z.push_back(detected_bounding_boxes(i)(5));
+
+        double mid_point_x = detected_bounding_boxes(i)(0)+detected_bounding_boxes(i)(2)/2.0;
+        double mid_point_y = detected_bounding_boxes(i)(1)+detected_bounding_boxes(i)(3)/2.0;
+
+        detection_msg.pos_3d_x.push_back(detected_bounding_boxes(i)(5)*((mid_point_x-K(2,0))/K(0,0)));
+        detection_msg.pos_3d_y.push_back(detected_bounding_boxes(i)(5)*((mid_point_y-K(2,1))/K(1,1)));
     }
+
+
+
 
     if(pub_result_image.getNumSubscribers()) {
         ROS_DEBUG("Publishing image");
