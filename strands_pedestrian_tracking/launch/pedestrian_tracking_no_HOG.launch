@@ -18,7 +18,7 @@
         <param name="color_image" value="$(arg color_image)" type="string"/>
         <param name="camera_infoe" value="$(arg camera_info)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
-        <param name="ground_hog" value="" type="string"/>
+        <param name="ground_hog" value="" type="string"/> <!-- Important to start without groundHOG -->
         <param name="visual_odometry" value="$(arg visual_odometry)" type="string"/>
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
         <param name="pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
