@@ -55,7 +55,7 @@
     </include>
 
     <!-- Pedestrian Tracking -->
-    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch">
+    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking_no_HOG.launch">
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
         <arg name="config_file" value="$(arg pt_config_file)"/>
         <arg name="depth_image" value="$(arg depth_image)"/>
