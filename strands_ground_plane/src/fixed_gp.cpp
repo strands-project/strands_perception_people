@@ -9,35 +9,37 @@
 using namespace std;
 using namespace strands_perception_people_msgs;
 
-ros::Publisher pub_ground_plane;
+ros::Publisher _pub_ground_plane;
 
+int _seq = 0;
+tf::Vector3 _normal;
+double _distance;
 
 void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     double tilt = 0.0;
     for(int i = 0; i < msg->name.size(); i++){
-        if(strcmp(msg->name[i].c_str(),"tilt") == 0)
+        if(strcmp(msg->name[i].c_str(),"tilt") == 0) {
             tilt = msg->position[i];
+            ROS_DEBUG_STREAM("Received tilt of: " << tilt);
+            break;
+        } else {
+            ROS_DEBUG_STREAM("Received no tilt value. Will use default: " << tilt);
+        }
     }
-    ROS_DEBUG_STREAM("Received tilt of: " << tilt);
 
-    //Magic numbers!
-    tf::Vector3 n(0.0, -1.0, 0.0);
-    double d = 1.7;
-    ROS_DEBUG_STREAM("Normal before rotation: " << n.getX() << ", " << n.getY() << ", " << n.getZ());
-
-    tf::Quaternion rot(tf::Vector3(1,0,0),tilt);
-    ROS_DEBUG_STREAM("Quaternion: " << rot.getX() << ", " << rot.getY() << ", " << rot.getZ() << ", " <<rot.getW());
-    //Rotate
-    n = n.rotate(tf::Vector3(1,0,0), tilt);
+    ROS_DEBUG_STREAM("Normal before rotation: " << _normal.getX() << ", " << _normal.getY() << ", " << _normal.getZ());
+    tf::Vector3 n = _normal.rotate(tf::Vector3(1,0,0), tilt); //Rotate about x-axis using ptu tilt angle
     ROS_DEBUG_STREAM("Normal after rotation: " << n.getX() << ", " << n.getY() << ", " << n.getZ());
     GroundPlane gp;
-    gp.header = msg->header;
+    gp.header.frame_id = "/head_xtion_depth_optical_frame";
+    gp.header.stamp = ros::Time::now();
+    gp.header.seq = ++_seq;
+    ROS_DEBUG_STREAM("Created header:\n" << gp.header);
     gp.n.push_back(n.getX());
     gp.n.push_back(n.getY());
     gp.n.push_back(n.getZ());
-    gp.d = d;
-    ROS_DEBUG_STREAM("Publishing:\n" << gp);
-    pub_ground_plane.publish(gp);
+    gp.d = _distance;
+    _pub_ground_plane.publish(gp);
 }
 
 int main(int argc, char **argv)
@@ -55,14 +57,28 @@ int main(int argc, char **argv)
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("ptu_state", sub_ptu_topic, string("/ptu/state"));
+    private_node_handle_.param("distance", _distance, 1.7);
+    XmlRpc::XmlRpcValue read_normal;
+    if(!private_node_handle_.getParam("normal", read_normal)) { //Did not find a nicer way of setting a default
+        ROS_INFO("No normal given. Will use default: 0.0, -1.0, 0.0");
+        _normal.setX(0.0); _normal.setY(-1.0); _normal.setZ(0.0);
+    } else {
+        ROS_ASSERT(read_normal.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(read_normal[0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        _normal.setX(static_cast<double>(read_normal[0]));
+        ROS_ASSERT(read_normal[1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        _normal.setY(static_cast<double>(read_normal[1]));
+        ROS_ASSERT(read_normal[2].getType() == XmlRpc::XmlRpcValue::TypeDouble);
+        _normal.setZ(static_cast<double>(read_normal[2]));
+        ROS_DEBUG_STREAM("Loading from YAML file:" << _normal.getX() << ", " << _normal.getY() << ", " << _normal.getZ());
+    }
 
     // Create a subscriber.
-    // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     ros::Subscriber ptu_sub = n.subscribe(sub_ptu_topic.c_str(), 10, &callback);
 
     // Create a topic publisher
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
-    pub_ground_plane = n.advertise<GroundPlane>(pub_topic_gp.c_str(), 10);
+    _pub_ground_plane = n.advertise<GroundPlane>(pub_topic_gp.c_str(), 10);
 
 
     ros::spin();
