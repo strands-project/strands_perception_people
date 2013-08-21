@@ -77,14 +77,19 @@ include_directories(include
 # )
 
 ## Declare a cpp executable
-add_executable(ground_plane src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
+add_executable(ground_plane_estimated src/estimated_gp.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
+add_executable(ground_plane_fixed src/fixed_gp.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(strands_ground_plane_node strands_ground_plane_generate_messages_cpp)
+add_dependencies(ground_plane_estimated strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
+add_dependencies(ground_plane_fixed strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(ground_plane
+target_link_libraries(ground_plane_estimated
+   ${catkin_LIBRARIES}
+)
+target_link_libraries(ground_plane_fixed
    ${catkin_LIBRARIES}
 )
 
