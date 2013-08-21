@@ -1,10 +1,13 @@
 <launch>
     <!-- Global paramters -->
+    <arg name="gp_queue_size" default="5" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />
     <arg name="pt_queue_size" default="10" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
-    <arg name="config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="ubd_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="gp_config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
+    <arg name="pt_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="depth_image" default="/camera/depth/image" />
     <arg name="color_image" default="/camera/rgb/image_color" />
@@ -16,6 +19,9 @@
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
+    <arg name="tf_target_frame" default="/base_link" />
+    <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
+    <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
 
     <!-- Visual Odometry -->
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch"/>
@@ -25,10 +31,18 @@
         <param name="visual_odometry/camera_info" value="$(arg camera_info)" type="string"/>
         <param name="visual_odometry/motion_parameters" value="$(arg visual_odometry)" type="string"/>
 
+    <!-- Ground Plane -->
+    <include file="$(find strands_ground_plane)/launch/ground_plane.launch"/>
+        <param name="ground_plane/queue_size" value="$(arg gp_queue_size)" type="int"/>
+        <param name="ground_plane/config_file" value="$(arg gp_config_file)" type="string"/>
+        <param name="ground_plane/depth_image" value="$(arg depth_image)" type="string"/>
+        <param name="ground_plane/camera_info" value="$(arg camera_info)" type="string"/>
+        <param name="ground_plane/ground_plane" value="$(arg ground_plane)" type="string"/>
+
     <!-- Upper Body Detector -->
     <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
         <param name="upper_body_detector/queue_size" value="$(arg ubd_queue_size)" type="int"/>
-        <param name="upper_body_detector/config_file" value="$(arg config_file)" type="string"/>
+        <param name="upper_body_detector/config_file" value="$(arg ubd_config_file)" type="string"/>
         <param name="upper_body_detector/template_file" value="$(arg template_file)" type="string"/>
         <param name="upper_body_detector/depth_image" value="$(arg depth_image)" type="string"/>
         <param name="upper_body_detector/color_image" value="$(arg color_image)" type="string"/>
@@ -40,7 +54,7 @@
     <!-- Pedestrian Tracking -->
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch"/>
         <param name="pedestrian_tracking/queue_size" value="$(arg pt_queue_size)" type="int"/>
-        <param name="pedestrian_tracking/config_file" value="$(arg config_file)" type="string"/>
+        <param name="pedestrian_tracking/config_file" value="$(arg pt_config_file)" type="string"/>
         <param name="pedestrian_tracking/depth_image" value="$(arg depth_image)" type="string"/>
         <param name="pedestrian_tracking/color_image" value="$(arg color_image)" type="string"/>
         <param name="pedestrian_tracking/camera_info" value="$(arg camera_info)" type="string"/>
@@ -50,5 +64,12 @@
         <param name="pedestrian_tracking/visual_odometry" value="$(arg visual_odometry)" type="string"/>
         <param name="pedestrian_tracking/pedestrain_array" value="$(arg pedestrian_array)" type="string"/>
         <param name="pedestrian_tracking/pedestrian_image" value="$(arg pedestrian_image)" type="string"/>
+
+    <!-- Pedestrian Localisation -->
+    <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch"/>
+        <param name="pedestrian_localisation/target_frame" value="$(arg tf_target_frame)" type="string"/>
+        <param name="pedestrian_localisation/pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
+        <param name="pedestrian_localisation/localisations" value="$(arg pd_localisations)" type="string"/>
+        <param name="pedestrian_localisation/marker" value="$(arg pd_marker)" type="string"/>
 
 </launch> 
