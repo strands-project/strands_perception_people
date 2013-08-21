@@ -1,20 +1,24 @@
 <launch>
     <!-- Global paramters -->
+    <arg name="gh_queue_size" default="10" />
     <arg name="gp_queue_size" default="5" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />
     <arg name="pt_queue_size" default="10" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
     <arg name="ubd_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
-    <arg name="gp_config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
     <arg name="pt_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="gp_param_file" default="$(find strands_ground_plane)/config/fixed_gp.yaml" />
+    <arg name="ptu_state" default="/ptu/state" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="depth_image" default="/camera/depth/image" />
     <arg name="color_image" default="/camera/rgb/image_color" />
     <arg name="mono_image" default="/camera/rgb/image_mono" />
     <arg name="camera_info" default="/camera/rgb/camera_info" />
     <arg name="ground_plane" default="/ground_plane" />
+    <arg name="ground_hog_detections" default="/groundHOG/detections" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
+    <arg name="ground_hog_image" default="/groundHOG/image" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
@@ -22,6 +26,17 @@
     <arg name="tf_target_frame" default="/base_link" />
     <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
     <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
+
+    <!-- Ground HOG -->
+    <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch">
+        <arg name="queue_size" value="$(arg gh_queue_size)"/>
+        <arg name="model" value="$(arg model)"/>
+        <arg name="ground_plane" value="$(arg ground_plane)"/>
+        <arg name="color_image" value="$(arg color_image)"/>
+        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="detections" value="$(arg ground_hog_detections)"/>
+        <arg name="result_image" value="$(arg ground_hog_image)"/>
+    </include>
 
     <!-- Visual Odometry -->
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
@@ -32,12 +47,10 @@
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
     </include>
 
-    <!-- Ground Plane -->
-    <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
-        <arg name="queue_size" value="$(arg gp_queue_size)"/>
-        <arg name="config_file" value="$(arg gp_config_file)"/>
-        <arg name="depth_image" value="$(arg depth_image)"/>
-        <arg name="camera_info" value="$(arg camera_info)"/>
+    <!-- Ground Plane - fixed -->
+    <include file="$(find strands_ground_plane)/launch/ground_plane_fixed.launch">
+        <arg name="param_file" value="$(arg gp_param_file)"/>
+        <arg name="ptu_state" value="$(arg ptu_state)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
 
@@ -55,13 +68,14 @@
     </include>
 
     <!-- Pedestrian Tracking -->
-    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking_no_HOG.launch">
+    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch">
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
         <arg name="config_file" value="$(arg pt_config_file)"/>
         <arg name="depth_image" value="$(arg depth_image)"/>
         <arg name="color_image" value="$(arg color_image)"/>
         <arg name="camera_info" value="$(arg camera_info)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
+        <arg name="ground_hog" value="$(arg ground_hog_detections)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="visual_odometry" value="$(arg visual_odometry)"/>
         <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
@@ -75,5 +89,6 @@
         <arg name="localisations" value="$(arg pd_localisations)"/>
         <arg name="marker" value="$(arg pd_marker)"/>
     </include>
+
 
 </launch> 

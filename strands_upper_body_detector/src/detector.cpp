@@ -49,9 +49,10 @@ void Detector::ProcessFrame(const Camera &camera_origin, const Matrix<double> &d
 
             double height = plane_in_camera(0)*lower_point(0) + plane_in_camera(1)*lower_point(1) +
                     plane_in_camera(2)*lower_point(2) + plane_in_camera(3)*Globals::WORLD_SCALE;
-
+            ROS_DEBUG_STREAM("Checking height: " << Globals::min_height << " < " << height << " < " << Globals::max_height);
+            ROS_DEBUG_STREAM("Checking distance: " << (all_ROIs(l).center_y()-all_ROIs(l).width()/2.0)/scaleZ << " < " << Globals::distance_range_accepted_detections);
             if((all_ROIs(l).center_y()-all_ROIs(l).width()/2.0)/scaleZ < Globals::distance_range_accepted_detections
-                    && height > 1.0 && height < 2.1)
+                    && height > Globals::min_height && height < Globals::max_height)
             {
                 Vector<double> bbox(4, 0.0);
                 // if there is a valid bounding box

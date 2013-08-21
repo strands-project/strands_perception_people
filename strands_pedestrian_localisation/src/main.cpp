@@ -147,7 +147,8 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
                 listener->transformPose(target_frame, poseInCamCoords, poseInRobotCoords);
             }
             catch(tf::TransformException ex) {
-                ROS_ERROR("Failed transform: %s", ex.what());
+                ROS_WARN("Failed transform: %s", ex.what());
+                return;
             }
             ppl.push_back(poseInRobotCoords.pose.position);
             vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);

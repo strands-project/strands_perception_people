@@ -27,63 +27,69 @@
     <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
 
     <!-- Ground HOG -->
-    <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch"/>
-        <param name="groundHOG/queue_size" value="$(arg gh_queue_size)" type="int"/>
-        <param name="groundHOG/model" value="$(arg model)" type="string"/>
-        <param name="groundHOG/ground_plane" value="$(arg ground_plane)" type="string"/>
-        <param name="groundHOG/color_image" value="$(arg color_image)" type="string"/>
-        <param name="groundHOG/camera_info" value="$(arg camera_info)" type="string"/>
-        <param name="groundHOG/detections" value="$(arg ground_hog_detections)" type="string"/>
-        <param name="groundHOG/result_image" value="$(arg ground_hog_image)" type="string"/>
+    <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch">
+        <arg name="queue_size" value="$(arg gh_queue_size)"/>
+        <arg name="model" value="$(arg model)"/>
+        <arg name="ground_plane" value="$(arg ground_plane)"/>
+        <arg name="color_image" value="$(arg color_image)"/>
+        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="detections" value="$(arg ground_hog_detections)"/>
+        <arg name="result_image" value="$(arg ground_hog_image)"/>
+    </include>
 
     <!-- Visual Odometry -->
-    <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch"/>
-        <param name="visual_odometry/queue_size" value="$(arg vo_queue_size)" type="int"/>
-        <param name="visual_odometry/depth_image" value="$(arg depth_image)" type="string"/>
-        <param name="visual_odometry/mono_image" value="$(arg mono_image)" type="string"/>
-        <param name="visual_odometry/camera_info" value="$(arg camera_info)" type="string"/>
-        <param name="visual_odometry/motion_parameters" value="$(arg visual_odometry)" type="string"/>
+    <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
+        <arg name="queue_size" value="$(arg vo_queue_size)"/>
+        <arg name="depth_image" value="$(arg depth_image)"/>
+        <arg name="mono_image" value="$(arg mono_image)"/>
+        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="motion_parameters" value="$(arg visual_odometry)"/>
+    </include>
 
     <!-- Ground Plane -->
-    <include file="$(find strands_ground_plane)/launch/ground_plane.launch"/>
-        <param name="ground_plane/queue_size" value="$(arg gp_queue_size)" type="int"/>
-        <param name="ground_plane/config_file" value="$(arg gp_config_file)" type="string"/>
-        <param name="ground_plane/depth_image" value="$(arg depth_image)" type="string"/>
-        <param name="ground_plane/camera_info" value="$(arg camera_info)" type="string"/>
-        <param name="ground_plane/ground_plane" value="$(arg ground_plane)" type="string"/>
+    <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
+        <arg name="queue_size" value="$(arg gp_queue_size)"/>
+        <arg name="config_file" value="$(arg gp_config_file)"/>
+        <arg name="depth_image" value="$(arg depth_image)"/>
+        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="ground_plane" value="$(arg ground_plane)"/>
+    </include>
 
     <!-- Upper Body Detector -->
-    <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
-        <param name="upper_body_detector/queue_size" value="$(arg ubd_queue_size)" type="int"/>
-        <param name="upper_body_detector/config_file" value="$(arg ubd_config_file)" type="string"/>
-        <param name="upper_body_detector/template_file" value="$(arg template_file)" type="string"/>
-        <param name="upper_body_detector/depth_image" value="$(arg depth_image)" type="string"/>
-        <param name="upper_body_detector/color_image" value="$(arg color_image)" type="string"/>
-        <param name="upper_body_detector/camera_info" value="$(arg camera_info)" type="string"/>
-        <param name="upper_body_detector/upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
-        <param name="upper_body_detector/upper_body_image" value="$(arg upper_body_image)" type="string"/>
-        <param name="upper_body_detector/ground_plane" value="$(arg ground_plane)" type="string"/>
+    <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch">
+        <arg name="queue_size" value="$(arg ubd_queue_size)"/>
+        <arg name="config_file" value="$(arg ubd_config_file)"/>
+        <arg name="template_file" value="$(arg template_file)"/>
+        <arg name="depth_image" value="$(arg depth_image)"/>
+        <arg name="color_image" value="$(arg color_image)"/>
+        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
+        <arg name="upper_body_image" value="$(arg upper_body_image)"/>
+        <arg name="ground_plane" value="$(arg ground_plane)"/>
+    </include>
 
     <!-- Pedestrian Tracking -->
-    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch"/>
-        <param name="pedestrian_tracking/queue_size" value="$(arg pt_queue_size)" type="int"/>
-        <param name="pedestrian_tracking/config_file" value="$(arg pt_config_file)" type="string"/>
-        <param name="pedestrian_tracking/depth_image" value="$(arg depth_image)" type="string"/>
-        <param name="pedestrian_tracking/color_image" value="$(arg color_image)" type="string"/>
-        <param name="pedestrian_tracking/camera_info" value="$(arg camera_info)" type="string"/>
-        <param name="pedestrian_tracking/ground_plane" value="$(arg ground_plane)" type="string"/>
-        <param name="pedestrian_tracking/ground_hog" value="$(arg ground_hog_detections)" type="string"/>
-        <param name="pedestrian_tracking/upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
-        <param name="pedestrian_tracking/visual_odometry" value="$(arg visual_odometry)" type="string"/>
-        <param name="pedestrian_tracking/pedestrain_array" value="$(arg pedestrian_array)" type="string"/>
-        <param name="pedestrian_tracking/pedestrian_image" value="$(arg pedestrian_image)" type="string"/>
+    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch">
+        <arg name="queue_size" value="$(arg pt_queue_size)"/>
+        <arg name="config_file" value="$(arg pt_config_file)"/>
+        <arg name="depth_image" value="$(arg depth_image)"/>
+        <arg name="color_image" value="$(arg color_image)"/>
+        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="ground_plane" value="$(arg ground_plane)"/>
+        <arg name="ground_hog" value="$(arg ground_hog_detections)"/>
+        <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
+        <arg name="visual_odometry" value="$(arg visual_odometry)"/>
+        <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
+        <arg name="pedestrian_image" value="$(arg pedestrian_image)"/>
+    </include>
 
     <!-- Pedestrian Localisation -->
-    <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch"/>
-        <param name="pedestrian_localisation/target_frame" value="$(arg tf_target_frame)" type="string"/>
-        <param name="pedestrian_localisation/pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
-        <param name="pedestrian_localisation/localisations" value="$(arg pd_localisations)" type="string"/>
-        <param name="pedestrian_localisation/marker" value="$(arg pd_marker)" type="string"/>
+    <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch">
+        <arg name="target_frame" value="$(arg tf_target_frame)"/>
+        <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
+        <arg name="localisations" value="$(arg pd_localisations)"/>
+        <arg name="marker" value="$(arg pd_marker)"/>
+    </include>
 
 
 </launch> 
