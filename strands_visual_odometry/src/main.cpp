@@ -26,12 +26,6 @@ using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
-//sensor_msgs::CameraInfo* camera_info = NULL;
-//boost::mutex camera_info_mutex;
-/*--------------------------------------------------------------------
- * main()
- * Main function to set up ROS node.
- *------------------------------------------------------------------*/
 ros::Publisher pub_message;
 fovis::VisualOdometry* odom = NULL;
 fovis::CameraIntrinsicsParameters cam_params;
@@ -40,19 +34,24 @@ cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
 bool recover = false;
+bool first = true;
 
 void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const CameraInfoConstPtr &info)
 {
-
+    // Initialising odomometry at first callback call or for recovery
     if(odom == NULL)
     {
-        memset(&cam_params, 0, sizeof(fovis::CameraIntrinsicsParameters));
-        cam_params.width = info->width;
-        cam_params.height = info->height;
-        cam_params.fx = info->K[0];
-        cam_params.fy = info->K[4];
-        cam_params.cx = info->K[2];
-        cam_params.cy = info->K[5];
+        // Only needs to be done once at startup and not for recovery
+        if(first) {
+            first = false;
+            memset(&cam_params, 0, sizeof(fovis::CameraIntrinsicsParameters));
+            cam_params.width = info->width;
+            cam_params.height = info->height;
+            cam_params.fx = info->K[0];
+            cam_params.fy = info->K[4];
+            cam_params.cx = info->K[2];
+            cam_params.cy = info->K[5];
+        }
 
         fovis::Rectification* fovis_rect;
 
@@ -103,7 +102,7 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     for(int i = 0; i < 4*4; i++)
     {
         fovis_info_msg.transformation_matrix[i] = m1.data()[i];
-        if(isnan(m1.data()[i])) {
+        if(isnan(m1.data()[i])) { // Detected nan values and trigger recovery
             recover = true;
         }
     }
@@ -111,8 +110,9 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     pub_message.publish(fovis_info_msg);
     delete fv_dp;
 
+    // delete odometry and reset at next callback call.
     if(recover) {
-        ROS_WARN("Detected 'nan' values in motion matrix. Will try to auto recover by resetting visual odometry");
+        ROS_WARN("Detected 'nan' values in motion matrix. Will try to auto recover by resetting visual odometry.");
         recover = false;
         delete odom;
         odom = NULL;
