@@ -6,8 +6,3 @@ int64[] height 	# height of the bounding box
 float64[] dist  # distance of the overlaid area and the template
 float64[] median_depth # median_depth inside the detected bounding box
 
-# 3D position of the middle point of the detected bounding box detection
-float64[] pos_3d_x 
-float64[] pos_3d_y
-float64[] pos_3d_z 
-
