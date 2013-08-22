@@ -18,6 +18,7 @@
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="ground_hog_detections" default="/groundHOG/detections" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
+    <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
     <arg name="ground_hog_image" default="/groundHOG/image" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
@@ -63,6 +64,7 @@
         <arg name="color_image" value="$(arg color_image)"/>
         <arg name="camera_info" value="$(arg camera_info)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
+        <arg name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)"/>
         <arg name="upper_body_image" value="$(arg upper_body_image)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>

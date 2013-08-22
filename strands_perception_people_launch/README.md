@@ -29,6 +29,7 @@ Parameters:
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `ground_hog_detections` _default = /groundHOG/detections_: The ground HOG detections
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
+* `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `ground_hog_image` _default = /groundHOG/image_: The ground HOG image
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
@@ -68,6 +69,7 @@ Parameters:
 * `camera_info` _default = /camera/rgb/camera_info_: The Kinect camera info
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
+* `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
@@ -108,6 +110,7 @@ Parameters:
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `ground_hog_detections` _default = /groundHOG/detections_: The ground HOG detections
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
+* `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `ground_hog_image` _default = /groundHOG/image_: The ground HOG image
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
@@ -148,6 +151,7 @@ Parameters:
 * `camera_info` _default = /camera/rgb/camera_info_: The Kinect camera info
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
+* `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians

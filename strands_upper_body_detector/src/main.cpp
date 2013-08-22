@@ -7,6 +7,8 @@
 
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/CameraInfo.h"
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseArray.h>
 
 #include "string.h"
 #include "boost/thread.hpp"
@@ -28,28 +30,17 @@
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
 
-
 #include <QImage>
 #include <QPainter>
-
-
-
 
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
-
-//sensor_msgs::CameraInfo* camera_info = NULL;
-//boost::mutex camera_info_mutex;
-/*--------------------------------------------------------------------
- * main()
- * Main function to set up ROS node.
- *------------------------------------------------------------------*/
 ros::Publisher pub_message;
 ros::Publisher pub_result_image;
-ros::Publisher pub_ground_plane;
+ros::Publisher pub_centres;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -59,7 +50,7 @@ Matrix<double> upper_body_template;
 Detector* detector;
 
 
-void render_bbox_2D(strands_perception_people_msgs::UpperBodyDetector& detections, QImage& image,
+void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
                     int r, int g, int b, int lineWidth)
 {
 
@@ -336,15 +327,20 @@ void ReadUpperBodyTemplate(string template_path)
 
 void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
-    Globals::render_bbox3D = pub_result_image.getNumSubscribers() > 0 ? true : false;
-    // Get color image
-    QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888);
+    // Check if calculation is necessary
+    bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0;
+    bool vis = pub_result_image.getNumSubscribers() > 0;
 
-    // Get depth
+    if(!detect && !vis)
+        return;
+
+    // Render detection results depending on subscription
+    Globals::render_bbox3D = vis;
+
+    // Get depth image as matrix
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
     img_depth_ = cv_depth_ptr->image;
     Matrix<double> matrix_depth(info->width, info->height);
-
     for (int r = 0;r < 480;r++){
         for (int c = 0;c < 640;c++) {
             matrix_depth(c, r) = img_depth_.at<float>(r,c);
@@ -360,18 +356,20 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     Vector<double> GP(3, (double*) &gp->n[0]);
     GP.pushBack((double) gp->d);
 
+    // Detect upper bodies
     Camera camera(K,R,t,GP);
     PointCloud point_cloud(camera, matrix_depth);
-
     Vector<Vector< double > > detected_bounding_boxes;
-
     detector->ProcessFrame(camera, matrix_depth, point_cloud, upper_body_template, detected_bounding_boxes);
 
-    strands_perception_people_msgs::UpperBodyDetector detection_msg;
+    // Generate messages
+    UpperBodyDetector detection_msg;
+    geometry_msgs::PoseArray bb_centres;
     detection_msg.header = depth->header;
-
+    bb_centres.header    = depth->header;
     for(int i = 0; i < detected_bounding_boxes.getSize(); i++)
     {
+        // Custom detections message
         detection_msg.pos_x.push_back(detected_bounding_boxes(i)(0));
         detection_msg.pos_y.push_back(detected_bounding_boxes(i)(1));
         detection_msg.width.push_back(detected_bounding_boxes(i)(2));
@@ -379,21 +377,23 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
         detection_msg.dist.push_back(detected_bounding_boxes(i)(4));
         detection_msg.median_depth.push_back(detected_bounding_boxes(i)(5));
 
-
-        detection_msg.pos_3d_z.push_back(detected_bounding_boxes(i)(5));
-
+        // Calculate centres of bounding boxes
         double mid_point_x = detected_bounding_boxes(i)(0)+detected_bounding_boxes(i)(2)/2.0;
         double mid_point_y = detected_bounding_boxes(i)(1)+detected_bounding_boxes(i)(3)/2.0;
 
-        detection_msg.pos_3d_x.push_back(detected_bounding_boxes(i)(5)*((mid_point_x-K(2,0))/K(0,0)));
-        detection_msg.pos_3d_y.push_back(detected_bounding_boxes(i)(5)*((mid_point_y-K(2,1))/K(1,1)));
+        // PoseArray message for boundingbox centres
+        geometry_msgs::Pose pose;
+        pose.position.x = detected_bounding_boxes(i)(5)*((mid_point_x-K(2,0))/K(0,0));
+        pose.position.y = detected_bounding_boxes(i)(5)*((mid_point_y-K(2,1))/K(1,1));
+        pose.position.z = detected_bounding_boxes(i)(5);
+        pose.orientation.w = 1.0; //No rotation atm.
+        bb_centres.poses.push_back(pose);
     }
 
-
-
-
-    if(pub_result_image.getNumSubscribers()) {
+    // Creating a ros image with the detection results an publishing it
+    if(vis) {
         ROS_DEBUG("Publishing image");
+        QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888); // would opencv be better?
         render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
 
         sensor_msgs::Image sensor_image;
@@ -407,12 +407,14 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
         pub_result_image.publish(sensor_image);
     }
 
+    // Publishing detections
     pub_message.publish(detection_msg);
-
+    pub_centres.publish(bb_centres);
 }
 
 int main(int argc, char **argv)
 {
+    // Don't know what these are for exactly. TODO: Have Dennis decide what todo with those.
     Globals::render_bbox2D = false;
     Globals::render_tracking_numbers = false;
 
@@ -425,12 +427,13 @@ int main(int argc, char **argv)
     string topic_depth_image;
     string topic_color_image;
     string topic_camera_info;
-    string pub_topic_result_image;
     string config_file;
     string template_path;
     string topic_gp;
 
-    string pub_topic;
+    string pub_topic_centres;
+    string pub_topic_ubd;
+    string pub_topic_result_image;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
@@ -445,6 +448,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
 
+    // Checking if all config files could be loaded
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");
         ROS_ERROR("Run with: rosrun strands_upperbody_detector upper_body_detector _config_file:=/path/to/config");
@@ -457,12 +461,7 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    if(strcmp(topic_gp.c_str(),"") == 0) {
-        ROS_ERROR("No ground plane topic specified.");
-        ROS_ERROR("Run with: rosrun strands_upperbody_detector upper_body_detector _ground_plane:=/topic_name");
-        exit(0);
-    }
-
+    // Printing queue size
     ROS_DEBUG("upper_body_detector: Queue size for synchronisation is set to: %i", queue_size);
 
     // Create a subscriber.
@@ -476,26 +475,33 @@ int main(int argc, char **argv)
     sync_policies::ApproximateTime<Image, Image, GroundPlane, CameraInfo> MySyncPolicy(queue_size);
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
+    // Initialise detector
     ReadUpperBodyTemplate(template_path);
     ReadConfigFile(config_file);
     detector = new Detector();
 
-
+    // Create synchronization policy. Here: async because time stamps will never match exactly
     const sync_policies::ApproximateTime<Image, Image, GroundPlane, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
-
     Synchronizer< sync_policies::ApproximateTime<Image, Image, GroundPlane, CameraInfo> > sync(MyConstSyncPolicy,
-                                                                                               subscriber_depth, subscriber_color, subscriber_gp, subscriber_camera_info);
-
+                                                                                               subscriber_depth,
+                                                                                               subscriber_color,
+                                                                                               subscriber_gp,
+                                                                                               subscriber_camera_info);
+    // Register one callback for all topics
     sync.registerCallback(boost::bind(&callback, _1, _2, _3, _4));
 
 
-    // Create a topic publisher
-    private_node_handle_.param("upper_body_detections", pub_topic, string("/upper_body_detector/detections"));
-    pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic.c_str(), 10);
+    // Create publisher
+    private_node_handle_.param("upper_body_detections", pub_topic_ubd, string("/upper_body_detector/detections"));
+    pub_message = n.advertise<UpperBodyDetector>(pub_topic_ubd.c_str(), 10);
+
+    private_node_handle_.param("upper_body_bb_centres", pub_topic_centres, string("/upper_body_detector/bounding_box_centres"));
+    pub_centres = n.advertise<geometry_msgs::PoseArray>(pub_topic_centres.c_str(), 10);
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
 
+    // Start ros thread managment
     ros::spin();
 
     return 0;
