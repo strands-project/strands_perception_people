@@ -7,7 +7,7 @@
 
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/CameraInfo.h"
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 
 #include "string.h"
@@ -493,10 +493,10 @@ int main(int argc, char **argv)
 
     // Create publisher
     private_node_handle_.param("upper_body_detections", pub_topic_ubd, string("/upper_body_detector/detections"));
-    pub_message = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic_ubd.c_str(), 10);
+    pub_message = n.advertise<UpperBodyDetector>(pub_topic_ubd.c_str(), 10);
 
-    private_node_handle_.param("upper_body_bb_centres", pub_topic_centres, string("/upper_body_detector/boundig_box_centres"));
-    pub_centres = n.advertise<strands_perception_people_msgs::UpperBodyDetector>(pub_topic_ubd.c_str(), 10);
+    private_node_handle_.param("upper_body_bb_centres", pub_topic_centres, string("/upper_body_detector/bounding_box_centres"));
+    pub_centres = n.advertise<geometry_msgs::PoseArray>(pub_topic_centres.c_str(), 10);
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
