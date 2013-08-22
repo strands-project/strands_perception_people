@@ -11,6 +11,7 @@ Parameters:
 * `camera_info` _default = /camera/rgb/camera_info_: The Kinect camera info
 * `ground_plane` _default = /ground_plane_: The estimated/fixed ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The deteced upper bodies
+* `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `upper_body_image` _default = /upper_body_detector/image_: The resulting image showing the detections as a boundingbox
 
 

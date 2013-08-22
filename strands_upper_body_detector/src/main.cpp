@@ -393,7 +393,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     // Creating a ros image with the detection results an publishing it
     if(vis) {
         ROS_DEBUG("Publishing image");
-        QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888); // is qt here really necessary?
+        QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888); // would opencv be better?
         render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
 
         sensor_msgs::Image sensor_image;
