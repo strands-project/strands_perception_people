@@ -4,18 +4,18 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
-
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CameraInfo.h>
+#include <cv_bridge/cv_bridge.h>
 
 #include <string.h>
+#include <iostream>
+#include <fstream>
+#include <math.h>
+
 #include <boost/thread.hpp>
 
 #include "fovis.hpp"
-#include <iostream>
-#include <fstream>
-
-#include <cv_bridge/cv_bridge.h>
 
 #include "strands_perception_people_msgs/VisualOdometry.h"
 
@@ -39,10 +39,12 @@ fovis::CameraIntrinsicsParameters cam_params;
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
+bool recover = false;
+
 void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const CameraInfoConstPtr &info)
 {
 
-    if(odom==NULL)
+    if(odom == NULL)
     {
         memset(&cam_params, 0, sizeof(fovis::CameraIntrinsicsParameters));
         cam_params.width = info->width;
@@ -74,37 +76,25 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     VisualOdometry fovis_info_msg;
     fovis_info_msg.header = image->header;
 
-    fovis_info_msg.change_reference_frame =
-            odom->getChangeReferenceFrames();
-    fovis_info_msg.fast_threshold =
-            odom->getFastThreshold();
-    const fovis::OdometryFrame* frame =
-            odom->getTargetFrame();
-    fovis_info_msg.num_total_detected_keypoints =
-            frame->getNumDetectedKeypoints();
+    fovis_info_msg.change_reference_frame = odom->getChangeReferenceFrames();
+    fovis_info_msg.fast_threshold = odom->getFastThreshold();
+    const fovis::OdometryFrame* frame = odom->getTargetFrame();
+    fovis_info_msg.num_total_detected_keypoints = frame->getNumDetectedKeypoints();
     fovis_info_msg.num_total_keypoints = frame->getNumKeypoints();
     fovis_info_msg.num_detected_keypoints.resize(frame->getNumLevels());
     fovis_info_msg.num_keypoints.resize(frame->getNumLevels());
     for (int i = 0; i < frame->getNumLevels(); ++i)
     {
-        fovis_info_msg.num_detected_keypoints[i] =
-                frame->getLevel(i)->getNumDetectedKeypoints();
-        fovis_info_msg.num_keypoints[i] =
-                frame->getLevel(i)->getNumKeypoints();
+        fovis_info_msg.num_detected_keypoints[i] = frame->getLevel(i)->getNumDetectedKeypoints();
+        fovis_info_msg.num_keypoints[i] = frame->getLevel(i)->getNumKeypoints();
     }
-    const fovis::MotionEstimator* estimator =
-            odom->getMotionEstimator();
-    fovis_info_msg.motion_estimate_status_code =
-            estimator->getMotionEstimateStatus();
-    fovis_info_msg.motion_estimate_status =
-            fovis::MotionEstimateStatusCodeStrings[
-            fovis_info_msg.motion_estimate_status_code];
+    const fovis::MotionEstimator* estimator = odom->getMotionEstimator();
+    fovis_info_msg.motion_estimate_status_code = estimator->getMotionEstimateStatus();
+    fovis_info_msg.motion_estimate_status = fovis::MotionEstimateStatusCodeStrings[fovis_info_msg.motion_estimate_status_code];
     fovis_info_msg.num_matches = estimator->getNumMatches();
     fovis_info_msg.num_inliers = estimator->getNumInliers();
-    fovis_info_msg.num_reprojection_failures =
-            estimator->getNumReprojectionFailures();
-    fovis_info_msg.motion_estimate_valid =
-            estimator->isMotionEstimateValid();
+    fovis_info_msg.num_reprojection_failures = estimator->getNumReprojectionFailures();
+    fovis_info_msg.motion_estimate_valid = estimator->isMotionEstimateValid();
     ros::WallDuration time_elapsed = ros::WallTime::now() - start_time;
     fovis_info_msg.runtime = time_elapsed.toSec();
 
@@ -113,10 +103,20 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     for(int i = 0; i < 4*4; i++)
     {
         fovis_info_msg.transformation_matrix[i] = m1.data()[i];
+        if(isnan(m1.data()[i])) {
+            recover = true;
+        }
     }
 
     pub_message.publish(fovis_info_msg);
     delete fv_dp;
+
+    if(recover) {
+        ROS_WARN("Detected 'nan' values in motion matrix. Will try to auto recover by resetting visual odometry");
+        recover = false;
+        delete odom;
+        odom = NULL;
+    }
 }
 
 
