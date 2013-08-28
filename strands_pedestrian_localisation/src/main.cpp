@@ -26,8 +26,8 @@ ros::Publisher pub_marker;
 tf::TransformListener* listener;
 
 string target_frame;
-int detect_seq = 0;
-int marker_seq = 0;
+unsigned long detect_seq = 0;
+unsigned long marker_seq = 0;
 
 void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distances, vector<double> angles, double min_dist, double angle) {
     PedestrianLocations result;
