@@ -26,8 +26,8 @@ ros::Publisher pub_marker;
 tf::TransformListener* listener;
 
 string target_frame;
-int detect_seq = 0;
-int marker_seq = 0;
+unsigned long detect_seq = 0;
+unsigned long marker_seq = 0;
 
 void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distances, vector<double> angles, double min_dist, double angle) {
     PedestrianLocations result;
@@ -108,6 +108,15 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
         return;
     }
 
+    // Publish an empty message to trigger callbacks even when there are no detections.
+    // This can be used by nodes which might also want to know when there is no human detected.
+    if(pta->pedestrians.size() == 0) {
+        PedestrianLocations result;
+        result.header.stamp = ros::Time::now();
+        result.header.frame_id = target_frame;
+        result.header.seq = ++detect_seq;
+        pub_detect.publish(result);
+    }
 
     vector<geometry_msgs::Point> ppl;
     vector<double> distances;

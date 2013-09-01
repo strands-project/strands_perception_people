@@ -7,8 +7,7 @@ It can also be used with a fixed ground plane which is just rotated according to
 Parameters for estimation:
 * `queue_size` _default = 5_: The synchronisation queue size
 * `config_file` _default = ""_: The global config file. Can be found in strands_ground_plane/config
-* `depth_image` _default = /camera/depth/image_: The Kinect depth image
-* `camera_info` _default = /camera/rgb/camera_info_: The Kinect camera info
+* `camera_namespace` _default = /head_xtion_: The camera namespace.
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 
 Parameters for the fixed ground plane:
