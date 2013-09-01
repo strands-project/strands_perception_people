@@ -94,8 +94,7 @@ int main(int argc, char **argv)
 
     // Declare variables that can be modified by launch file or command line.
     int queue_size;
-    string topic_depth_image;
-    string topic_camera_info;
+    string cam_ns;
     string pub_topic_gp;
     string config_file;
 
@@ -106,8 +105,9 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(5));
     private_node_handle_.param("config_file", config_file, string(""));
 
-    private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
-    private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
+    private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
+    string topic_depth_image = cam_ns + "/depth/image";
+    string topic_camera_info = cam_ns + "/rgb/camera_info";
 
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");

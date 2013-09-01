@@ -9,10 +9,7 @@
     <arg name="gp_config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
     <arg name="pt_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
-    <arg name="depth_image" default="/camera/depth/image" />
-    <arg name="color_image" default="/camera/rgb/image_color" />
-    <arg name="mono_image" default="/camera/rgb/image_mono" />
-    <arg name="camera_info" default="/camera/rgb/camera_info" />
+    <arg name="camera_namespace" default="/camera" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
@@ -27,9 +24,7 @@
     <!-- Visual Odometry -->
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
         <arg name="queue_size" value="$(arg vo_queue_size)"/>
-        <arg name="depth_image" value="$(arg depth_image)"/>
-        <arg name="mono_image" value="$(arg mono_image)"/>
-        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
     </include>
 
@@ -37,8 +32,7 @@
     <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
         <arg name="queue_size" value="$(arg gp_queue_size)"/>
         <arg name="config_file" value="$(arg gp_config_file)"/>
-        <arg name="depth_image" value="$(arg depth_image)"/>
-        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
 
@@ -47,9 +41,7 @@
         <arg name="queue_size" value="$(arg ubd_queue_size)"/>
         <arg name="config_file" value="$(arg ubd_config_file)"/>
         <arg name="template_file" value="$(arg template_file)"/>
-        <arg name="depth_image" value="$(arg depth_image)"/>
-        <arg name="color_image" value="$(arg color_image)"/>
-        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)"/>
         <arg name="upper_body_image" value="$(arg upper_body_image)"/>
@@ -60,9 +52,7 @@
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking_no_HOG.launch">
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
         <arg name="config_file" value="$(arg pt_config_file)"/>
-        <arg name="depth_image" value="$(arg depth_image)"/>
-        <arg name="color_image" value="$(arg color_image)"/>
-        <arg name="camera_info" value="$(arg camera_info)"/>
+        <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="visual_odometry" value="$(arg visual_odometry)"/>

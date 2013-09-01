@@ -4,9 +4,7 @@ This package calculates the visual odometry using depth and mono images.
 ### Run
 Parameters:
 * `queue_size` _default = 20_: The synchronisation queue size
-* `depth_image` _default = /camera/depth/image_: The Kinect depth image
-* `mono_image` _default = /camera/rgb/image_mono_: The Kincet mono image
-* `camera_info` _default = /camera/rgb/camera_info_: The Kinect camera info
+* `camera_namespace` _default = /head_xtion_: The camera namespace.
 * `motion_parameters` _default = /visual_odometry/motion_matrix_: The visual odometry
 
 
