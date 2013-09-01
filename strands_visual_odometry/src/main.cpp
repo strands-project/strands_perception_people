@@ -128,9 +128,7 @@ int main(int argc, char **argv)
 
     // Declare variables that can be modified by launch file or command line.
     int queue_size;
-    string topic_image_mono;
-    string topic_depth_image;
-    string topic_camera_info;
+    string cam_ns;
     string pub_topic;
 
     // Initialize node parameters from launch file or command line.
@@ -138,9 +136,11 @@ int main(int argc, char **argv)
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(5));
-    private_node_handle_.param("mono_image", topic_image_mono, string("/camera/rgb/image_mono"));
-    private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
-    private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
+    private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
+
+    string topic_image_mono = cam_ns + "/rgb/image_mono";
+    string topic_depth_image = cam_ns + "/depth/image";
+    string topic_camera_info = cam_ns + "/rgb/camera_info";
 
     ROS_DEBUG("visual_odometry: Queue size for synchronisation is set to: %i", queue_size);
 

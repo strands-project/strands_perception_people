@@ -1,9 +1,7 @@
 <launch>
     <arg name="config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
     <arg name="queue_size" default="10" />
-    <arg name="depth_image" default="/camera/depth/image" />
-    <arg name="color_image" default="/camera/rgb/image_color" />
-    <arg name="camera_info" default="/camera/rgb/camera_info" />
+    <arg name="camera_namespace" default="/head_xtion" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
@@ -14,9 +12,7 @@
     <node pkg="strands_pedestrian_tracking" type="pedestrian_tracking" name="pedestrian_tracking" output="screen">
         <param name="config_file" value="$(arg config_file)" type="string"/>
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
-        <param name="depth_image" value="$(arg depth_image)" type="string"/>
-        <param name="color_image" value="$(arg color_image)" type="string"/>
-        <param name="camera_info" value="$(arg camera_info)" type="string"/>
+        <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
         <param name="ground_hog" value="" type="string"/> <!-- Important to start without groundHOG -->
         <param name="visual_odometry" value="$(arg visual_odometry)" type="string"/>

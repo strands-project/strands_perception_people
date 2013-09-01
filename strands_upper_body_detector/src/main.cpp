@@ -424,9 +424,7 @@ int main(int argc, char **argv)
 
     // Declare variables that can be modified by launch file or command line.
     int queue_size;
-    string topic_depth_image;
-    string topic_color_image;
-    string topic_camera_info;
+    string cam_ns;
     string config_file;
     string template_path;
     string topic_gp;
@@ -443,10 +441,12 @@ int main(int argc, char **argv)
     private_node_handle_.param("config_file", config_file, string(""));
     private_node_handle_.param("template_file", template_path, string(""));
 
-    private_node_handle_.param("depth_image", topic_depth_image, string("/camera/depth/image"));
-    private_node_handle_.param("camera_info", topic_camera_info, string("/camera/rgb/camera_info"));
-    private_node_handle_.param("color_image", topic_color_image, string("/camera/rgb/image_color"));
+    private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
+
+    string topic_depth_image = cam_ns + "/depth/image";
+    string topic_color_image = cam_ns + "/rgb/image_color";
+    string topic_camera_info = cam_ns + "/rgb/camera_info";
 
     // Checking if all config files could be loaded
     if(strcmp(config_file.c_str(),"") == 0) {

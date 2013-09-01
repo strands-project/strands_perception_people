@@ -229,9 +229,8 @@ int main(int argc, char **argv)
 
     // Declare variables that can be modified by launch file or command line.
     int queue_size;
-    string image_color;
     string ground_plane;
-    string camera_info;
+    string camera_ns;
     string pub_topic;
     string pub_image_topic;
     string conf;
@@ -243,9 +242,12 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("model", conf, string(""));
 
-    private_node_handle_.param("color_image", image_color, string("/camera/rgb/image_color"));
-    private_node_handle_.param("camera_info", camera_info, string("/camera/rgb/camera_info"));
+    private_node_handle_.param("camera_namespace", camera_ns, string("/head_xtion"));
     private_node_handle_.param("ground_plane", ground_plane, string(""));
+
+    string image_color = camera_ns + "/rgb/image_color";
+    string camera_info = camera_ns + "/rgb/camera_info";
+
 
     //Initialise cudaHOG
     if(strcmp(conf.c_str(),"") == 0) {

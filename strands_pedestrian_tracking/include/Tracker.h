@@ -52,7 +52,7 @@ class Tracker
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     //-------------- Trajectories ----------------------------------------------------------------------------------------------------------------------------------------
-    void extend_trajectories(Vector< Hypo >& vHypos, Detections& det, int t,int LTPmin,  double normfct , Vector< Hypo >& HypoExtended, Vector<int>& extendUsedDet, Camera& cam);
+    void extend_trajectories(Vector< Hypo >& vHypos, Detections& det, int t,int LTPmin,  double normfct , Vector< Hypo >& HypoExtended, Vector<int>& extendUsedDet/*, Camera& cam*/);
     void check_termination(Camera& cam, Vector<Hypo>& Hypos);
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

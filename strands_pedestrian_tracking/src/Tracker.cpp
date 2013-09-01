@@ -469,7 +469,7 @@ void Tracker::process_frame(Detections& det, Camera &cam, int t,  Vector< Hypo >
 
     Vector<int> extendUsedDet;
 
-    extend_trajectories(HyposAll,  det, LTPmax, LTPmin, normfct, HypoExtended, extendUsedDet, cam);
+    extend_trajectories(HyposAll,  det, LTPmax, LTPmin, normfct, HypoExtended, extendUsedDet/*, cam*/);
 //    if(Globals::verbose){
 //        cout << "\33[36;40;1m" <<" Extended " << HypoExtended.getSize()
 //             << " trajectories" << "\33[0m" << endl;
@@ -827,8 +827,8 @@ void getCurrentSmoothDirection(Matrix<double> &pts, int smoothing_window, double
 }
 
 void Tracker::extend_trajectories(Vector< Hypo >& vHypos,  Detections& det, int t, int /*LTPmin*/,
-                                  double normfct, Vector< Hypo >& HypoExtended, Vector<int>& extendUsedDet,
-                                  Camera & /*cam*/)
+                                  double normfct, Vector< Hypo >& HypoExtended, Vector<int>& extendUsedDet/*,
+                                  Camera &*/ /*cam*/)
 {
 
 
