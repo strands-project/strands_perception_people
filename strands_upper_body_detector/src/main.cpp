@@ -24,7 +24,6 @@
 #include "pointcloud.h"
 #include "detector.h"
 #include "Globals.h"
-#include "groundplaneestimator.h"
 #include "ConfigFile.h"
 
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
@@ -45,7 +44,6 @@ ros::Publisher pub_centres;
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
-GroundPlaneEstimator GPEstimator;
 Matrix<double> upper_body_template;
 Detector* detector;
 
@@ -82,14 +80,6 @@ void ReadConfigFile(string path_config_file)
 {
 
     ConfigFile config(path_config_file);
-
-    //=====================================
-    // Input paths
-    //=====================================
-    config.readInto(Globals::camPath_left, "camPath_left");
-    config.readInto(Globals::sImagePath_left, "sImagePath_left");
-    config.readInto(Globals::tempDepthL, "tempDepthL");
-    config.readInto(Globals::path_to_planes, "path_to_planes");
 
     //=====================================
     // Distance Range Accepted Detections
@@ -139,174 +129,20 @@ void ReadConfigFile(string path_config_file)
     Globals::dImHeight = config.read<int>("dImHeight");
     Globals::dImWidth = config.read<int>("dImWidth");
 
-    //======================================
-    // Camera
-    //======================================
-    Globals::baseline = config.read<double>("baseline");
-
     //====================================
     // Number of Frames / offset
     //====================================
     Globals::numberFrames = config.read<int>("numberFrames");
     Globals::nOffset = config.read<int>("nOffset");
 
-    //======================================
-    // Console output
-    //======================================
-    //Globals::verbose = config.read("verbose", false);
-
-    //=====================================
-    // Determines if save bounding boxes or not
-    //=====================================
-    Globals::export_bounding_box = config.read("export_bounding_box", false);
-    // Path of exported bounding boxes
-    config.readInto(Globals::bounding_box_path, "bounding_box_path");
-
-    //=====================================
-    // Determines if save result images or not
-    //=====================================
-    Globals::export_result_images = config.read("export_result_images", false);
-    config.readInto(Globals::result_images_path, "result_images_path");
-
     //====================================
     // Size of Template
     //====================================
     Globals::template_size = config.read<int>("template_size");
 
-
-    /////////////////////////////////TRACKING PART/////////////////////////
-    //======================================
-    // Detections
-    //======================================
-    Globals::cutDetectionsUsingDepth = config.read("cutDetectionsUsingDepth", false);
-
-    Globals::frameRate = config.read<int>("frameRate");
-
-    //======================================
-    // Camera
-    //======================================
-    Globals::farPlane = config.read<double>("farPlane");
-
-    //======================================
-    // World scale
-    //======================================
-    config.readInto(Globals::binSize, "binSize");
-
-    //======================================
-    // Pedestrians width and height
-    //======================================
-    Globals::pedSizeWVis = config.read<double>("pedSizeWVis");
-    Globals::pedSizeWCom = config.read<double>("pedSizeWCom");
-    Globals::pedSizeHCom = config.read<double>("pedSizeHCom");
-
-    //======================================
-    // History
-    //======================================
-    Globals::history = config.read<int>("history");
-
-    //======================================
-    // Pedestrians parameter
-    //======================================
-    Globals::dObjHeight = config.read<double>("dObjHeight");
-    Globals::dObjHVar = config.read<double>("dObjHVar");
-
-    //======================================
-    // Adjustment for HOG detections
-    //======================================
-    Globals::cutHeightBBOXforColor = config.read<double>("cutHeightBBOXforColor");
-    Globals::cutWidthBBOXColor = config.read<double>("cutWidthBBOXColor");
-    Globals::posponeCenterBBOXColor = config.read<double>("posponeCenterBBOXColor");
-
-    //======================================
-    // Thresholds for combining the detection from left and right camera
-    //======================================
-    Globals::probHeight = config.read<double>("probHeight");
-
-    //======================================
-    // Visualisation
-    // Handled by visualise parameter now
-    //======================================
-    //Globals::render_bbox3D = config.read("render_bbox3D", true);
-    //Globals::render_bbox2D = config.read("render_bbox2D", false);
-    //Globals::render_tracking_numbers = config.read("render_tracking_numbers", false);
-
-    //======================================
-    // MDL parameters for trajectories
-    //======================================
-    Globals::k1 = config.read<double>("k1");
-    Globals::k2 = config.read<double>("k2");
-    Globals::k3 = config.read<double>("k3");
-    Globals::k4 = config.read<double>("k4");
-
-    //======================================
-    // Threshold for distinction between static/moving object
-    //======================================
-    Globals::minvel = config.read<double>("minvel");
-    Globals::dMaxPedVel = config.read<double>("dMaxPedVel");
-
-    //======================================
-    // Threshold for identity management
-    //======================================
-    Globals::dSameIdThresh = config.read<double>("dSameIdThresh");
-
-    //======================================
-    // Trajectory
-    //======================================
-    Globals::threshLengthTraj = config.read<int>("threshLengthTraj");
-
-    //======================================
-    // Thresholds for accepted and displayed hypotheses
-    //======================================
-    Globals::dTheta2 = config.read<double>("dTheta2");
-
-    //======================================
-    // Time ant for temporal decay
-    //======================================
-    Globals::dTau = config.read<double>("dTau");
-
-    //======================================
-    // Time horizon for event cone search
-    //======================================
-    Globals::coneTimeHorizon = config.read<int>("coneTimeHorizon");
-    Globals::maxHoleLen = config.read<int>("maxHoleLen");
-    Globals::dHolePenalty = config.read<double>("dHolePenalty");
-
-    // Q - the system covariance
-    Globals::sysUncX = config.read<double>("sysUncX");
-    Globals::sysUncY = config.read<double>("sysUncY");
-    Globals::sysUncRot = config.read<double>("sysUncRot");
-    Globals::sysUncVel = config.read<double>("sysUncVel");
-    Globals::sysUncAcc = config.read<double>("sysUncAcc");
-
-    Globals::kalmanObsMotionModelthresh = config.read<double>("kalmanObsMotionModelthresh");
-    Globals::kalmanObsColorModelthresh = config.read<double>("kalmanObsColorModelthresh");
-
-    /////////////////////////////////GP Estimator/////////////////////////
-    Globals::nrInter_ransac = config.read<int>("nrInter_ransac");
-    Globals::numberOfPoints_reconAsObstacle = config.read<int>("numberOfPoints_reconAsObstacle");
-
-    //======================================
-    // ROI Segmentation
-    //======================================
-    // Blurring parameters
-    Globals::sigmaX = config.read<double>("sigmaX", 2.0);
-    Globals::precisionX = config.read<double>("precisionX", 2.0);
-    Globals::sigmaZ = config.read<double>("sigmaZ", 3.0);
-    Globals::precisionZ = config.read<double>("precisionZ", 2.0);
-
     Globals::max_height = config.read<double>("max_height", 2.0);
     Globals::min_height = config.read<double>("min_height", 1.4);
 
-    ///////////////////////////Recording /////////////////////
-    Globals::from_camera = config.read("from_camera", true);
-    config.readInto(Globals::from_file_path, "from_file_path");
-
-    //////////////////////////Streaming///////////////////////
-    config.readInto(Globals::stream_dest_IP, "stream_dest_IP");
-
-    ////////////////////////HOG Detector////////////////////////
-    Globals::hog_max_scale = config.read<float>("hog_max_scale",1.9);
-    Globals::hog_score_thresh = config.read<float>("hog_score_thresh",0.4);
 }
 
 void ReadUpperBodyTemplate(string template_path)
@@ -328,14 +164,12 @@ void ReadUpperBodyTemplate(string template_path)
 void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     // Check if calculation is necessary
+    
     bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0;
     bool vis = pub_result_image.getNumSubscribers() > 0;
 
     if(!detect && !vis)
         return;
-
-    // Render detection results depending on subscription
-    Globals::render_bbox3D = vis;
 
     // Get depth image as matrix
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
@@ -414,9 +248,6 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
 
 int main(int argc, char **argv)
 {
-    // Don't know what these are for exactly. TODO: Have Dennis decide what todo with those.
-    Globals::render_bbox2D = false;
-    Globals::render_tracking_numbers = false;
 
     // Set up ROS.
     ros::init(argc, argv, "upper_body_detector");
@@ -441,13 +272,13 @@ int main(int argc, char **argv)
     private_node_handle_.param("config_file", config_file, string(""));
     private_node_handle_.param("template_file", template_path, string(""));
 
-    private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
+    private_node_handle_.param("camera_namespace", cam_ns, string("/camera"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
 
     string topic_depth_image = cam_ns + "/depth/image";
     string topic_color_image = cam_ns + "/rgb/image_color";
     string topic_camera_info = cam_ns + "/rgb/camera_info";
-
+   
     // Checking if all config files could be loaded
     if(strcmp(config_file.c_str(),"") == 0) {
         ROS_ERROR("No config file specified.");

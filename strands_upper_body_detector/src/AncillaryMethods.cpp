@@ -138,54 +138,6 @@ Vector<double> AncillaryMethods::PlaneToWorld(const Camera& camera, const Vector
     return plane;
 }
 
-//******************************************************************
-// Get depth image out of the disparity image
-//******************************************************************
-Matrix<double>  AncillaryMethods::GetDepthLibelas(int frame_nr, const Camera& camera, double baseline)
-{
-
-
-    //================================================
-    // Read in the disparity image
-    //================================================
-    char dispImagePath[128];
-
-    sprintf(dispImagePath, Globals::tempDepthL.c_str(), frame_nr);
-
-    string path_string(dispImagePath);
-    Matrix<float> image(Globals::dImWidth, Globals::dImHeight, 0.0);
-
-    if(path_string.find(".txt") != string::npos)
-    {
-        image.ReadFromTXT(dispImagePath);
-    }
-    else
-    {
-        image.ReadFromBinaryFile(dispImagePath);
-    }
-
-    //================================================
-    // Compute the depth map
-    //================================================
-    Matrix<double> depthMap(Globals::dImWidth, Globals::dImHeight, 0.0);
-
-    Matrix<double> intrinsics = camera.get_K();
-
-    double focalLength = intrinsics(0,0);
-
-    double par = (baseline*focalLength);
-
-    for(int i = 0; i < Globals::dImWidth; i++)
-    {
-        for(int j = 0; j < Globals::dImHeight; j++)
-        {
-            depthMap(i,j) = max(0.0, min(30.0,(par/(image(i,j)))/1000.0));
-        }
-    }
-
-    return depthMap;
-}
-
 Camera AncillaryMethods::GetCameraOrigin(const Camera& camWorld)
 {
     return Camera(camWorld.get_K(), Eye<double>(3), Vector<double>(3, 0.0), AncillaryMethods::PlaneToCam(camWorld));
