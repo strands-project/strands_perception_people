@@ -4,7 +4,7 @@ project(strands_ground_plane)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp std_msgs strands_perception_people_msgs tf sensor_msgs)
+find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp std_msgs strands_perception_people_msgs tf sensor_msgs image_transport)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)

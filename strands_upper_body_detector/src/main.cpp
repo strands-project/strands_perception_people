@@ -5,13 +5,14 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
-#include "sensor_msgs/Image.h"
-#include "sensor_msgs/CameraInfo.h"
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 
-#include "string.h"
-#include "boost/thread.hpp"
+#include <string.h>
+#include <boost/thread.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -38,7 +39,7 @@ using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
 ros::Publisher pub_message;
-ros::Publisher pub_result_image;
+image_transport::Publisher pub_result_image;
 ros::Publisher pub_centres;
 
 cv::Mat img_depth_;
@@ -164,7 +165,6 @@ void ReadUpperBodyTemplate(string template_path)
 void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     // Check if calculation is necessary
-    
     bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0;
     bool vis = pub_result_image.getNumSubscribers() > 0;
 
@@ -234,6 +234,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
         sensor_image.header = color->header;
         sensor_image.height = image_rgb.height();
         sensor_image.width  = image_rgb.width();
+        sensor_image.step   = color->step;
         vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
         sensor_image.data = image_bits;
         sensor_image.encoding = color->encoding;
@@ -295,11 +296,16 @@ int main(int argc, char **argv)
     // Printing queue size
     ROS_DEBUG("upper_body_detector: Queue size for synchronisation is set to: %i", queue_size);
 
+    // Image transport handle
+    image_transport::ImageTransport it(private_node_handle_);
+
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
-    message_filters::Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
+    image_transport::SubscriberFilter subscriber_depth;
+    subscriber_depth.subscribe(it, topic_depth_image.c_str(),1);
     message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
-    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
+    image_transport::SubscriberFilter subscriber_color;
+    subscriber_color.subscribe(it, topic_color_image.c_str(), 1);
     message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1);
 
     //The real queue size for synchronisation is set here.
@@ -330,7 +336,7 @@ int main(int argc, char **argv)
     pub_centres = n.advertise<geometry_msgs::PoseArray>(pub_topic_centres.c_str(), 10);
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
-    pub_result_image = n.advertise<sensor_msgs::Image>(pub_topic_result_image.c_str(), 10);
+    pub_result_image = it.advertise(pub_topic_result_image.c_str(), 1);
 
     // Start ros thread managment
     ros::spin();

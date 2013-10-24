@@ -4,7 +4,8 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
-#include <sensor_msgs/Image.h>
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <cv_bridge/cv_bridge.h>
 
@@ -144,10 +145,15 @@ int main(int argc, char **argv)
 
     ROS_DEBUG("visual_odometry: Queue size for synchronisation is set to: %i", queue_size);
 
+    // Image transport handle
+    image_transport::ImageTransport it(private_node_handle_);
+
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
-    Subscriber<Image> subscriber_mono(n, topic_image_mono.c_str(), 1);
-    Subscriber<Image> subscriber_depth(n, topic_depth_image.c_str(), 1);
+    image_transport::SubscriberFilter subscriber_mono;
+    subscriber_mono.subscribe(it, topic_image_mono.c_str(), 1);
+    image_transport::SubscriberFilter subscriber_depth;
+    subscriber_depth.subscribe(it, topic_depth_image.c_str(), 1);
     Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
 
     //The real queue size for synchronisation is set here.
