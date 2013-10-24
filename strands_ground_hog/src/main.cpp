@@ -3,8 +3,9 @@
 
 #if WITH_CUDA
 #include <ros/time.h>
-#include <sensor_msgs/Image.h>
-#include "sensor_msgs/CameraInfo.h"
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
+#include <sensor_msgs/CameraInfo.h>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
@@ -33,7 +34,7 @@ using namespace strands_perception_people_msgs;
 
 cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
-ros::Publisher pub_result_image;
+image_transport::Publisher pub_result_image;
 
 void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
 {
@@ -112,6 +113,7 @@ void imageCallback(const Image::ConstPtr &msg)
         sensor_image.header = msg->header;
         sensor_image.height = image_rgb.height();
         sensor_image.width  = image_rgb.width();
+        sensor_image.step   = msg->step;
         vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
         sensor_image.data = image_bits;
         sensor_image.encoding = msg->encoding;
@@ -210,6 +212,7 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
         sensor_image.header = color->header;
         sensor_image.height = image_rgb.height();
         sensor_image.width  = image_rgb.width();
+        sensor_image.step   = color->step;
         vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
         sensor_image.data = image_bits;
         sensor_image.encoding = color->encoding;
@@ -262,12 +265,16 @@ int main(int argc, char **argv)
     hog->read_params_file(conf);
     hog->load_svm_models();
 
+    // Image transport handle
+    image_transport::ImageTransport it(private_node_handle_);
+
     // Create a subscriber.
     // Name the topic, message queue, callback function with class name, and object containing callback function.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     ros::Subscriber sub_message; //Subscribers have to be defined out of the if scope to have affect.
     Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 1);
-    Subscriber<Image> subscriber_color(n, image_color.c_str(), 1);
+    image_transport::SubscriberFilter subscriber_color;
+    subscriber_color.subscribe(it, image_color.c_str(), 1);
     Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 1);
 
     //The real queue size for synchronisation is set here.
@@ -292,7 +299,7 @@ int main(int argc, char **argv)
     pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
 
     private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
-    pub_result_image = n.advertise<sensor_msgs::Image>(pub_image_topic.c_str(), 10);
+    pub_result_image = it.advertise(pub_image_topic.c_str(), 1);
 
     ros::spin();
 
