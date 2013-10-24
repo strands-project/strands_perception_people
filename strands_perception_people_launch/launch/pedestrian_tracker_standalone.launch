@@ -7,7 +7,7 @@
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
     <arg name="ubd_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
     <arg name="gp_config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
-    <arg name="pt_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="pt_config_file" default="$(find strands_pedestrian_tracking)/config/config_Asus.inp" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="camera_namespace" default="/camera" />
     <arg name="ground_plane" default="/ground_plane" />
