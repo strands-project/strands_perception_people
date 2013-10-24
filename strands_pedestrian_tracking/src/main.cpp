@@ -8,11 +8,12 @@
 #include <QImage>
 #include <QPainter>
 
-#include "sensor_msgs/Image.h"
-#include "sensor_msgs/CameraInfo.h"
+#include <image_transport/image_transport.h>
+#include <image_transport/subscriber_filter.h>
+#include <sensor_msgs/CameraInfo.h>
 
-#include "string.h"
-#include "boost/thread.hpp"
+#include <string.h>
+#include <boost/thread.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -43,7 +44,7 @@ using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
 ros::Publisher pub_message;
-ros::Publisher pub_image;
+image_transport::Publisher pub_image;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -436,6 +437,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         res_img.header = color->header;
         res_img.height = cim._height;
         res_img.width = cim._width;
+        res_img.step   = color->step;
         for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
             res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
             res_img.data.push_back(cim.data()[i+1*cim._height*cim._width]);
@@ -547,6 +549,7 @@ void callbackWithHOG(const ImageConstPtr &color,
         Image res_img;
         res_img.header = color->header;
         res_img.height = cim._height;
+        res_img.step   = color->step;
         res_img.width = cim._width;
         for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
             res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
@@ -610,10 +613,14 @@ int main(int argc, char **argv)
 
     ROS_DEBUG("pedestrian_tracker: Queue size for synchronisation is set to: %i", queue_size);
 
+    // Image transport handle
+    image_transport::ImageTransport it(private_node_handle_);
+
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
-    message_filters::Subscriber<Image> subscriber_color(n, topic_color_image.c_str(), 1);
+    image_transport::SubscriberFilter subscriber_color;
+    subscriber_color.subscribe(it, topic_color_image.c_str(), 1);
     message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1);
     message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1);
     message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 1);
@@ -658,7 +665,7 @@ int main(int argc, char **argv)
     pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10);
 
     private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
-    pub_image = n.advertise<Image>(pub_image_topic.c_str(), 10);
+    pub_image = it.advertise(pub_image_topic.c_str(), 1);
 
     ros::spin();
     return 0;
