@@ -7,7 +7,7 @@
     <arg name="pt_queue_size" default="10" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
     <arg name="ubd_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
-    <arg name="pt_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="pt_config_file" default="$(find strands_pedestrian_tracking)/config/config_Asus.inp" />
     <arg name="gp_param_file" default="$(find strands_ground_plane)/config/fixed_gp.yaml" />
     <arg name="ptu_state" default="/ptu/state" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
