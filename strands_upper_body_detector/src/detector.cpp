@@ -133,7 +133,16 @@ void Detector::ComputeFreespace(const Camera& camera,
             }
         }
     }
+    
+//    occ_map.WriteToTXT("before.txt");
+    
+    
+     Vector<double> kernel = AncillaryMethods::getGaussian1D(2,3);
+     occ_map = AncillaryMethods::conv1D(occ_map, kernel, false);
+     occ_map = AncillaryMethods::conv1D(occ_map, kernel, true);
 
+// occ_map.WriteToTXT("after.txt");
+ 
     int occ_map_length = x_bins*z_bins;
     for(int i = 0; i < occ_map_length; i++)
     {

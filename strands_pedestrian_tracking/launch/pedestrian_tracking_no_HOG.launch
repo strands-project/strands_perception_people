@@ -1,5 +1,5 @@
 <launch>
-    <arg name="config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
+    <arg name="config_file" default="$(find strands_pedestrian_tracking)/config/config_Asus.inp" />
     <arg name="queue_size" default="10" />
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="ground_plane" default="/ground_plane" />

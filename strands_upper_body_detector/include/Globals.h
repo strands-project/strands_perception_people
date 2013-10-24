@@ -13,13 +13,6 @@ using namespace std;
 
 class Globals {
 public:
-    ////////////////////////////////////////
-    // Input paths
-    ////////////////////////////////////////
-    static  string camPath_left;
-    static  string sImagePath_left;
-    static string tempDepthL;
-    static string path_to_planes;
 
     ////////////////////////////////////////
     // Distance Range Accepted Detections
@@ -71,140 +64,19 @@ public:
     static  int dImWidth;
 
     ////////////////////////////////////////
-    // Camera
-    ////////////////////////////////////////
-    static double baseline;
-
-    ////////////////////////////////////////
     // Number of Frames / offset
     ////////////////////////////////////////
     static  int numberFrames;
     static int nOffset;
 
     ////////////////////////////////////////
-    // Console output
-    ////////////////////////////////////////
-    static bool verbose;
-
-    ////////////////////////////////////////
-    // Determines if save bounding boxes or not
-    ////////////////////////////////////////
-    static bool export_bounding_box;
-    // Path of exported bounding boxes
-    static string bounding_box_path;
-
-    ////////////////////////////////////////
-    // Determines if save result images or not
-    ////////////////////////////////////////
-    static bool export_result_images;
-    // Path of result images
-    static string result_images_path;
-
-    ////////////////////////////////////////
     // Size of Template
     ////////////////////////////////////////
     static int template_size;
 
-/////////////////////////////////TRACKING PART/////////////////////////
-
-    // Detections
-    static int frameRate;
-
-    static bool cutDetectionsUsingDepth;
-
-    // Camera
-    static  double farPlane;
-
-    //World scale
-    static  int    binSize;
-
-    // other
-    static  double pedSizeWVis;
-
-    static double pedSizeWCom;
-    static double pedSizeHCom;
-
-    static int history;
-
-    static double dSameIdThresh;
-
-    //Parameters for image-plane hypothesescom/
-    static  double  dObjHeight;
-    static  double  dObjHVar;
-
-    // Colorhistogram
-    static  double cutHeightBBOXforColor;
-    static  double cutWidthBBOXColor;
-    static  double posponeCenterBBOXColor;
-
-    // Thresholds for combining the detectiob from left and right camera
-    static  double probHeight;
-
-    // Visualisation
-    static  bool render_bbox3D;
-    static  bool render_bbox2D;
-    static bool render_tracking_numbers;
-
-    //MDL parameters for trajectories
-    static  double  k1; // "counterweight": min. support for a hypothesis
-    static  double  k2 ; // rel. importance of #poconst ints vs. poconst double strength
-    static  double  k3; // overlap penalty
-    static  double  k4; // temp. decay for static objects
-
-    // Threshold for distinction between static/moving object
-    static  double  minvel;
-    static  double  dMaxPedVel; // This is in meter per second = ~ 5km/h
-
-    // Trajectory
-    static  double threshLengthTraj;
-
-    // Thresholds for accepted and displayed hypotheses
-    static  double  dTheta2;
-
-    // Time ant for temporal decay
-    static  double  dTau;
-
-    // Time horizon for event cone search
-    static  int  coneTimeHorizon;
-    static  double  maxHoleLen;
-    static  double  dHolePenalty;
-
-    /* Q - the system covariance */
-    static  double sysUncX;
-    static  double sysUncY;
-    static  double sysUncRot;
-    static  double sysUncVel;
-    static  double sysUncAcc;
-
-    static double kalmanObsMotionModelthresh;
-    static double kalmanObsColorModelthresh;
-
-
-    /////////////////////////GP estimator//////////////////////
-    static int nrInter_ransac;
-    static int numberOfPoints_reconAsObstacle;
-
-
-    /////////////////////////// ROI Segmentation /////////////
-    // Blurring parameter
-    static double sigmaX;
-    static double precisionX;
-    static double sigmaZ;
-    static double precisionZ;
-
     static double max_height;
     static double min_height;
 
-    ///////////////////////////Recording /////////////////////
-    static bool from_camera;
-    static string from_file_path;
-
-    //////////////////////////Streaming///////////////////////
-    static string stream_dest_IP;
-
-    ////////////////////////HOG Detector////////////////////////
-    static float hog_max_scale;
-    static float hog_score_thresh;
 };
 
 #endif	/* _GLOBALS_DENNIS_H */
