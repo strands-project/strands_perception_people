@@ -5,7 +5,7 @@ project(strands_ground_hog)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(PkgConfig REQUIRED)
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs message_filters)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs message_filters image_transport)
 pkg_check_modules(CUDAHOG cudaHOG)
 
 ## Include Qt
