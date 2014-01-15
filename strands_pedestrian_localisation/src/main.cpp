@@ -101,13 +101,6 @@ vector<double> cartesianToPolar(geometry_msgs::Point point) {
 
 void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
 {
-    bool loc = pub_detect.getNumSubscribers();
-    bool markers = pub_marker.getNumSubscribers();
-    if(!loc && !markers) {
-        ROS_DEBUG("No subscribers. Skipping calculation.");
-        return;
-    }
-
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
     if(pta->pedestrians.size() == 0) {
@@ -168,10 +161,23 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
         publishDetections(ppl, distances, angles, min_dist, angle);
-        if(markers)
+        if(pub_marker.getNumSubscribers())
             createVisualisation(ppl);
     }
 
+}
+
+// Connection callback that unsubscribes from the tracker if no one is subscribed.
+void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, string topic) {
+    bool loc = pub_detect.getNumSubscribers();
+    bool markers = pub_marker.getNumSubscribers();
+    if(!loc && !markers) {
+        ROS_DEBUG("No subscribers. Unsubscribing.");
+        sub.shutdown();
+    } else {
+        ROS_DEBUG("New subscribers. Subscribing.");
+        sub = n.subscribe(topic.c_str(), 10, &trackingCallback);
+    }
 }
 
 int main(int argc, char **argv)
@@ -195,12 +201,13 @@ int main(int argc, char **argv)
     private_node_handle_.param("pedestrian_array", pta_topic, string("/pedestrian_tracking/pedestrian_array"));
 
     // Create a subscriber.
-    ros::Subscriber pta_sub = n.subscribe(pta_topic.c_str(), 10, &trackingCallback);
+    ros::Subscriber pta_sub;// = n.subscribe(pta_topic.c_str(), 10, &trackingCallback);
+    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback, boost::ref(n), boost::ref(pta_sub), pta_topic);
 
     private_node_handle_.param("localisations", pub_topic, string("/pedestrian_localisation/localisations"));
-    pub_detect = n.advertise<PedestrianLocations>(pub_topic.c_str(), 10);
+    pub_detect = n.advertise<PedestrianLocations>(pub_topic.c_str(), 10, con_cb, con_cb);
     private_node_handle_.param("marker", pub_marker_topic, string("/pedestrian_localisation/marker_array"));
-    pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10);
+    pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
 
     ros::spin();
     return 0;

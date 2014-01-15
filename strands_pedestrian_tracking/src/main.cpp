@@ -462,7 +462,6 @@ void callbackWithHOG(const ImageConstPtr &color,
     ROS_DEBUG("Entered callback with groundHOG data");
     Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
 
-
     // Get camera from VO and GP
     Vector<double> GP(3, (double*) &gp->n[0]);
     GP.pushBack((double) gp->d);
@@ -565,6 +564,33 @@ void callbackWithHOG(const ImageConstPtr &color,
     cnt++;
 }
 
+// Connection callback that unsubscribes from the tracker if no one is subscribed.
+void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
+                     message_filters::Subscriber<GroundPlane> &sub_gp,
+                     message_filters::Subscriber<GroundHOGDetections> &sub_hog,
+                     message_filters::Subscriber<UpperBodyDetector> &sub_ubd,
+                     message_filters::Subscriber<VisualOdometry> &sub_vo,
+                     image_transport::SubscriberFilter &sub_col,
+                     image_transport::ImageTransport &it){
+    if(!pub_message.getNumSubscribers() && !pub_image.getNumSubscribers()) {
+        ROS_INFO("Tracker: No subscribers. Unsubscribing.");
+        sub_cam.unsubscribe();
+        sub_gp.unsubscribe();
+        sub_hog.unsubscribe();
+        sub_ubd.unsubscribe();
+        sub_vo.unsubscribe();
+        sub_col.unsubscribe();
+    } else {
+        ROS_INFO("Tracker: New subscribers. Subscribing.");
+        sub_cam.subscribe();
+        sub_gp.subscribe();
+        sub_hog.subscribe();
+        sub_ubd.subscribe();
+        sub_vo.subscribe();
+        sub_col.subscribe(it,sub_col.getTopic().c_str(),1);
+    }
+}
+
 int main(int argc, char **argv)
 {
     Globals::render_bbox2D = false;
@@ -618,13 +644,31 @@ int main(int argc, char **argv)
 
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+    // The immediate unsubscribe is necessary to start without subscribing to any topic because message_filters does nor allow to do it another way.
     image_transport::SubscriberFilter subscriber_color;
-    subscriber_color.subscribe(it, topic_color_image.c_str(), 1);
-    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1);
-    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1);
-    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 1);
-    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 1);
+    subscriber_color.subscribe(it, topic_color_image.c_str(), 1); subscriber_color.unsubscribe(); //This subscribe and unsubscribe is just to set the topic name.
+    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1); subscriber_camera_info.unsubscribe();
+    message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1); subscriber_gp.unsubscribe();
+    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1); subscriber_groundHOG.unsubscribe();
+    message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 1); subscriber_upperbody.unsubscribe();
+    message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 1); subscriber_vo.unsubscribe();
+
+    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback,
+                                                       boost::ref(subscriber_camera_info),
+                                                       boost::ref(subscriber_gp),
+                                                       boost::ref(subscriber_groundHOG),
+                                                       boost::ref(subscriber_upperbody),
+                                                       boost::ref(subscriber_vo),
+                                                       boost::ref(subscriber_color),
+                                                       boost::ref(it));
+    image_transport::SubscriberStatusCallback image_cb = boost::bind(&connectCallback,
+                                                                     boost::ref(subscriber_camera_info),
+                                                                     boost::ref(subscriber_gp),
+                                                                     boost::ref(subscriber_groundHOG),
+                                                                     boost::ref(subscriber_upperbody),
+                                                                     boost::ref(subscriber_vo),
+                                                                     boost::ref(subscriber_color),
+                                                                     boost::ref(it));
 
     ///////////////////////////////////////////////////////////////////////////////////
     //Registering callback
@@ -662,10 +706,10 @@ int main(int argc, char **argv)
 
     // Create a topic publisher
     private_node_handle_.param("pedestrian_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
-    pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10);
+    pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10, con_cb, con_cb);
 
     private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
-    pub_image = it.advertise(pub_image_topic.c_str(), 1);
+    pub_image = it.advertise(pub_image_topic.c_str(), 1, image_cb, image_cb);
 
     ros::spin();
     return 0;
