@@ -87,6 +87,21 @@ void callback(const ImageConstPtr &depth,  const CameraInfoConstPtr &info)
 
 }
 
+// Connection callback that unsubscribes from the tracker if no one is subscribed.
+void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
+                     image_transport::SubscriberFilter &sub_depth,
+                     image_transport::ImageTransport &it){
+    if(!pub_ground_plane.getNumSubscribers()) {
+        ROS_INFO("Ground Plane estimated: No subscribers. Unsubscribing.");
+        sub_cam.unsubscribe();
+        sub_depth.unsubscribe();
+    } else {
+        ROS_INFO("Ground Plane estimated: New subscribers. Subscribing.");
+        sub_cam.subscribe();
+        sub_depth.subscribe(it,sub_depth.getTopic().c_str(),1);
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Set up ROS.
@@ -124,8 +139,13 @@ int main(int argc, char **argv)
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     image_transport::SubscriberFilter subscriber_depth;
-    subscriber_depth.subscribe(it, topic_depth_image.c_str(), 1);
-    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+    subscriber_depth.subscribe(it, topic_depth_image.c_str(), 1); subscriber_depth.unsubscribe();
+    message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1); subscriber_camera_info.unsubscribe();
+
+    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback,
+                                                       boost::ref(subscriber_camera_info),
+                                                       boost::ref(subscriber_depth),
+                                                       boost::ref(it));
 
     //The real queue size for synchronisation is set here.
     sync_policies::ApproximateTime<Image, CameraInfo> MySyncPolicy(queue_size);
@@ -143,7 +163,7 @@ int main(int argc, char **argv)
 
     // Create a topic publisher
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
-    pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10);
+    pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10, con_cb, con_cb);
 
 
     ros::spin();

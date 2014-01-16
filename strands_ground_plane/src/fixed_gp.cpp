@@ -42,6 +42,17 @@ void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     _pub_ground_plane.publish(gp);
 }
 
+// Connection callback that unsubscribes from the tracker if no one is subscribed.
+void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, string topic) {
+    if(!_pub_ground_plane.getNumSubscribers()) {
+        ROS_DEBUG("Ground Plane fixed: No subscribers. Unsubscribing.");
+        sub.shutdown();
+    } else {
+        ROS_DEBUG("Ground Plane fixed: New subscribers. Subscribing.");
+        sub = n.subscribe(topic.c_str(), 10, &callback);
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Set up ROS.
@@ -74,11 +85,12 @@ int main(int argc, char **argv)
     }
 
     // Create a subscriber.
-    ros::Subscriber ptu_sub = n.subscribe(sub_ptu_topic.c_str(), 10, &callback);
+    ros::Subscriber ptu_sub;
+    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback, boost::ref(n), boost::ref(ptu_sub), sub_ptu_topic);
 
     // Create a topic publisher
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
-    _pub_ground_plane = n.advertise<GroundPlane>(pub_topic_gp.c_str(), 10);
+    _pub_ground_plane = n.advertise<GroundPlane>(pub_topic_gp.c_str(), 10, con_cb, con_cb);
 
 
     ros::spin();

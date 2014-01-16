@@ -201,7 +201,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("pedestrian_array", pta_topic, string("/pedestrian_tracking/pedestrian_array"));
 
     // Create a subscriber.
-    ros::Subscriber pta_sub;// = n.subscribe(pta_topic.c_str(), 10, &trackingCallback);
+    ros::Subscriber pta_sub;
     ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback, boost::ref(n), boost::ref(pta_sub), pta_topic);
 
     private_node_handle_.param("localisations", pub_topic, string("/pedestrian_localisation/localisations"));
