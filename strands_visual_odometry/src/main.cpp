@@ -120,6 +120,23 @@ void callback(const ImageConstPtr &image, const ImageConstPtr &depth, const Came
     }
 }
 
+// Connection callback that unsubscribes from the tracker if no one is subscribed.
+void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
+                     image_transport::SubscriberFilter &sub_mon,
+                     image_transport::SubscriberFilter &sub_dep,
+                     image_transport::ImageTransport &it){
+    if(!pub_message.getNumSubscribers()) {
+        ROS_DEBUG("Visual Odometry: No subscribers. Unsubscribing.");
+        sub_cam.unsubscribe();
+        sub_mon.unsubscribe();
+        sub_dep.unsubscribe();
+    } else {
+        ROS_DEBUG("Visual Odometry: New subscribers. Subscribing.");
+        sub_cam.subscribe();
+        sub_mon.subscribe(it,sub_mon.getTopic().c_str(),1);
+        sub_dep.subscribe(it,sub_dep.getTopic().c_str(),1);
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -151,10 +168,16 @@ int main(int argc, char **argv)
     // Create a subscriber.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     image_transport::SubscriberFilter subscriber_mono;
-    subscriber_mono.subscribe(it, topic_image_mono.c_str(), 1);
+    subscriber_mono.subscribe(it, topic_image_mono.c_str(), 1); subscriber_mono.unsubscribe();
     image_transport::SubscriberFilter subscriber_depth;
-    subscriber_depth.subscribe(it, topic_depth_image.c_str(), 1);
-    Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1);
+    subscriber_depth.subscribe(it, topic_depth_image.c_str(), 1); subscriber_depth.unsubscribe();
+    Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1); subscriber_camera_info.unsubscribe();
+
+    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback,
+                                                       boost::ref(subscriber_camera_info),
+                                                       boost::ref(subscriber_mono),
+                                                       boost::ref(subscriber_depth),
+                                                       boost::ref(it));
 
     //The real queue size for synchronisation is set here.
     sync_policies::ApproximateTime<Image, Image, CameraInfo> MySyncPolicy(queue_size);
@@ -168,7 +191,7 @@ int main(int argc, char **argv)
     sync.registerCallback(boost::bind(&callback, _1, _2, _3));
     // Create a topic publisher
     private_node_handle_.param("motion_parameters", pub_topic, string("/visual_odometry/motion_matrix"));
-    pub_message = n.advertise<VisualOdometry>(pub_topic.c_str(), 10);
+    pub_message = n.advertise<VisualOdometry>(pub_topic.c_str(), 10, con_cb, con_cb);
 
     ros::spin();
 

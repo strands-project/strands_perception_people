@@ -224,6 +224,32 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
 
 }
 
+// Connection callback that unsubscribes from the tracker if no one is subscribed.
+void connectCallback(ros::Subscriber &sub_msg,
+                     ros::NodeHandle &n,
+                     string gp_topic,
+                     string img_topic,
+                     Subscriber<GroundPlane> &sub_gp,
+                     Subscriber<CameraInfo> &sub_cam,
+                     image_transport::SubscriberFilter &sub_col,
+                     image_transport::ImageTransport &it){
+    if(!pub_message.getNumSubscribers() && !pub_result_image.getNumSubscribers()) {
+        ROS_DEBUG("HOG: No subscribers. Unsubscribing.");
+        sub_msg.shutdown();
+        sub_gp.unsubscribe();
+        sub_cam.unsubscribe();
+        sub_col.unsubscribe();
+    } else {
+        ROS_DEBUG("HOG: New subscribers. Subscribing.");
+        if(strcmp(gp_topic.c_str(), "") == 0) {
+            sub_msg = n.subscribe(img_topic.c_str(), 1, &imageCallback);
+        }
+        sub_cam.subscribe();
+        sub_gp.subscribe();
+        sub_col.subscribe(it,sub_col.getTopic().c_str(),1);
+    }
+}
+
 int main(int argc, char **argv)
 {
     // Set up ROS.
@@ -272,10 +298,30 @@ int main(int argc, char **argv)
     // Name the topic, message queue, callback function with class name, and object containing callback function.
     // Set queue size to 1 because generating a queue here will only pile up images and delay the output by the amount of queued images
     ros::Subscriber sub_message; //Subscribers have to be defined out of the if scope to have affect.
-    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 1);
+    Subscriber<GroundPlane> subscriber_ground_plane(n, ground_plane.c_str(), 1); subscriber_ground_plane.unsubscribe();
     image_transport::SubscriberFilter subscriber_color;
-    subscriber_color.subscribe(it, image_color.c_str(), 1);
-    Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 1);
+    subscriber_color.subscribe(it, image_color.c_str(), 1); subscriber_color.unsubscribe();
+    Subscriber<CameraInfo> subscriber_camera_info(n, camera_info.c_str(), 1); subscriber_camera_info.unsubscribe();
+
+    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback,
+                                                       boost::ref(sub_message),
+                                                       boost::ref(n),
+                                                       ground_plane,
+                                                       image_color,
+                                                       boost::ref(subscriber_ground_plane),
+                                                       boost::ref(subscriber_camera_info),
+                                                       boost::ref(subscriber_color),
+                                                       boost::ref(it));
+
+    image_transport::SubscriberStatusCallback image_cb = boost::bind(&connectCallback,
+                                                                   boost::ref(sub_message),
+                                                                   boost::ref(n),
+                                                                   ground_plane,
+                                                                   image_color,
+                                                                   boost::ref(subscriber_ground_plane),
+                                                                   boost::ref(subscriber_camera_info),
+                                                                   boost::ref(subscriber_color),
+                                                                   boost::ref(it));
 
     //The real queue size for synchronisation is set here.
     sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane> MySyncPolicy(queue_size);
@@ -296,10 +342,10 @@ int main(int argc, char **argv)
 
     // Create publishers
     private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
-    pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10);
+    pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10, con_cb, con_cb);
 
     private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
-    pub_result_image = it.advertise(pub_image_topic.c_str(), 1);
+    pub_result_image = it.advertise(pub_image_topic.c_str(), 1, image_cb, image_cb);
 
     ros::spin();
 
