@@ -234,13 +234,13 @@ void connectCallback(ros::Subscriber &sub_msg,
                      image_transport::SubscriberFilter &sub_col,
                      image_transport::ImageTransport &it){
     if(!pub_message.getNumSubscribers() && !pub_result_image.getNumSubscribers()) {
-        ROS_INFO("HOG: No subscribers. Unsubscribing.");
+        ROS_DEBUG("HOG: No subscribers. Unsubscribing.");
         sub_msg.shutdown();
         sub_gp.unsubscribe();
         sub_cam.unsubscribe();
         sub_col.unsubscribe();
     } else {
-        ROS_INFO("HOG: New subscribers. Subscribing.");
+        ROS_DEBUG("HOG: New subscribers. Subscribing.");
         if(strcmp(gp_topic.c_str(), "") == 0) {
             sub_msg = n.subscribe(img_topic.c_str(), 1, &imageCallback);
         }

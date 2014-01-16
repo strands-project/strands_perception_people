@@ -573,7 +573,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      image_transport::SubscriberFilter &sub_col,
                      image_transport::ImageTransport &it){
     if(!pub_message.getNumSubscribers() && !pub_image.getNumSubscribers()) {
-        ROS_INFO("Tracker: No subscribers. Unsubscribing.");
+        ROS_DEBUG("Tracker: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
         sub_hog.unsubscribe();
@@ -581,7 +581,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
         sub_vo.unsubscribe();
         sub_col.unsubscribe();
     } else {
-        ROS_INFO("Tracker: New subscribers. Subscribing.");
+        ROS_DEBUG("Tracker: New subscribers. Subscribing.");
         sub_cam.subscribe();
         sub_gp.subscribe();
         sub_hog.subscribe();

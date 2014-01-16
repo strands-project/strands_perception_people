@@ -92,11 +92,11 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      image_transport::SubscriberFilter &sub_depth,
                      image_transport::ImageTransport &it){
     if(!pub_ground_plane.getNumSubscribers()) {
-        ROS_INFO("Ground Plane estimated: No subscribers. Unsubscribing.");
+        ROS_DEBUG("Ground Plane estimated: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_depth.unsubscribe();
     } else {
-        ROS_INFO("Ground Plane estimated: New subscribers. Subscribing.");
+        ROS_DEBUG("Ground Plane estimated: New subscribers. Subscribing.");
         sub_cam.subscribe();
         sub_depth.subscribe(it,sub_depth.getTopic().c_str(),1);
     }

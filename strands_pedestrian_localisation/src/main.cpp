@@ -172,10 +172,10 @@ void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, string topic) {
     bool loc = pub_detect.getNumSubscribers();
     bool markers = pub_marker.getNumSubscribers();
     if(!loc && !markers) {
-        ROS_DEBUG("No subscribers. Unsubscribing.");
+        ROS_DEBUG("Pedestrian Localisation: No subscribers. Unsubscribing.");
         sub.shutdown();
     } else {
-        ROS_DEBUG("New subscribers. Subscribing.");
+        ROS_DEBUG("Pedestrian Localisation: New subscribers. Subscribing.");
         sub = n.subscribe(topic.c_str(), 10, &trackingCallback);
     }
 }

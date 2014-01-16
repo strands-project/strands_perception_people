@@ -254,13 +254,13 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      image_transport::SubscriberFilter &sub_dep,
                      image_transport::ImageTransport &it){
     if(!pub_message.getNumSubscribers() && !pub_result_image.getNumSubscribers() && !pub_centres.getNumSubscribers()) {
-        ROS_INFO("Tracker: No subscribers. Unsubscribing.");
+        ROS_DEBUG("Upper Body Detector: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
         sub_col.unsubscribe();
         sub_dep.unsubscribe();
     } else {
-        ROS_INFO("Tracker: New subscribers. Subscribing.");
+        ROS_DEBUG("Upper Body Detector: New subscribers. Subscribing.");
         sub_cam.subscribe();
         sub_gp.subscribe();
         sub_col.subscribe(it,sub_col.getTopic().c_str(),1);

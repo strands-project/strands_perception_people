@@ -126,12 +126,12 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      image_transport::SubscriberFilter &sub_dep,
                      image_transport::ImageTransport &it){
     if(!pub_message.getNumSubscribers()) {
-        ROS_INFO("Tracker: No subscribers. Unsubscribing.");
+        ROS_DEBUG("Visual Odometry: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_mon.unsubscribe();
         sub_dep.unsubscribe();
     } else {
-        ROS_INFO("Tracker: New subscribers. Subscribing.");
+        ROS_DEBUG("Visual Odometry: New subscribers. Subscribing.");
         sub_cam.subscribe();
         sub_mon.subscribe(it,sub_mon.getTopic().c_str(),1);
         sub_dep.subscribe(it,sub_dep.getTopic().c_str(),1);
