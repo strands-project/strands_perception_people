@@ -1,7 +1,7 @@
 <launch>
     <!-- Global paramters -->
     <arg name="gp_queue_size" default="5" />
-    <arg name="vo_queue_size" default="5" />
+    <!-- <arg name="vo_queue_size" default="5" /> -->
     <arg name="ubd_queue_size" default="5" />
     <arg name="pt_queue_size" default="10" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
@@ -11,6 +11,7 @@
     <arg name="ptu_state" default="/ptu/state" />
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="odom" default="/odom" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
@@ -22,10 +23,16 @@
     <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
     <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
 
-    <!-- Visual Odometry -->
+    <!-- Visual Odometry 
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
         <arg name="queue_size" value="$(arg vo_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
+        <arg name="motion_parameters" value="$(arg visual_odometry)"/>
+    </include> -->
+
+   <!-- Odometry -->
+    <include file="$(find strands_perception_people_utils)/launch/odom2visual.launch">
+        <arg name="odom" value="$(arg odom)"/>
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
     </include>
 

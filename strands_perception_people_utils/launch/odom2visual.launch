@@ -1,0 +1,9 @@
+<launch>
+    <arg name="odom" default="/odom" />
+    <arg name="motion_parameters" default="/visual_odometry/motion_matrix" />
+
+    <node pkg="strands_perception_people_utils" type="odom2visual" name="odom2visual" output="screen">
+        <param name="odom" value="$(arg odom)" type="string"/>
+        <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>
+    </node>
+</launch> 
