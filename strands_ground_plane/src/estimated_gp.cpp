@@ -122,7 +122,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("config_file", config_file, string(""));
 
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
-    string topic_depth_image = cam_ns + "/depth/image";
+    string topic_depth_image = cam_ns + "/depth/image_rect";
     string topic_camera_info = cam_ns + "/rgb/camera_info";
 
     if(strcmp(config_file.c_str(),"") == 0) {
