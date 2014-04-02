@@ -18,7 +18,6 @@
 ros::Publisher pub_message;
 
 void callback(const nav_msgs::OdometryConstPtr& odom) {
-    ROS_INFO("Received odom");
     Eigen::Affine3d eigenTr;
     tf::poseMsgToEigen(odom->pose.pose, eigenTr);
     Eigen::Matrix4d m = eigenTr.matrix().inverse();
@@ -37,10 +36,10 @@ void connectCallback(ros::Subscriber &sub_odom,
                      ros::NodeHandle &n,
                      std::string odom_topic){
     if(!pub_message.getNumSubscribers()) {
-        ROS_INFO("Odom: No subscribers. Unsubscribing.");
+        ROS_DEBUG("Odom: No subscribers. Unsubscribing.");
         sub_odom.shutdown();
     } else {
-        ROS_INFO("Odom: New subscribers. Subscribing.");
+        ROS_DEBUG("Odom: New subscribers. Subscribing.");
         sub_odom = n.subscribe(odom_topic.c_str(), 1, &callback);
     }
 }
