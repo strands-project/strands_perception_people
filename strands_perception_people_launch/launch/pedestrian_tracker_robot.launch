@@ -30,7 +30,7 @@
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
     </include> -->
 
-   <!-- Odometry -->
+    <!-- Odometry -->
     <include file="$(find strands_perception_people_utils)/launch/odom2visual.launch">
         <arg name="odom" value="$(arg odom)"/>
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
