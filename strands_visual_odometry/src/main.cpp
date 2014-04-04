@@ -157,8 +157,8 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
 
     string topic_image_mono = cam_ns + "/rgb/image_mono";
-    string topic_depth_image = cam_ns + "/depth/image";
-    string topic_camera_info = cam_ns + "/rgb/camera_info";
+    string topic_depth_image = cam_ns + "/depth/image_rect_meters";
+    string topic_camera_info = cam_ns + "/depth/camera_info";
 
     ROS_DEBUG("visual_odometry: Queue size for synchronisation is set to: %i", queue_size);
 

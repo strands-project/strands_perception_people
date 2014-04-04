@@ -297,9 +297,9 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_namespace", cam_ns, string("/camera"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
 
-    string topic_depth_image = cam_ns + "/depth/image";
-    string topic_color_image = cam_ns + "/rgb/image_color";
-    string topic_camera_info = cam_ns + "/rgb/camera_info";
+    string topic_depth_image = cam_ns + "/depth/image_rect_meters";
+    string topic_color_image = cam_ns + "/rgb/image_rect_color";
+    string topic_camera_info = cam_ns + "/depth/camera_info";
    
     // Checking if all config files could be loaded
     if(strcmp(config_file.c_str(),"") == 0) {
