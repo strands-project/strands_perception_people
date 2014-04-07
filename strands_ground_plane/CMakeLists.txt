@@ -82,8 +82,8 @@ add_executable(ground_plane_fixed src/fixed_gp.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(ground_plane_estimated strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
-add_dependencies(ground_plane_fixed strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
+add_dependencies(ground_plane_estimated ${catkin_EXPORTED_TARGETS})
+add_dependencies(ground_plane_fixed ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(ground_plane_estimated

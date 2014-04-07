@@ -116,7 +116,7 @@ add_executable(odom2visual src/odom2visual/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(odom2visual strands_perception_people_msgs_generate_messages_cpp)
+add_dependencies(odom2visual ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(odom2visual

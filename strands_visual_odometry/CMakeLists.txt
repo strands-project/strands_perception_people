@@ -88,7 +88,7 @@ add_executable(visual_odometry src/main.cpp ${FOVIS_CPP} ${FOVIS_C})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(visual_odometry strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp)
+add_dependencies(visual_odometry ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(visual_odometry
