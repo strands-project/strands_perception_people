@@ -29,7 +29,7 @@ string target_frame;
 unsigned long detect_seq = 0;
 unsigned long marker_seq = 0;
 
-void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distances, vector<double> angles, double min_dist, double angle) {
+void publishDetections(vector<geometry_msgs::Point> ppl, vector<int> ids, vector<double> distances, vector<double> angles, double min_dist, double angle) {
     PedestrianLocations result;
     result.header.stamp = ros::Time::now();
     result.header.frame_id = target_frame;
@@ -50,6 +50,7 @@ void publishDetections(vector<geometry_msgs::Point> ppl, vector<double> distance
                  pose.position.y,
                  pose.position.z);
     }
+    result.ids = ids;
     result.distances = distances;
     result.angles = angles;
     result.min_distance = min_dist;
@@ -112,6 +113,7 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
     }
 
     vector<geometry_msgs::Point> ppl;
+    vector<int> ids;
     vector<double> distances;
     vector<double> angles;
     double min_dist = 10000.0d;
@@ -153,6 +155,7 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
                 return;
             }
             ppl.push_back(poseInRobotCoords.pose.position);
+            ids.push_back(pt.id);
             vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
             distances.push_back(polar[0]);
             angles.push_back(polar[1]);
@@ -160,7 +163,7 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             angle = polar[0] < min_dist ? polar[1] : angle;
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
-        publishDetections(ppl, distances, angles, min_dist, angle);
+        publishDetections(ppl, ids, distances, angles, min_dist, angle);
         if(pub_marker.getNumSubscribers())
             createVisualisation(ppl);
     }

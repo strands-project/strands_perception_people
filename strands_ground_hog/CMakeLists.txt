@@ -96,7 +96,7 @@ add_executable(groundHOG src/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(groundHOG strands_perception_people_msgs_generate_messages_cpp strands_perception_people_msgs_gencpp strands_perception_people_3rd_party) #TODO: might need a fake 3rdparty message to make sure it is built?!
+add_dependencies(groundHOG ${catkin_EXPORTED_TARGETS}) #TODO: might need a fake 3rdparty message to make sure it is built?!
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(groundHOG
