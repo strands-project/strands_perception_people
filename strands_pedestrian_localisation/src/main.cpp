@@ -22,6 +22,7 @@ using namespace std;
 using namespace strands_perception_people_msgs;
 
 ros::Publisher pub_detect;
+ros::Publisher pub_pose;
 ros::Publisher pub_marker;
 tf::TransformListener* listener;
 
@@ -112,6 +113,7 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
         pub_detect.publish(result);
     }
 
+    geometry_msgs::PoseStamped closest_person;
     vector<geometry_msgs::Point> ppl;
     vector<int> ids;
     vector<double> distances;
@@ -138,7 +140,7 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             poseInCamCoords.pose.position.y = pt.traj_y_camera[0];
             poseInCamCoords.pose.position.z = pt.traj_z_camera[0];
 
-            //Counteracting rotation in tf because it is already done in the pedetrsian tracking.
+            //Counteracting rotation in tf because it is already done in the pedestrian tracking.
             poseInCamCoords.pose.orientation.x = -0.5;
             poseInCamCoords.pose.orientation.y =  0.5;
             poseInCamCoords.pose.orientation.z =  0.5;
@@ -161,13 +163,14 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             angles.push_back(polar[1]);
 
             angle = polar[0] < min_dist ? polar[1] : angle;
+            closest_person = polar[0] < min_dist ? poseInRobotCoords : closest_person;
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
-        publishDetections(ppl, ids, distances, angles, min_dist, angle);
-        if(pub_marker.getNumSubscribers())
-            createVisualisation(ppl);
     }
-
+    publishDetections(ppl, ids, distances, angles, min_dist, angle);
+    pub_pose.publish(closest_person);
+    if(pub_marker.getNumSubscribers())
+        createVisualisation(ppl);
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
@@ -194,6 +197,7 @@ int main(int argc, char **argv)
     // Declare variables that can be modified by launch file or command line.
     string pta_topic;
     string pub_topic;
+    string pub_topic_pose;
     string pub_marker_topic;
 
     // Initialize node parameters from launch file or command line.
@@ -209,6 +213,8 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("localisations", pub_topic, string("/pedestrian_localisation/localisations"));
     pub_detect = n.advertise<PedestrianLocations>(pub_topic.c_str(), 10, con_cb, con_cb);
+    private_node_handle_.param("pose", pub_topic_pose, string("/pedestrian_localisation/pose"));
+    pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
     private_node_handle_.param("marker", pub_marker_topic, string("/pedestrian_localisation/marker_array"));
     pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
 
