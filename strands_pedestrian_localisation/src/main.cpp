@@ -214,7 +214,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("localisations", pub_topic, string("/pedestrian_localisation/localisations"));
     pub_detect = n.advertise<PedestrianLocations>(pub_topic.c_str(), 10, con_cb, con_cb);
     private_node_handle_.param("pose", pub_topic_pose, string("/pedestrian_localisation/pose"));
-    pub_detect = n.advertise<PedestrianLocations>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
+    pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
     private_node_handle_.param("marker", pub_marker_topic, string("/pedestrian_localisation/marker_array"));
     pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
 
