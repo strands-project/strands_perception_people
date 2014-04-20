@@ -9,6 +9,7 @@
 #include <image_transport/subscriber_filter.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PoseArray.h>
 
 #include <string.h>
@@ -38,9 +39,8 @@ using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
-ros::Publisher pub_message;
+ros::Publisher pub_message, pub_centres, pub_closest;
 image_transport::Publisher pub_result_image;
-ros::Publisher pub_centres;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -198,9 +198,14 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
 
     // Generate messages
     UpperBodyDetector detection_msg;
-    geometry_msgs::PoseArray bb_centres;
     detection_msg.header = depth->header;
-    bb_centres.header    = depth->header;
+    geometry_msgs::PoseArray bb_centres;
+    bb_centres.header = depth->header;
+    geometry_msgs::PoseStamped closest;
+    closest.header = depth->header;
+    closest.pose.position.z = 10000;
+    closest.pose.orientation.w = 1;
+
     for(int i = 0; i < detected_bounding_boxes.getSize(); i++)
     {
         // Custom detections message
@@ -222,6 +227,9 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
         pose.position.z = detected_bounding_boxes(i)(5);
         pose.orientation.w = 1.0; //No rotation atm.
         bb_centres.poses.push_back(pose);
+        if(closest.pose.position.z > pose.position.z) {
+            closest.pose.position = pose.position;
+        }
     }
 
     // Creating a ros image with the detection results an publishing it
@@ -283,6 +291,7 @@ int main(int argc, char **argv)
     string topic_gp;
 
     string pub_topic_centres;
+    string pub_topic_closest;
     string pub_topic_ubd;
     string pub_topic_result_image;
 
@@ -368,6 +377,9 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("upper_body_bb_centres", pub_topic_centres, string("/upper_body_detector/bounding_box_centres"));
     pub_centres = n.advertise<geometry_msgs::PoseArray>(pub_topic_centres.c_str(), 10, con_cb, con_cb);
+
+    private_node_handle_.param("upper_body_closest_bb_centres", pub_topic_closest, string("/upper_body_detector/closest_bounding_box_centre"));
+    pub_closest = n.advertise<geometry_msgs::PoseStamped>(pub_topic_closest.c_str(), 10, con_cb, con_cb);
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = it.advertise(pub_topic_result_image.c_str(), 1, image_cb, image_cb);

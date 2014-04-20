@@ -5,7 +5,7 @@ project(strands_visual_odometry)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(PkgConfig REQUIRED)
-find_package(catkin REQUIRED COMPONENTS message_generation roscpp sensor_msgs std_msgs message_filters strands_perception_people_msgs cv_bridge image_transport)
+find_package(catkin REQUIRED COMPONENTS roscpp sensor_msgs std_msgs message_filters strands_perception_people_msgs cv_bridge image_transport)
 pkg_check_modules(EIGEN REQUIRED eigen3)
 
 set(CMAKE_BUILD_TYPE Release)
