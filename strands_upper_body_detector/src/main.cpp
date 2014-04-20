@@ -253,6 +253,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     // Publishing detections
     pub_message.publish(detection_msg);
     pub_centres.publish(bb_centres);
+    pub_closest.publish(closest);
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
