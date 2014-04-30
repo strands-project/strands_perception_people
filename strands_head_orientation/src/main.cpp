@@ -57,11 +57,11 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
         // Ugly as fuck hardcoding. Should load from file.
         // front = 0.f, left = 90.f, right = -90.f, back = 180.f, background = nan
         switch(g_model->predict_proba(cv::Mat(cv_ptr->image, bbox))) {
-        case 0: msg.angles.push_back(0.f); msg.confidences.push_back(0.8f); break;
-        case 1: msg.angles.push_back(90.f); msg.confidences.push_back(0.8f); break;
-        case 2: msg.angles.push_back(-90.f); msg.confidences.push_back(0.8f); break;
-        case 3: msg.angles.push_back(180.f); msg.confidences.push_back(0.8f); break;
-        case 4: msg.angles.push_back(nan("")); msg.confidences.push_back(0.8f); break;
+        case 0: msg.angles.push_back(0.f); msg.confidences.push_back(0.83f); break;
+        case 1: msg.angles.push_back(90.f); msg.confidences.push_back(0.83f); break;
+        case 2: msg.angles.push_back(-90.f); msg.confidences.push_back(0.83f); break;
+        case 3: msg.angles.push_back(180.f); msg.confidences.push_back(0.83f); break;
+        case 4: msg.angles.push_back(nan("")); msg.confidences.push_back(0.83f); break;
         default: msg.angles.push_back(0.f); msg.confidences.push_back(0.0f); break;
         }
     }
