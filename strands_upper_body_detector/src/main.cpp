@@ -165,7 +165,7 @@ void ReadUpperBodyTemplate(string template_path)
 void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     // Check if calculation is necessary
-    bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0;
+    bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0 || pub_closest.getNumSubscribers() > 0;
     bool vis = pub_result_image.getNumSubscribers() > 0;
 
     if(!detect && !vis)
@@ -205,6 +205,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     closest.header = depth->header;
     closest.pose.position.z = 10000;
     closest.pose.orientation.w = 1;
+    bool found = false;
 
     for(int i = 0; i < detected_bounding_boxes.getSize(); i++)
     {
@@ -229,6 +230,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
         bb_centres.poses.push_back(pose);
         if(closest.pose.position.z > pose.position.z) {
             closest.pose.position = pose.position;
+            found = true;
         }
     }
 
@@ -253,7 +255,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     // Publishing detections
     pub_message.publish(detection_msg);
     pub_centres.publish(bb_centres);
-    pub_closest.publish(closest);
+    if(found) pub_closest.publish(closest);
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
