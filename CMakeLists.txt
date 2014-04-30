@@ -29,6 +29,7 @@ add_message_files(
   PedestrianTracking.msg
   PedestrianTrackingArray.msg
   PedestrianLocations.msg
+  HeadOrientations.msg
 )
 
 ## Generate services in the 'srv' folder
