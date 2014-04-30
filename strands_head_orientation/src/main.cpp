@@ -52,7 +52,9 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
 
     for(size_t i = 0 ; i < ndetects ; ++i) {
         cv::Rect bbox(upper->pos_x[i], upper->pos_y[i], upper->width[i], upper->height[i]);
-        std::cout << bbox << std::endl;
+        // Cut it to the image. It might be outside if people are only half-on-screen.
+        bbox &= cv::Rect(0, 0, cv_ptr->image.cols, cv_ptr->image.rows);
+        std::cout << "Checking head in " << bbox << std::endl;
 
         // Ugly as fuck hardcoding. Should load from file.
         // front = 0.f, left = 90.f, right = -90.f, back = 180.f, background = nan
