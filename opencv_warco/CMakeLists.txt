@@ -70,11 +70,6 @@ if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-message(STATUS "STATATATATATATA ${OpenCV_INCLUDE_DIRS}")
-message(STATUS "STATATATATATATA ${OpenCV_LIBS}")
-message(STATUS "STATATATATATATA ${catkin_INCLUDE_DIRS}")
-message(STATUS "STATATATATATATA ${catkin_LIBRARIES}")
-
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(opencv-warco ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
