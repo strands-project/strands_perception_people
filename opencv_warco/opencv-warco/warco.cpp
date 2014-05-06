@@ -145,7 +145,13 @@ unsigned warco::Warco::nlbl() const
 
 void warco::Warco::foreach_model(const cv::Mat& img, std::function<void(const Patch& patch, const cv::Mat& corr)> fn) const
 {
-    auto feats = warco::mkfeats(img, _fb);
+    // TODO: take the actual size out of config.
+    cv::Mat img50 = img;
+    if(img.cols != 50 || img.rows != 50) {
+        resize(img, img50, cv::Size(50, 50));
+    }
+
+    auto feats = warco::mkfeats(img50, _fb);
 
 #ifdef _OPENMP
     const int s = _patchmodels.size();
@@ -155,7 +161,7 @@ void warco::Warco::foreach_model(const cv::Mat& img, std::function<void(const Pa
 #else
     for(const auto& p : _patchmodels) {
 #endif
-        fn(p, extract_corr(feats, p.x*img.cols, p.y*img.rows, p.w*img.cols, p.h*img.rows));
+        fn(p, extract_corr(feats, p.x*img50.cols, p.y*img50.rows, p.w*img50.cols, p.h*img50.rows));
     }
 }
 
