@@ -3,6 +3,18 @@ Head orientation estimator
 
 This package estimates the orientation of the head of people detected by the upper body detector.
 
+Install
+=======
+Please download and extract the model file into the `models` folder. By default:
+
+```
+cd strands_head_orientation/models
+wget http://lucasb.eyer.be/academic/face_orientation/model-default.txz
+tar xJv < model-default.txz
+```
+
+This should create the `models/default` folder with a bunch of files.
+
 Run
 ===
 
