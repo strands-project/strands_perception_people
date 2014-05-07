@@ -6,8 +6,10 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <image_transport/image_transport.h>
 #include <image_transport/subscriber_filter.h>
+#include <sensor_msgs/image_encodings.h>
 
 #include <cv_bridge/cv_bridge.h>
+#include <opencv2/opencv.hpp>
 
 #include "warco.hpp"
 
@@ -27,6 +29,28 @@ using namespace strands_perception_people_msgs;
 bool g_running = false;
 warco::Warco* g_model;
 ros::Publisher g_pub;
+image_transport::Publisher g_dbgpub;
+
+// Brett Styles greets you.
+void visualize(cv::Mat& inout, cv::Rect bbox, unsigned pred, double conf)
+{
+    // Bounding-box with corresponding color.
+    cv::Scalar col = cv::Scalar(187,226,188);
+    if(3 < pred)
+        col = cv::Scalar(187,188,226);
+
+    cv::rectangle(inout, bbox, col, 5);
+
+    // "Arrow" showing the orientation. See caller below for details.
+    cv::Point center = (bbox.tl() + bbox.br())*0.5;
+    switch(pred) {
+    case 0: cv::line(inout, center, cv::Point(bbox.x + bbox.width/2, bbox.y + bbox.height  ), col, 5, CV_AA); break;
+    case 1: cv::line(inout, center, cv::Point(bbox.x               , bbox.y + bbox.height/2), col, 5, CV_AA); break;
+    case 2: cv::line(inout, center, cv::Point(bbox.x + bbox.width  , bbox.y + bbox.height/2), col, 5, CV_AA); break;
+    case 3: cv::line(inout, center, cv::Point(bbox.x + bbox.width/2, bbox.y                ), col, 5, CV_AA); break;
+    case 4: default: break;
+    }
+}
 
 void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstPtr &upper)
 {
@@ -35,9 +59,11 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
         return;
 
     // No subscriber is interested, don't do anything.
-    if(g_pub.getNumSubscribers() == 0) {
+    if(g_pub.getNumSubscribers() + g_dbgpub.getNumSubscribers() == 0) {
         return;
     }
+
+    bool dbg = g_dbgpub.getNumSubscribers();
 
     // No upper body detections, don't do anything.
     size_t ndetects = upper->pos_x.size();
@@ -49,15 +75,14 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
 
     // Get the OpenCV image out of the ros message. No-copy.
     cv_bridge::CvImageConstPtr cv_ptr;
+    cv_bridge::CvImagePtr cv_dbg;
     try {
         cv_ptr = cv_bridge::toCvShare(color);
+        if(dbg) cv_dbg = cv_bridge::toCvCopy(color, sensor_msgs::image_encodings::BGR8);
     } catch (const cv_bridge::Exception& e) {
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-
-    // TODO: Do something.
-    //cv::imshow("foo", cv_ptr->image);
 
     // Publish the result.
     HeadOrientations msg;
@@ -65,23 +90,38 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
 
     for(size_t i = 0 ; i < ndetects ; ++i) {
         cv::Rect bbox(upper->pos_x[i], upper->pos_y[i], upper->width[i], upper->height[i]);
+
         // Cut it to the image. It might be outside if people are only half-on-screen.
         bbox &= cv::Rect(0, 0, cv_ptr->image.cols, cv_ptr->image.rows);
-        std::cout << "Checking head in " << bbox << std::endl;
+        ROS_INFO_STREAM("Checking head in " << bbox);
 
         // Ugly as fuck hardcoding. Should load from file.
         // front = 0.f, left = 90.f, right = -90.f, back = 180.f, background = nan
-        switch(g_model->predict_proba(cv::Mat(cv_ptr->image, bbox))) {
-        case 0: msg.angles.push_back(0.f); msg.confidences.push_back(0.83f); break;
-        case 1: msg.angles.push_back(90.f); msg.confidences.push_back(0.83f); break;
-        case 2: msg.angles.push_back(-90.f); msg.confidences.push_back(0.83f); break;
-        case 3: msg.angles.push_back(180.f); msg.confidences.push_back(0.83f); break;
-        case 4: msg.angles.push_back(nan("")); msg.confidences.push_back(0.83f); break;
-        default: msg.angles.push_back(0.f); msg.confidences.push_back(0.0f); break;
+        unsigned pred = g_model->predict_proba(cv::Mat(cv_ptr->image, bbox));
+        switch(pred) {
+        case 0: msg.angles.push_back(0.f); break;
+        case 1: msg.angles.push_back(90.f); break;
+        case 2: msg.angles.push_back(-90.f); break;
+        case 3: msg.angles.push_back(180.f); break;
+        case 4: msg.angles.push_back(nan("")); break;
+        default:
+            ROS_ERROR("Got invalid prediction. What model are you loading?");
+            return;
         }
+        msg.confidences.push_back(0.83);
+
+        if(dbg) visualize(cv_dbg->image, bbox, pred, 0.83);
     }
 
     g_pub.publish(msg);
+
+    // Create a debug image for visualizing.
+    if(dbg)
+        try {
+            g_dbgpub.publish(cv_dbg->toImageMsg());
+        } catch(const cv_bridge::Exception& e) {
+            ROS_ERROR("cv_bridge exception: %s", e.what());
+        }
 }
 
 bool cbStartAnalyzing(StartHeadAnalysis::Request& req, StartHeadAnalysis::Response& res)
@@ -177,6 +217,8 @@ int main(int argc, char **argv)
 
     // Create a topic publisher
     g_pub = nh.advertise<HeadOrientations>(pub_topic.c_str(), 10);
+
+    g_dbgpub = it.advertise("/head_orientation/image", 1);
 
     // Advertise a service for starting/stopping.
     ros::ServiceServer srv_start = nh.advertiseService("start_head_analysis", cbStartAnalyzing);
