@@ -32,12 +32,13 @@ add_message_files(
   HeadOrientations.msg
 )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+# Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  StartHeadAnalysis.srv
+  StopHeadAnalysis.srv
+  IsHeadAnalysisRunning.srv
+)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
