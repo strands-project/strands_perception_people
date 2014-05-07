@@ -26,6 +26,7 @@ Parameters
 * `upper_body_detections` *default = /upper_body_detector/detections*: The deteced upper bodies
 * `head_ori` *default = /head_orientation/head_ori*: Publishing an orientation array for each detected upper body.
 * `model_dir` *default = ""*: The learned model to use to do predictions. Models can be found in `strands_head_orientation/models/`.
+* `autostart` *default = true*: Whether to start analyzing detections right away or wait for a signal.
 
 rosrun
 ------
@@ -38,3 +39,24 @@ roslaunch
 ```
 roslaunch strands_head_orientation head_orientation.launch [parameter_name:=value]
 ```
+
+Start/stop
+----------
+
+This node should be permanently running. While running, it can be started and
+stopped and when stopped it should hardly use any resources, except for some
+memory.
+
+Its activity can be controlled on-demand through calls to the following services:
+  - `start_head_analysis`: starts the analysis of all incoming detections.
+  - `stop_head_analysis`: stops the analysis of any detections.
+  - `status_head_analysis`: returns whether the analysis is currently started.
+
+For manual usage, you can use the `start`, `stop` and `status` executables:
+
+```
+rosrun strands_head_orientation start
+rosrun strands_head_orientation status
+rosrun strands_head_orientation stop
+```
+

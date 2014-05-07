@@ -10,17 +10,30 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include "warco.hpp"
+
+// For the node
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/HeadOrientations.h"
+
+// For the service
+#include "strands_perception_people_msgs/StartHeadAnalysis.h"
+#include "strands_perception_people_msgs/StopHeadAnalysis.h"
+#include "strands_perception_people_msgs/IsHeadAnalysisRunning.h"
 
 // For UpperBodyDetector and HeadOrientations
 using namespace strands_perception_people_msgs;
 
+// WHY CAN'T I HOLD ALL THESE GLOBALS?
+bool g_running = false;
 warco::Warco* g_model;
 ros::Publisher g_pub;
 
 void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstPtr &upper)
 {
+    // THOU SHALL NOT RUN
+    if(! g_running)
+        return;
+
     // No subscriber is interested, don't do anything.
     if(g_pub.getNumSubscribers() == 0) {
         return;
@@ -71,6 +84,36 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
     g_pub.publish(msg);
 }
 
+bool cbStartAnalyzing(StartHeadAnalysis::Request& req, StartHeadAnalysis::Response& res)
+{
+    res.was_running = g_running;
+    if(g_running)
+        ROS_INFO("Already running.");
+    else
+        ROS_INFO("Starting to analyze heads.");
+    g_running = true;
+
+    return true;
+}
+
+bool cbStopAnalyzing(StopHeadAnalysis::Request& req, StopHeadAnalysis::Response& res)
+{
+    res.was_running = g_running;
+    if(! g_running)
+        ROS_INFO("Ain't even running.");
+    else
+        ROS_INFO("Stopping to analyze heads.");
+    g_running = false;
+
+    return true;
+}
+
+bool cbIsHeadAnalysisRunning(IsHeadAnalysisRunning::Request& req, IsHeadAnalysisRunning::Response& res)
+{
+    res.is_running = g_running;
+    return true;
+}
+
 int main(int argc, char **argv)
 {
     // Set up ROS.
@@ -93,7 +136,8 @@ int main(int argc, char **argv)
     nh_.param("upper_body_detections", topic_upperbody, std::string("/upper_body_detector/detections"));
     nh_.param("head_ori", pub_topic, std::string("/head_orientation/head_ori"));
     nh_.param("model_dir", model_dir, std::string(""));
-    std::string topic_color_image = cam_ns + "/rgb/image_color";
+    nh_.param("autostart", g_running, true);
+    std::string topic_color_image = cam_ns + "/rgb/image_rect_color";
 
     if(model_dir.empty()) {
         ROS_ERROR("No model file specified.");
@@ -105,6 +149,13 @@ int main(int argc, char **argv)
 
     ROS_INFO("Loading model folder %s", model_dir.c_str());
     g_model = new warco::Warco(model_dir);
+    ROS_INFO("Done loading");
+
+    if(g_running) {
+        ROS_INFO("Starting to analyze upper body detections right away.");
+    } else {
+        ROS_INFO("Waiting for a start signal before analyzing. (Read the README!)");
+    }
 
     // Image transport is optimized for, well, pub/sub images.
     image_transport::ImageTransport it(nh_);
@@ -126,6 +177,11 @@ int main(int argc, char **argv)
 
     // Create a topic publisher
     g_pub = nh.advertise<HeadOrientations>(pub_topic.c_str(), 10);
+
+    // Advertise a service for starting/stopping.
+    ros::ServiceServer srv_start = nh.advertiseService("start_head_analysis", cbStartAnalyzing);
+    ros::ServiceServer srv_stop = nh.advertiseService("stop_head_analysis", cbStopAnalyzing);
+    ros::ServiceServer srv_get = nh.advertiseService("status_head_analysis", cbIsHeadAnalysisRunning);
 
     ros::spin();
 
