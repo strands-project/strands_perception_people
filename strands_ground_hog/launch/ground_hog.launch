@@ -3,6 +3,10 @@
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="detections" default="/groundHOG/detections" />
     <arg name="result_image" default="/groundHOG/image" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
     <node pkg="strands_ground_hog" type="groundHOG" name="groundHOG" output="screen">
         <param name="model" value="$(arg model)" type="string"/>
