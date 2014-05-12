@@ -5,12 +5,12 @@ from ros_datacentre.message_store import MessageStoreProxy
 import strands_perception_people_msgs.msg
 import geometry_msgs.msg
 
-def callback(self,pl):
+def callback(pl):
     meta = {}
     meta["people"] = dataset_name
     msg_store.insert(pl,meta)
 
-def amcl_callback(self,pl):
+def amcl_callback(pl):
     meta = {}
     meta["amcl"] = dataset_name
     msg_store.insert(pl,meta)

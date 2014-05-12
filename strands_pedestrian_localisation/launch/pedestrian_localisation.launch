@@ -15,6 +15,6 @@
         <param name="marker" value="$(arg marker)" type="string"/>
     </node>
     <node pkg="strands_pedestrian_localisation" type="save_locations.py"
-name="save_people_locations" output="screen">
+name="save_people_locations" output="screen"/>
 
 </launch> 
