@@ -6,6 +6,8 @@ import strands_perception_people_msgs.msg
 import geometry_msgs.msg
 
 def callback(pl):
+    if len(pl.distances) == 0:
+        return
     meta = {}
     meta["people"] = dataset_name
     msg_store.insert(pl,meta)
