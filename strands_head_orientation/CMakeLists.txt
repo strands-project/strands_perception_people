@@ -12,6 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     std_msgs
     strands_perception_people_msgs
+    ros_datacentre_cpp_client
+    ros_datacentre_msgs
+    ros_datacentre
     opencv_warco
 )
 
@@ -83,6 +86,7 @@ include_directories(include
 
 ## Declare a cpp executable
 add_executable(strands_head_orientation src/main.cpp)
+add_executable(store_detections src/store_detections.cpp)
 add_executable(start src/start.cpp)
 add_executable(stop src/stop.cpp)
 add_executable(status src/status.cpp)
@@ -90,12 +94,14 @@ add_executable(status src/status.cpp)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(strands_head_orientation strands_perception_people_msgs_generate_messages_cpp)
+add_dependencies(store_detections strands_perception_people_msgs_generate_messages_cpp ros_datacentre_generate_messages_cpp)
 add_dependencies(start strands_perception_people_msgs_generate_messages_cpp)
 add_dependencies(stop strands_perception_people_msgs_generate_messages_cpp)
 add_dependencies(status strands_perception_people_msgs_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(strands_head_orientation ${catkin_LIBRARIES})
+target_link_libraries(store_detections mongoclient ${catkin_LIBRARIES})
 target_link_libraries(start ${catkin_LIBRARIES})
 target_link_libraries(stop ${catkin_LIBRARIES})
 target_link_libraries(status ${catkin_LIBRARIES})
