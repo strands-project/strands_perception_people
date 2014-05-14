@@ -3,6 +3,71 @@ Head orientation estimator
 
 This package estimates the orientation of the head of people detected by the upper body detector.
 
+For the G4S Y1 deployment
+=========================
+
+For the G4S Y1 deployment, we won't run the actual estimation, we'll only run
+logging code and that'll run 24/7, but can be paused/resumed by service calls.
+
+Everything is logged into the `heads` collection.
+
+Launching
+---------
+
+Use the g5s launchfile:
+
+```
+roslaunch strands_head_orientation g4s.launch
+```
+
+Directly edit the parameters in the launchfile if they need adapting.
+
+Pausing and resuming
+--------------------
+
+In total, ~1 CPU core is used by this node and its dependencies. It can be paused
+and later on resumed if all available power is needed by someone else.
+
+### Pausing
+
+Send a message of type `strands_perception_people_msgs/StopHeadAnalysis` to the
+`stop_head_analysis` service and all activity will be paused.
+
+The `stop` executable in this package does exactly that, see its [source](src/stop.cpp)
+for an example or just execute it with `recording` as parameter:
+
+```
+rosrun strands_head_orientation stop recording
+```
+
+### Resuming
+
+For resuming from the paused state, send a message of type
+`strands_perception_people_msgs/StartHeadAnalysis` to the `start_head_analysis`
+service.
+
+Again, the `start` executable and its [source](src/start.cpp) can be helpful:
+
+```
+rosrun strands_head_orientation start recording
+```
+
+### Poking
+
+You can also check for the current state by sending a message of type
+`strands_perception_people_msgs/IsHeadAnalysisRunning` to the `status_head_analysis`
+service.
+
+Yet again, the `status` executable and its [source](src/status.cpp) help you:
+
+```
+rosrun strands_head_orientation status recording
+```
+
+Anything below this line can be ignored for the g4s scenario.
+
+---------------------------------------
+
 Install
 =======
 Please download and extract the model file into the `models` folder. By default:

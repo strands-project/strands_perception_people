@@ -1,0 +1,14 @@
+<launch>
+    <arg name="queue_size" default="5" />
+    <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="upper_body_detections" default="/upper_body_detector/detections" />
+
+    <include file="$(find strands_ground_plane)/launch/ground_plane_fixed.launch"/>
+    <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
+
+    <node pkg="strands_head_orientation" type="store_detections" name="store_detections" output="screen">
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+        <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
+        <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
+    </node>
+</launch>
