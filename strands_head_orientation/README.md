@@ -21,6 +21,12 @@ roslaunch strands_head_orientation g4s.launch
 ```
 
 Directly edit the parameters in the launchfile if they need adapting.
+Especially, please check `expected_runtime` and modify it if the expected
+runtime is *not* 3 weeks.
+
+There is a hardcoded (by intent) limit of detection and image count to be logged
+(`g_maxStored*` in [store_detections.cpp](src/store_detections.cpp)) which
+amounts to roughly 40Gb and 10Gb, respectively.
 
 Pausing and resuming
 --------------------

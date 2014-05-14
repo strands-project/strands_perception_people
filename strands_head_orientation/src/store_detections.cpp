@@ -30,15 +30,51 @@ using namespace strands_perception_people_msgs;
 // WHY CAN'T I HOLD ALL THESE GLOBALS?
 bool g_running = false;
 ros_datacentre::MessageStoreProxy* g_messageStore = 0;
-static const double g_pWholeImageIfDetection = 0.05;
-static const double g_pWholeImageIfNoDetection = 0.01;
 
-bool doWithProb(double p)
+// Safety-counters.
+unsigned long g_nStoredDetections = 0;
+unsigned long g_nStoredBigImages = 0;
+
+const unsigned long g_maxStoredDetections = 400000; // ~40Gb
+const unsigned long g_maxStoredBigImages = 10000; // ~10Gb
+
+// 3 weeks: NOTE: overwritten by config file. (get_param doesn't like ulong.)
+int g_expectedRuntime = 3*7*24*60*60;
+int g_expectedFrames = 0;
+
+// Corresponding probabilities of recording.
+double g_pWholeImage = 0.;
+double g_pWholeImageIfDetection = 0.;
+double g_pWholeImageIfNoDetection = 0.;
+double g_pDetection = 0.;
+
+void reconsider()
+{
+    g_expectedFrames = g_expectedRuntime*30;
+
+    g_pWholeImage = (double)g_maxStoredBigImages/g_expectedFrames;
+    g_pWholeImageIfDetection = 0.25*g_pWholeImage;
+    g_pWholeImageIfNoDetection = 0.5*g_pWholeImage;
+}
+
+bool mayStoreDetection()
+{
+    return g_running
+        && g_messageStore
+        && g_nStoredDetections < g_maxStoredDetections;
+}
+
+bool mayStoreBigImage(bool hasDetection)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_real_distribution<> dis(0, 1);
-    return g_running ? dis(gen) < p : false;
+
+    return g_running
+        && g_messageStore
+        && g_nStoredBigImages < g_maxStoredBigImages
+        && dis(gen) < (hasDetection ? g_pWholeImageIfDetection
+                                    : g_pWholeImageIfNoDetection);
 }
 
 template<typename T>
@@ -57,21 +93,24 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
 
     size_t ndetects = upper->pos_x.size();
 
-    // Randomly store a whole image.
-    if(g_messageStore && ndetects == 0 && doWithProb(g_pWholeImageIfNoDetection))
-        std::cout << "Inserted full_col_nodet_" << color->header.seq << " as " <<
-            g_messageStore->insertNamed("full_col_nodet_" + to_s(color->header.seq), *color)
-            << std::endl;
-    if(g_messageStore && ndetects > 0 && doWithProb(g_pWholeImageIfDetection))
-        std::cout << "Inserted full_col_det_" << color->header.seq << " as " <<
-            g_messageStore->insertNamed("full_col_det_" + to_s(color->header.seq), *color)
-            << std::endl;
+    if(ndetects == 0) {
+        // Still randomly store a whole image.
+        if(mayStoreBigImage(false)) {
+            ++g_nStoredBigImages;
+            g_messageStore->insertNamed("full_col_nodet_" + to_s(color->header.seq), *color);
+        }
 
-    // No upper body detections, don't do anything else.
-    if(ndetects == 0)
+        // No upper body detections, don't do anything else.
         return;
+    }
 
     ROS_DEBUG("Entering callback of heads, and it is awake and got detections.");
+
+    // Still randomly store a whole image with detection.
+    if(mayStoreBigImage(true)) {
+        ++g_nStoredBigImages;
+        g_messageStore->insertNamed("full_col_det_" + to_s(color->header.seq), *color);
+    }
 
     // Get the OpenCV image out of the ros message. No-copy.
     cv_bridge::CvImageConstPtr cv_ptr;
@@ -93,11 +132,11 @@ void cb(const sensor_msgs::ImageConstPtr &color, const UpperBodyDetector::ConstP
         // Cloning the matrix because else it keeps pointing to the original
         // big one and just increases stride, effectively storing too much in
         // the database.
-        if(g_messageStore && g_running)
-            std::cout << "Inserted upper_col" << color->header.seq << "_" << i << " as " <<
-                g_messageStore->insertNamed("upper_col_" + to_s(color->header.seq) + "_" + to_s(i),
-                    cv_bridge::CvImage(color->header, color->encoding, cv::Mat(cv_ptr->image, bbox).clone()))
-                << std::endl;
+        if(mayStoreDetection()) {
+            ++g_nStoredDetections;
+            g_messageStore->insertNamed("upper_col_" + to_s(color->header.seq) + "_" + to_s(i),
+                cv_bridge::CvImage(color->header, color->encoding, cv::Mat(cv_ptr->image, bbox).clone()));
+        }
     }
 }
 
@@ -151,7 +190,10 @@ int main(int argc, char **argv)
     nh_.param("camera_namespace", cam_ns, std::string("/head_xtion"));
     nh_.param("upper_body_detections", topic_upperbody, std::string("/upper_body_detector/detections"));
     nh_.param("autostart", g_running, true);
+    nh_.param("expected_runtime", g_expectedRuntime, g_expectedRuntime);
     std::string topic_color_image = cam_ns + "/rgb/image_rect_color";
+
+    reconsider();
 
     ROS_DEBUG("head_orientation: Sync queue size is set to: %i", queue_size);
 
@@ -160,6 +202,8 @@ int main(int argc, char **argv)
     } else {
         ROS_INFO("Waiting for a start signal before storing. (Read the README!)");
     }
+
+    ROS_INFO("Planning for a runtime of %ds (%.2f days) => p(Big) = %g", g_expectedRuntime, g_expectedRuntime/60./60./24., g_pWholeImage);
 
     // we will store our results in a separate collection.
     g_messageStore = new ros_datacentre::MessageStoreProxy(nh_, "heads");
