@@ -24,8 +24,15 @@
     <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
     <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
 
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+
     <!-- Ground HOG -->
     <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg gh_queue_size)"/>
         <arg name="model" value="$(arg model)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
@@ -36,6 +43,8 @@
 
     <!-- Visual Odometry -->
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg vo_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
@@ -43,6 +52,8 @@
 
     <!-- Ground Plane -->
     <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg gp_queue_size)"/>
         <arg name="config_file" value="$(arg gp_config_file)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
@@ -51,6 +62,8 @@
 
     <!-- Upper Body Detector -->
     <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg ubd_queue_size)"/>
         <arg name="config_file" value="$(arg ubd_config_file)"/>
         <arg name="template_file" value="$(arg template_file)"/>
@@ -63,6 +76,8 @@
 
     <!-- Pedestrian Tracking -->
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
         <arg name="config_file" value="$(arg pt_config_file)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
@@ -76,6 +91,8 @@
 
     <!-- Pedestrian Localisation -->
     <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
         <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
         <arg name="localisations" value="$(arg pd_localisations)"/>
