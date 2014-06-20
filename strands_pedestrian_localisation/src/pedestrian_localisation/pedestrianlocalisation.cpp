@@ -149,8 +149,8 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
             //Transform
             try {
                 ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
-                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, ros::Time(), ros::Duration(3.0));
-                listener->transformPose(target_frame, poseInCamCoords, poseInRobotCoords);
+                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInRobotCoords);
             }
             catch(tf::TransformException ex) {
                 ROS_WARN("Failed transform: %s", ex.what());
