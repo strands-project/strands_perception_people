@@ -21,8 +21,6 @@
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/PedestrianLocations.h"
 
-#include "pedestrian_localisation/simple_tracking.h"
-
 class PedestrianLocalisation
 {
 public:
@@ -42,7 +40,6 @@ private:
     std::string target_frame;
     unsigned long detect_seq;
     unsigned long marker_seq;
-    SimpleTracking *st;
 };
 
 #endif // PEDESTRIANLOCALISATION_H

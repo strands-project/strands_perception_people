@@ -12,7 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Bayestracking REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -68,7 +67,6 @@ catkin_package(
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
-    ${BAYESTRACKING_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -78,7 +76,6 @@ include_directories(
 
 ## Declare a cpp executable
 add_executable(pedestrian_localisation 
-    #src/pedestrian_localisation/main.cpp
     src/pedestrian_localisation/pedestrianlocalisation.cpp
 )
 
@@ -89,7 +86,6 @@ add_dependencies(pedestrian_localisation ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pedestrian_localisation
   ${catkin_LIBRARIES}
-  ${BAYESTRACKING_LIBRARIES}
 )
 
 #############
