@@ -74,29 +74,18 @@ void PedestrianLocalisation::createVisualisation(std::vector<geometry_msgs::Poin
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < points.size(); i++) {
-        visualization_msgs::Marker marker;
-        marker.header.frame_id = target_frame;
-        marker.header.stamp = ros::Time::now();
-        marker.header.seq = ++marker_seq;
-        marker.ns = "pedestrian_localisation";
-        marker.id = i;
-        marker.type = visualization_msgs::Marker::CYLINDER;
-        marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position.x = points[i].x;
-        marker.pose.position.y = points[i].y;
-        marker.pose.position.z = 0.6;
-        marker.pose.orientation.x = 0.0;
-        marker.pose.orientation.y = 0.0;
-        marker.pose.orientation.z = 0.0;
-        marker.pose.orientation.w = 1.0;
-        marker.scale.x = 0.5;
-        marker.scale.y = 0.5;
-        marker.scale.z = 1.2;
-        marker.color.a = 1.0;
-        marker.color.r = 0.0;
-        marker.color.g = 1.0;
-        marker.color.b = 0.0;
-        marker_array.markers.push_back(marker);
+
+        geometry_msgs::Pose pose;
+        pose.position.x = points[i].x;
+        pose.position.y = points[i].y;
+        pose.position.z = 0.6;
+        pose.orientation.x = 0.0;
+        pose.orientation.y = 0.0;
+        pose.orientation.z = 0.0;
+        pose.orientation.w = 1.0;
+        std::vector<visualization_msgs::Marker> human = createHuman(i*10, pose);
+
+        marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
     }
     pub_marker.publish(marker_array);
 }

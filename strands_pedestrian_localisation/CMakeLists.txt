@@ -6,9 +6,11 @@ project(strands_pedestrian_localisation)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS 
     geometry_msgs 
-    roscpp 
-    strands_perception_people_msgs 
+    roscpp
+    std_msgs
+    strands_perception_people_msgs
     tf
+    visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
