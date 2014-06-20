@@ -139,11 +139,11 @@ private:
             int id,
             geometry_msgs::Pose pose) {
         std::vector<visualization_msgs::Marker> human;
-        human.push_back(createHead(id, visualization_msgs::Marker::ADD, pose));
-        human.push_back(createBody(++id, visualization_msgs::Marker::ADD, pose));
-        std::vector<visualization_msgs::Marker> legs = createLegs(++id, ++id, visualization_msgs::Marker::ADD, pose);
+        human.push_back(createHead(id++, visualization_msgs::Marker::ADD, pose));
+        human.push_back(createBody(id++, visualization_msgs::Marker::ADD, pose));
+        std::vector<visualization_msgs::Marker> legs = createLegs(id++, id++, visualization_msgs::Marker::ADD, pose);
         human.insert(human.end(), legs.begin(), legs.end());
-        std::vector<visualization_msgs::Marker> arms = createArms(++id, ++id, visualization_msgs::Marker::ADD, pose);
+        std::vector<visualization_msgs::Marker> arms = createArms(id++, id++, visualization_msgs::Marker::ADD, pose);
         human.insert(human.end(), arms.begin(), arms.end());
         return human;
     }
