@@ -1,37 +1,50 @@
-#include <ros/ros.h>
-#include <ros/time.h>
-#include <tf/transform_listener.h>
-#include <geometry_msgs/Quaternion.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/PoseArray.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Point.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <visualization_msgs/Marker.h>
+#include "pedestrian_localisation/pedestrianlocalisation.h"
 
-#include <string.h>
-#include <vector>
-#include <math.h>
+PedestrianLocalisation::PedestrianLocalisation() :
+    detect_seq(0),
+    marker_seq(0)
+{
+    ros::NodeHandle n;
 
-#include "strands_perception_people_msgs/PedestrianTracking.h"
-#include "strands_perception_people_msgs/PedestrianTrackingArray.h"
-#include "strands_perception_people_msgs/UpperBodyDetector.h"
-#include "strands_perception_people_msgs/PedestrianLocations.h"
+    listener = new tf::TransformListener();
 
-using namespace std;
-using namespace strands_perception_people_msgs;
+    // Declare variables that can be modified by launch file or command line.
+    std::string pta_topic;
+    std::string pub_topic;
+    std::string pub_topic_pose;
+    std::string pub_marker_topic;
 
-ros::Publisher pub_detect;
-ros::Publisher pub_pose;
-ros::Publisher pub_marker;
-tf::TransformListener* listener;
+    // Initialize node parameters from launch file or command line.
+    // Use a private node handle so that multiple instances of the node can be run simultaneously
+    // while using different parameters.
+    ros::NodeHandle private_node_handle_("~");
+    private_node_handle_.param("target_frame", target_frame, std::string("/base_link"));
+    private_node_handle_.param("pedestrian_array", pta_topic, std::string("/pedestrian_tracking/pedestrian_array"));
 
-string target_frame;
-unsigned long detect_seq = 0;
-unsigned long marker_seq = 0;
+    // Create a subscriber.
+    ros::Subscriber pta_sub;
+    ros::SubscriberStatusCallback con_cb = boost::bind(&PedestrianLocalisation::connectCallback, this, boost::ref(n), boost::ref(pta_sub), pta_topic);
 
-void publishDetections(vector<geometry_msgs::Point> ppl, vector<int> ids, vector<double> distances, vector<double> angles, double min_dist, double angle) {
-    PedestrianLocations result;
+    private_node_handle_.param("localisations", pub_topic, std::string("/pedestrian_localisation/localisations"));
+    pub_detect = n.advertise<strands_perception_people_msgs::PedestrianLocations>(pub_topic.c_str(), 10, con_cb, con_cb);
+    private_node_handle_.param("pose", pub_topic_pose, std::string("/pedestrian_localisation/pose"));
+    pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
+    private_node_handle_.param("marker", pub_marker_topic, std::string("/pedestrian_localisation/marker_array"));
+    pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
+
+    st = new SimpleTracking();
+
+    ros::spin();
+}
+
+void PedestrianLocalisation::publishDetections(
+        std::vector<geometry_msgs::Point> ppl,
+        std::vector<int> ids,
+        std::vector<double> distances,
+        std::vector<double> angles,
+        double min_dist,
+        double angle) {
+    strands_perception_people_msgs::PedestrianLocations result;
     result.header.stamp = ros::Time::now();
     result.header.frame_id = target_frame;
     result.header.seq = ++detect_seq;
@@ -59,7 +72,7 @@ void publishDetections(vector<geometry_msgs::Point> ppl, vector<int> ids, vector
     pub_detect.publish(result);
 }
 
-void createVisualisation(std::vector<geometry_msgs::Point> points) {
+void PedestrianLocalisation::createVisualisation(std::vector<geometry_msgs::Point> points) {
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < points.size(); i++) {
@@ -90,9 +103,9 @@ void createVisualisation(std::vector<geometry_msgs::Point> points) {
     pub_marker.publish(marker_array);
 }
 
-vector<double> cartesianToPolar(geometry_msgs::Point point) {
+std::vector<double> PedestrianLocalisation::cartesianToPolar(geometry_msgs::Point point) {
     ROS_DEBUG("cartesianToPolar: Cartesian point: x: %f, y: %f, z %f", point.x, point.y, point.z);
-    vector<double> output;
+    std::vector<double> output;
     double dist = sqrt(pow(point.x,2) + pow(point.y,2));
     double angle = atan2(point.y, point.x);
     output.push_back(dist);
@@ -101,12 +114,12 @@ vector<double> cartesianToPolar(geometry_msgs::Point point) {
     return output;
 }
 
-void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
+void PedestrianLocalisation::trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta)
 {
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
     if(pta->pedestrians.size() == 0) {
-        PedestrianLocations result;
+        strands_perception_people_msgs::PedestrianLocations result;
         result.header.stamp = ros::Time::now();
         result.header.frame_id = target_frame;
         result.header.seq = ++detect_seq;
@@ -114,14 +127,14 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
     }
 
     geometry_msgs::PoseStamped closest_person;
-    vector<geometry_msgs::Point> ppl;
-    vector<int> ids;
-    vector<double> distances;
-    vector<double> angles;
+    std::vector<geometry_msgs::Point> ppl;
+    std::vector<int> ids;
+    std::vector<double> distances;
+    std::vector<double> angles;
     double min_dist = 10000.0d;
     double angle;
     for(int i = 0; i < pta->pedestrians.size(); i++) {
-        PedestrianTracking pt = pta->pedestrians[i];
+        strands_perception_people_msgs::PedestrianTracking pt = pta->pedestrians[i];
         if(pt.traj_x.size() && pt.traj_y.size() && pt.traj_z.size()) {
             ROS_DEBUG("trackingCallback: Received: Position world x: %f, y: %f, z: %f",
                      pt.traj_x[0],
@@ -158,7 +171,7 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             }
             ppl.push_back(poseInRobotCoords.pose.position);
             ids.push_back(pt.id);
-            vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
+            std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
             distances.push_back(polar[0]);
             angles.push_back(polar[1]);
 
@@ -167,14 +180,15 @@ void trackingCallback(const PedestrianTrackingArray::ConstPtr &pta)
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
     }
-    publishDetections(ppl, ids, distances, angles, min_dist, angle);
+    std::vector<geometry_msgs::Point> tracked = st->track(ppl);
+    publishDetections(tracked, ids, distances, angles, min_dist, angle);
     pub_pose.publish(closest_person);
     if(pub_marker.getNumSubscribers())
         createVisualisation(ppl);
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
-void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, string topic) {
+void PedestrianLocalisation::connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, std::string topic) {
     bool loc = pub_detect.getNumSubscribers();
     bool markers = pub_marker.getNumSubscribers();
     if(!loc && !markers) {
@@ -182,7 +196,7 @@ void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, string topic) {
         sub.shutdown();
     } else {
         ROS_DEBUG("Pedestrian Localisation: New subscribers. Subscribing.");
-        sub = n.subscribe(topic.c_str(), 10, &trackingCallback);
+        sub = n.subscribe(topic.c_str(), 10, &PedestrianLocalisation::trackingCallback, this);
     }
 }
 
@@ -190,36 +204,6 @@ int main(int argc, char **argv)
 {
     // Set up ROS.
     ros::init(argc, argv, "pedestrian_localisation");
-    ros::NodeHandle n;
-
-    listener = new tf::TransformListener();
-
-    // Declare variables that can be modified by launch file or command line.
-    string pta_topic;
-    string pub_topic;
-    string pub_topic_pose;
-    string pub_marker_topic;
-
-    // Initialize node parameters from launch file or command line.
-    // Use a private node handle so that multiple instances of the node can be run simultaneously
-    // while using different parameters.
-    ros::NodeHandle private_node_handle_("~");
-    private_node_handle_.param("target_frame", target_frame, string("/base_link"));
-    private_node_handle_.param("pedestrian_array", pta_topic, string("/pedestrian_tracking/pedestrian_array"));
-
-    // Create a subscriber.
-    ros::Subscriber pta_sub;
-    ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback, boost::ref(n), boost::ref(pta_sub), pta_topic);
-
-    private_node_handle_.param("localisations", pub_topic, string("/pedestrian_localisation/localisations"));
-    pub_detect = n.advertise<PedestrianLocations>(pub_topic.c_str(), 10, con_cb, con_cb);
-    private_node_handle_.param("pose", pub_topic_pose, string("/pedestrian_localisation/pose"));
-    pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
-    private_node_handle_.param("marker", pub_marker_topic, string("/pedestrian_localisation/marker_array"));
-    pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
-
-    ros::spin();
+    PedestrianLocalisation* pl = new PedestrianLocalisation();
     return 0;
 }
-
-
