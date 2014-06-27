@@ -81,7 +81,21 @@ include_directories(include
 # )
 
 ## Declare a cpp executable
-add_executable(pedestrian_tracking src/main.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/AncillaryMethods.cpp src/Hypo.cpp src/FrameInlier.cpp src/Detections.cpp src/EKalman.cpp src/Kalman.cpp src/Math.cpp src/MDL.cpp src/Tracker.cpp src/Visualization.cpp)
+add_executable(pedestrian_tracking 
+    src/main.cpp 
+    src/Camera.cpp 
+    src/Globals.cpp 
+    src/AncillaryMethods.cpp 
+    src/Hypo.cpp 
+    src/FrameInlier.cpp 
+    src/Detections.cpp 
+    src/EKalman.cpp 
+    src/Kalman.cpp 
+    src/Math.cpp 
+    src/MDL.cpp 
+    src/Tracker.cpp 
+    src/Visualization.cpp
+)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

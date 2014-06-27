@@ -203,8 +203,8 @@ public:
     static string stream_dest_IP;
 
     ////////////////////////HOG Detector////////////////////////
-    static float hog_max_scale;
-    static float hog_score_thresh;
+    static double hog_max_scale;
+    static double hog_score_thresh;
 };
 
 #endif	/* _GLOBALS_DENNIS_H */

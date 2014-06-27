@@ -26,7 +26,6 @@
 #include "pointcloud.h"
 #include "detector.h"
 #include "Globals.h"
-#include "ConfigFile.h"
 
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
@@ -77,72 +76,70 @@ void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
     }
 }
 
-void ReadConfigFile(string path_config_file)
+void ReadConfigParams(ros::NodeHandle n)
 {
-
-    ConfigFile config(path_config_file);
-
+    std::string ns = "/upper_body_detector/";
     //=====================================
     // Distance Range Accepted Detections
     //=====================================
-    Globals::distance_range_accepted_detections = config.read<double>("distance_range_accepted_detections", 7);
+    n.param(ns+"distance_range_accepted_detections", Globals::distance_range_accepted_detections, double(7.0));
 
     //======================================
     // ROI
     //======================================
-    Globals::inc_width_ratio = config.read<double>("inc_width_ratio");
-    Globals::inc_height_ratio = config.read<double>("inc_height_ratio");
-    Globals::region_size_threshold = config.read<double>("region_size_threshold", 10);
+    n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio);
+    n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio);
+    n.param(ns+"region_size_threshold", Globals::region_size_threshold, int(10));
 
     //======================================
     // Freespace Parameters
     //======================================
-    Globals::freespace_scaleZ = config.read<double>("freespace_scaleZ", 20);
-    Globals::freespace_scaleX = config.read<double>("freespace_scaleX", 20);
-    Globals::freespace_minX = config.read<double>("freespace_minX", -20);
-    Globals::freespace_minZ = config.read<double>("freespace_minZ", 0);
-    Globals::freespace_maxX = config.read<double>("freespace_maxX", 20);
-    Globals::freespace_maxZ = config.read<double>("freespace_maxZ", 30);
-    Globals::freespace_threshold = config.read<double>("freespace_threshold", 120);
-    Globals::freespace_max_depth_to_cons = config.read<int>("freespace_max_depth_to_cons", 20);
+    n.param(ns+"freespace_scaleZ", Globals::freespace_scaleZ, double(20));
+    n.param(ns+"freespace_scaleX", Globals::freespace_scaleX, double(20));
+    n.param(ns+"freespace_minX", Globals::freespace_minX, double(-20));
+    n.param(ns+"freespace_minZ", Globals::freespace_minZ, double(0));
+    n.param(ns+"freespace_maxX", Globals::freespace_maxX, double(20));
+    n.param(ns+"freespace_maxZ", Globals::freespace_maxZ, double(30));
+    n.param(ns+"freespace_threshold", Globals::freespace_threshold, double(120));
+    n.param(ns+"freespace_max_depth_to_cons", Globals::freespace_max_depth_to_cons, int(20));
 
     //======================================
     // Evaluation Parameters
     //======================================
-    Globals::evaluation_NMS_threshold = config.read<double>("evaluation_NMS_threshold",0.4);
-    Globals::evaluation_NMS_threshold_LM = config.read<double>("evaluation_NMS_threshold_LM",0.4);
-    Globals::evaluation_NMS_threshold_Border = config.read<double>("evaluation_NMS_threshold_Border",0.4);
-    Globals::evaluation_inc_height_ratio = config.read<double>("evaluation_inc_height_ratio",0.2);
-    Globals::evaluation_stride = config.read<int>("evaluation_stride",3);
-    Globals::evaluation_scale_stride = config.read<double>("evaluation_scale_stride",1.03);
-    Globals::evaluation_nr_scales = config.read<int>("evaluation_nr_scales",1);
-    Globals::evaluation_inc_cropped_height = config.read<int>("evaluation_inc_cropped_height",20);
-    Globals::evaluation_greedy_NMS_overlap_threshold = config.read<double>("evaluation_greedy_NMS_overlap_threshold", 0.1);
-    Globals::evaluation_greedy_NMS_threshold = config.read<double>("evaluation_greedy_NMS_threshold", 0.25);
+    n.param(ns+"evaluation_NMS_threshold", Globals::evaluation_NMS_threshold, double(0.4));
+    n.param(ns+"evaluation_NMS_threshold_LM", Globals::evaluation_NMS_threshold_LM, double(0.4));
+    n.param(ns+"evaluation_NMS_threshold_Border", Globals::evaluation_NMS_threshold_Border, double(0.4));
+    n.param(ns+"evaluation_inc_height_ratio", Globals::evaluation_inc_height_ratio, double(0.2));
+    n.param(ns+"evaluation_stride", Globals::evaluation_stride, int(3));
+    n.param(ns+"evaluation_scale_stride", Globals::evaluation_scale_stride, double(1.03));
+    n.param(ns+"evaluation_nr_scales", Globals::evaluation_nr_scales, int(1));
+    n.param(ns+"evaluation_inc_cropped_height", Globals::evaluation_inc_cropped_height, int(20));
+    n.param(ns+"evaluation_greedy_NMS_overlap_threshold", Globals::evaluation_greedy_NMS_overlap_threshold, double(0.1));
+    n.param(ns+"evaluation_greedy_NMS_threshold", Globals::evaluation_greedy_NMS_threshold, double(0.25));
     //======================================
     // World scale
     //======================================
-    config.readInto(Globals::WORLD_SCALE, "WORLD_SCALE");
+    n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE);
 
     //======================================
     // height and width of images
     //======================================
-    Globals::dImHeight = config.read<int>("dImHeight");
-    Globals::dImWidth = config.read<int>("dImWidth");
+    n.getParam(ns+"dImHeight", Globals::dImHeight);
+    n.getParam(ns+"dImWidth", Globals::dImWidth);
 
     //====================================
     // Number of Frames / offset
     //====================================
-    Globals::numberFrames = config.read<int>("numberFrames");
-    Globals::nOffset = config.read<int>("nOffset");
+    n.getParam(ns+"numberFrames", Globals::numberFrames);
+    n.getParam(ns+"nOffset", Globals::nOffset);
 
     //====================================
     // Size of Template
     //====================================
-    Globals::template_size = config.read<int>("template_size");
+    n.getParam(ns+"template_size", Globals::template_size);
 
-    Globals::max_height = config.read<double>("max_height", 2.0);
-    Globals::min_height = config.read<double>("min_height", 1.4);
+    n.param(ns+"max_height", Globals::max_height, double(2.0));
+    n.param(ns+"min_height", Globals::min_height, double(1.4));
 
 }
 
@@ -360,7 +357,7 @@ int main(int argc, char **argv)
 
     // Initialise detector
     ReadUpperBodyTemplate(template_path);
-    ReadConfigFile(config_file);
+    ReadConfigParams(boost::ref(n));
     detector = new Detector();
 
     // Create synchronization policy. Here: async because time stamps will never match exactly

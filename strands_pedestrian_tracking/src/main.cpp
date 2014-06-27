@@ -24,7 +24,6 @@
 #include "Vector.h"
 #include "Camera.h"
 #include "Globals.h"
-#include "ConfigFile.h"
 #include "Hypo.h"
 #include "Detections.h"
 #include "AncillaryMethods.h"
@@ -114,235 +113,221 @@ void get_image(unsigned char* b_image, uint w, uint h, CImg<unsigned char>& cim)
     }
 }
 
-void ReadConfigFile(string path_config_file)
+void ReadConfigParams(ros::NodeHandle n)
 {
-
-    ConfigFile config(path_config_file);
+    std::string ns = "/pedestrian_tracking/";
 
     //=====================================
     // Input paths
     //=====================================
-    config.readInto(Globals::camPath_left, "camPath_left");
-    config.readInto(Globals::sImagePath_left, "sImagePath_left");
-    config.readInto(Globals::tempDepthL, "tempDepthL");
-    config.readInto(Globals::path_to_planes, "path_to_planes");
+    n.getParam(ns+"camPath_left", Globals::camPath_left);
+    n.getParam(ns+"sImagePath_left", Globals::sImagePath_left);
+    n.getParam(ns+"tempDepthL", Globals::tempDepthL);
+    n.getParam(ns+"path_to_planes", Globals::path_to_planes);
 
     //=====================================
     // Distance Range Accepted Detections
     //=====================================
-    Globals::distance_range_accepted_detections = config.read<double>("distance_range_accepted_detections", 7);
+    n.param(ns+"distance_range_accepted_detections", Globals::distance_range_accepted_detections, double(7));
 
     //======================================
     // ROI
     //======================================
-    Globals::inc_width_ratio = config.read<double>("inc_width_ratio");
-    Globals::inc_height_ratio = config.read<double>("inc_height_ratio");
-    Globals::region_size_threshold = config.read<double>("region_size_threshold", 10);
+    n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio);
+    n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio);
+    n.param(ns+"region_size_threshold", Globals::region_size_threshold, int(10));
 
     //======================================
     // Freespace Parameters
     //======================================
-    Globals::freespace_scaleZ = config.read<double>("freespace_scaleZ", 20);
-    Globals::freespace_scaleX = config.read<double>("freespace_scaleX", 20);
-    Globals::freespace_minX = config.read<double>("freespace_minX", -20);
-    Globals::freespace_minZ = config.read<double>("freespace_minZ", 0);
-    Globals::freespace_maxX = config.read<double>("freespace_maxX", 20);
-    Globals::freespace_maxZ = config.read<double>("freespace_maxZ", 30);
-    Globals::freespace_threshold = config.read<double>("freespace_threshold", 120);
-    Globals::freespace_max_depth_to_cons = config.read<int>("freespace_max_depth_to_cons", 20);
+    n.param(ns+"freespace_scaleZ", Globals::freespace_scaleZ, double(20));
+    n.param(ns+"freespace_scaleX", Globals::freespace_scaleX, double(20));
+    n.param(ns+"freespace_minX", Globals::freespace_minX, double(-20));
+    n.param(ns+"freespace_minZ", Globals::freespace_minZ, double(0));
+    n.param(ns+"freespace_maxX", Globals::freespace_maxX, double(20));
+    n.param(ns+"freespace_maxZ", Globals::freespace_maxZ, double(30));
+    n.param(ns+"freespace_threshold", Globals::freespace_threshold, double(120));
+    n.param(ns+"freespace_max_depth_to_cons", Globals::freespace_max_depth_to_cons, int(20));
 
     //======================================
     // Evaluation Parameters
     //======================================
-    Globals::evaluation_NMS_threshold = config.read<double>("evaluation_NMS_threshold",0.4);
-    Globals::evaluation_NMS_threshold_LM = config.read<double>("evaluation_NMS_threshold_LM",0.4);
-    Globals::evaluation_NMS_threshold_Border = config.read<double>("evaluation_NMS_threshold_Border",0.4);
-    Globals::evaluation_inc_height_ratio = config.read<double>("evaluation_inc_height_ratio",0.2);
-    Globals::evaluation_stride = config.read<int>("evaluation_stride",3);
-    Globals::evaluation_scale_stride = config.read<double>("evaluation_scale_stride",1.03);
-    Globals::evaluation_nr_scales = config.read<int>("evaluation_nr_scales",1);
-    Globals::evaluation_inc_cropped_height = config.read<int>("evaluation_inc_cropped_height",20);
-    Globals::evaluation_greedy_NMS_overlap_threshold = config.read<double>("evaluation_greedy_NMS_overlap_threshold", 0.1);
-    Globals::evaluation_greedy_NMS_threshold = config.read<double>("evaluation_greedy_NMS_threshold", 0.25);
+    n.param(ns+"evaluation_NMS_threshold", Globals::evaluation_NMS_threshold, double(0.4));
+    n.param(ns+"evaluation_NMS_threshold_LM", Globals::evaluation_NMS_threshold_LM, double(0.4));
+    n.param(ns+"evaluation_NMS_threshold_Border", Globals::evaluation_NMS_threshold_Border, double(0.4));
+    n.param(ns+"evaluation_inc_height_ratio", Globals::evaluation_inc_height_ratio, double(0.2));
+    n.param(ns+"evaluation_stride", Globals::evaluation_stride, int(3));
+    n.param(ns+"evaluation_scale_stride", Globals::evaluation_scale_stride, double(1.03));
+    n.param(ns+"evaluation_nr_scales", Globals::evaluation_nr_scales, int(1));
+    n.param(ns+"evaluation_inc_cropped_height", Globals::evaluation_inc_cropped_height, int(20));
+    n.param(ns+"evaluation_greedy_NMS_overlap_threshold", Globals::evaluation_greedy_NMS_overlap_threshold, double(0.1));
+    n.param(ns+"evaluation_greedy_NMS_threshold", Globals::evaluation_greedy_NMS_threshold, double(0.25));
     //======================================
     // World scale
     //======================================
-    config.readInto(Globals::WORLD_SCALE, "WORLD_SCALE");
+    n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE);
 
     //======================================
     // height and width of images
     //======================================
-    Globals::dImHeight = config.read<int>("dImHeight");
-    Globals::dImWidth = config.read<int>("dImWidth");
+    n.getParam(ns+"dImHeight", Globals::dImHeight);
+    n.getParam(ns+"dImWidth", Globals::dImWidth);
 
     //======================================
     // Camera
     //======================================
-    Globals::baseline = config.read<double>("baseline");
+    n.getParam(ns+"baseline", Globals::baseline);
 
     //====================================
     // Number of Frames / offset
     //====================================
-    Globals::numberFrames = config.read<int>("numberFrames");
-    Globals::nOffset = config.read<int>("nOffset");
-
-    //======================================
-    // Console output
-    //======================================
-    //Globals::verbose = config.read("verbose", false);
+    n.getParam(ns+"numberFrames", Globals::numberFrames);
+    n.getParam(ns+"nOffset", Globals::nOffset);
 
     //=====================================
     // Determines if save bounding boxes or not
     //=====================================
-    Globals::export_bounding_box = config.read("export_bounding_box", false);
+    n.param(ns+"export_bounding_box", Globals::export_bounding_box, bool(false));
     // Path of exported bounding boxes
-    config.readInto(Globals::bounding_box_path, "bounding_box_path");
+    n.getParam(ns+"bounding_box_path", Globals::bounding_box_path);
 
     //=====================================
     // Determines if save result images or not
     //=====================================
-    Globals::export_result_images = config.read("export_result_images", false);
-    config.readInto(Globals::result_images_path, "result_images_path");
+    n.param(ns+"export_result_images", Globals::export_result_images, bool(false));
+    n.getParam(ns+"result_images_path", Globals::result_images_path);
 
     //====================================
     // Size of Template
     //====================================
-    Globals::template_size = config.read<int>("template_size");
+    n.getParam(ns+"template_size", Globals::template_size);
 
 
     /////////////////////////////////TRACKING PART/////////////////////////
     //======================================
     // Detections
     //======================================
-    Globals::cutDetectionsUsingDepth = config.read("cutDetectionsUsingDepth", false);
+    n.param(ns+"cutDetectionsUsingDepth", Globals::cutDetectionsUsingDepth, bool(false));
 
-    Globals::frameRate = config.read<int>("frameRate");
+    n.getParam(ns+"frameRate", Globals::frameRate);
 
     //======================================
     // Camera
     //======================================
-    Globals::farPlane = config.read<double>("farPlane");
+    n.getParam(ns+"farPlane", Globals::farPlane);
 
     //======================================
     // World scale
     //======================================
-    config.readInto(Globals::binSize, "binSize");
+    n.getParam(ns+"binSize", Globals::binSize);
 
     //======================================
     // Pedestrians width and height
     //======================================
-    Globals::pedSizeWVis = config.read<double>("pedSizeWVis");
-    Globals::pedSizeWCom = config.read<double>("pedSizeWCom");
-    Globals::pedSizeHCom = config.read<double>("pedSizeHCom");
+    n.getParam(ns+"pedSizeWVis", Globals::pedSizeWVis);
+    n.getParam(ns+"pedSizeWCom", Globals::pedSizeWCom);
+    n.getParam(ns+"pedSizeHCom", Globals::pedSizeHCom);
 
     //======================================
     // History
     //======================================
-    Globals::history = config.read<int>("history");
+    n.getParam(ns+"history", Globals::history);
 
     //======================================
     // Pedestrians parameter
     //======================================
-    Globals::dObjHeight = config.read<double>("dObjHeight");
-    Globals::dObjHVar = config.read<double>("dObjHVar");
+    n.getParam(ns+"dObjHeight", Globals::dObjHeight);
+    n.getParam(ns+"dObjHVar", Globals::dObjHVar);
 
     //======================================
     // Adjustment for HOG detections
     //======================================
-    Globals::cutHeightBBOXforColor = config.read<double>("cutHeightBBOXforColor");
-    Globals::cutWidthBBOXColor = config.read<double>("cutWidthBBOXColor");
-    Globals::posponeCenterBBOXColor = config.read<double>("posponeCenterBBOXColor");
+    n.getParam(ns+"cutHeightBBOXforColor", Globals::cutHeightBBOXforColor);
+    n.getParam(ns+"cutWidthBBOXColor", Globals::cutWidthBBOXColor);
+    n.getParam(ns+"posponeCenterBBOXColor", Globals::posponeCenterBBOXColor);
 
     //======================================
     // Thresholds for combining the detection from left and right camera
     //======================================
-    Globals::probHeight = config.read<double>("probHeight");
-
-    //======================================
-    // Visualisation
-    // Now handled by visualise parameter.
-    //======================================
-    //Globals::render_bbox3D = config.read("render_bbox3D", true);
-    //Globals::render_bbox2D = config.read("render_bbox2D", false);
-    //Globals::render_tracking_numbers = config.read("render_tracking_numbers", false);
+    n.getParam(ns+"probHeight", Globals::probHeight);
 
     //======================================
     // MDL parameters for trajectories
     //======================================
-    Globals::k1 = config.read<double>("k1");
-    Globals::k2 = config.read<double>("k2");
-    Globals::k3 = config.read<double>("k3");
-    Globals::k4 = config.read<double>("k4");
+    n.getParam(ns+"k1", Globals::k1);
+    n.getParam(ns+"k2", Globals::k2);
+    n.getParam(ns+"k3", Globals::k3);
+    n.getParam(ns+"k4", Globals::k4);
 
     //======================================
     // Threshold for distinction between static/moving object
     //======================================
-    Globals::minvel = config.read<double>("minvel");
-    Globals::dMaxPedVel = config.read<double>("dMaxPedVel");
+    n.getParam(ns+"minvel", Globals::minvel);
+    n.getParam(ns+"dMaxPedVel", Globals::dMaxPedVel);
 
     //======================================
     // Threshold for identity management
     //======================================
-    Globals::dSameIdThresh = config.read<double>("dSameIdThresh");
+    n.getParam(ns+"dSameIdThresh", Globals::dSameIdThresh);
 
     //======================================
     // Trajectory
     //======================================
-    Globals::threshLengthTraj = config.read<int>("threshLengthTraj");
+    n.getParam(ns+"threshLengthTraj", Globals::threshLengthTraj);
 
     //======================================
     // Thresholds for accepted and displayed hypotheses
     //======================================
-    Globals::dTheta2 = config.read<double>("dTheta2");
+    n.getParam(ns+"dTheta2", Globals::dTheta2);
 
     //======================================
     // Time ant for temporal decay
     //======================================
-    Globals::dTau = config.read<double>("dTau");
+    n.getParam(ns+"dTau", Globals::dTau);
 
     //======================================
     // Time horizon for event cone search
     //======================================
-    Globals::coneTimeHorizon = config.read<int>("coneTimeHorizon");
-    Globals::maxHoleLen = config.read<int>("maxHoleLen");
-    Globals::dHolePenalty = config.read<double>("dHolePenalty");
+    n.getParam(ns+"coneTimeHorizon", Globals::coneTimeHorizon);
+    n.getParam(ns+"maxHoleLen", Globals::maxHoleLen);
+    n.getParam(ns+"dHolePenalty", Globals::dHolePenalty);
 
     // Q - the system covariance
-    Globals::sysUncX = config.read<double>("sysUncX");
-    Globals::sysUncY = config.read<double>("sysUncY");
-    Globals::sysUncRot = config.read<double>("sysUncRot");
-    Globals::sysUncVel = config.read<double>("sysUncVel");
-    Globals::sysUncAcc = config.read<double>("sysUncAcc");
+    n.getParam(ns+"sysUncX", Globals::sysUncX);
+    n.getParam(ns+"sysUncY", Globals::sysUncY);
+    n.getParam(ns+"sysUncRot", Globals::sysUncRot);
+    n.getParam(ns+"sysUncVel", Globals::sysUncVel);
+    n.getParam(ns+"sysUncAcc", Globals::sysUncAcc);
 
-    Globals::kalmanObsMotionModelthresh = config.read<double>("kalmanObsMotionModelthresh");
-    Globals::kalmanObsColorModelthresh = config.read<double>("kalmanObsColorModelthresh");
+    n.getParam(ns+"kalmanObsMotionModelthresh", Globals::kalmanObsMotionModelthresh);
+    n.getParam(ns+"kalmanObsColorModelthresh", Globals::kalmanObsColorModelthresh);
 
     /////////////////////////////////GP Estimator/////////////////////////
-    Globals::nrInter_ransac = config.read<int>("nrInter_ransac");
-    Globals::numberOfPoints_reconAsObstacle = config.read<int>("numberOfPoints_reconAsObstacle");
+    n.getParam(ns+"nrInter_ransac", Globals::nrInter_ransac);
+    n.getParam(ns+"numberOfPoints_reconAsObstacle", Globals::numberOfPoints_reconAsObstacle);
 
     //======================================
     // ROI Segmentation
     //======================================
     // Blurring parameters
-    Globals::sigmaX = config.read<double>("sigmaX", 2.0);
-    Globals::precisionX = config.read<double>("precisionX", 2.0);
-    Globals::sigmaZ = config.read<double>("sigmaZ", 3.0);
-    Globals::precisionZ = config.read<double>("precisionZ", 2.0);
+    n.param(ns+"sigmaX", Globals::sigmaX, double(2.0));
+    n.param(ns+"precisionX", Globals::precisionX, double(2.0));
+    n.param(ns+"sigmaZ", Globals::sigmaZ, double(3.0));
+    n.param(ns+"precisionZ", Globals::precisionZ, double(2.0));
 
-    Globals::max_height = config.read<double>("max_height", 2.0);
-    Globals::min_height = config.read<double>("min_height", 1.4);
+    n.param(ns+"max_height", Globals::max_height, double(2.0));
+    n.param(ns+"min_height", Globals::min_height, double(1.4));
 
     ///////////////////////////Recording /////////////////////
-    Globals::from_camera = config.read("from_camera", true);
-    config.readInto(Globals::from_file_path, "from_file_path");
+    n.param(ns+"from_camera", Globals::from_camera, bool(true));
+    n.getParam(ns+"from_file_path", Globals::from_file_path);
 
     //////////////////////////Streaming///////////////////////
-    config.readInto(Globals::stream_dest_IP, "stream_dest_IP");
+    n.getParam(ns+"stream_dest_IP", Globals::stream_dest_IP);
 
     ////////////////////////HOG Detector////////////////////////
-    Globals::hog_max_scale = config.read<float>("hog_max_scale",1.9);
-    Globals::hog_score_thresh = config.read<float>("hog_score_thresh",0.4);
+    n.param(ns+"hog_max_scale", Globals::hog_max_scale, double(1.9));
+    n.param(ns+"hog_score_thresh", Globals::hog_score_thresh, double(0.4));
 }
 
 Camera createCamera(Vector<double>& GP,
@@ -634,7 +619,7 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    ReadConfigFile(config_file);
+    ReadConfigParams(boost::ref(n));
     det_comb = new Detections(23, 0);
 
     ROS_DEBUG("pedestrian_tracker: Queue size for synchronisation is set to: %i", queue_size);
