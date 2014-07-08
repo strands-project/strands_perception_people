@@ -275,7 +275,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("ground_plane", ground_plane, string(""));
 
     string image_color = camera_ns + "/rgb/image_rect_color";
-    string camera_info = camera_ns + "/rgb/camera_info";
+    string camera_info = camera_ns + "/depth/camera_info";
 
 
     //Initialise cudaHOG
