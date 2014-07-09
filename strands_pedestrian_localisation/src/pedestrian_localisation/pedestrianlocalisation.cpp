@@ -38,6 +38,7 @@ PedestrianLocalisation::PedestrianLocalisation() :
 void PedestrianLocalisation::publishDetections(
         std::vector<geometry_msgs::Point> ppl,
         std::vector<int> ids,
+        std::vector<double> scores,
         std::vector<double> distances,
         std::vector<double> angles,
         double min_dist,
@@ -63,6 +64,7 @@ void PedestrianLocalisation::publishDetections(
                  pose.position.z);
     }
     result.ids = ids;
+    result.scores = scores;
     result.distances = distances;
     result.angles = angles;
     result.min_distance = min_dist;
@@ -116,6 +118,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
     geometry_msgs::PoseStamped closest_person;
     std::vector<geometry_msgs::Point> ppl;
     std::vector<int> ids;
+    std::vector<double> scores;
     std::vector<double> distances;
     std::vector<double> angles;
     double min_dist = 10000.0d;
@@ -158,6 +161,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
             }
             ppl.push_back(poseInRobotCoords.pose.position);
             ids.push_back(pt.id);
+            scores.push_back(pt.score);
             std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
             distances.push_back(polar[0]);
             angles.push_back(polar[1]);
@@ -167,7 +171,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
     }
-    publishDetections(ppl, ids, distances, angles, min_dist, angle);
+    publishDetections(ppl, ids, scores, distances, angles, min_dist, angle);
     pub_pose.publish(closest_person);
     if(pub_marker.getNumSubscribers())
         createVisualisation(ppl);
