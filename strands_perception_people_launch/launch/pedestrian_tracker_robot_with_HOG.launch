@@ -109,5 +109,10 @@
         <arg name="marker" value="$(arg pd_marker)"/>
     </include>
 
+    <!-- Logging -->
+    <include file="$(find strands_perception_people_utils)/launch/logging.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
+    </include>
 
 </launch> 

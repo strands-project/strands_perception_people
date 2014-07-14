@@ -1,0 +1,9 @@
+<launch>
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    
+    <node pkg="strands_pedestrian_localisation" type="save_locations.py" name="save_people_locations" output="screen"/>
+
+</launch> 
