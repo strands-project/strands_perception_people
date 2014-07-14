@@ -44,7 +44,7 @@ class SaveLocations():
         insert.angles = pl.angles
         insert.min_distance = pl.min_distance
         insert.min_distance_angle = pl.min_distance_angle
-        self.msg_store.insert(pl, meta)
+        self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):
         self.pose = pose
