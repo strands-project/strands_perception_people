@@ -36,6 +36,7 @@ PedestrianLocalisation::PedestrianLocalisation() :
 }
 
 void PedestrianLocalisation::publishDetections(
+        std_msgs::Header header,
         std::vector<geometry_msgs::Point> ppl,
         std::vector<int> ids,
         std::vector<double> scores,
@@ -171,7 +172,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
     }
-    publishDetections(ppl, ids, scores, distances, angles, min_dist, angle);
+    publishDetections(pta->header, ppl, ids, scores, distances, angles, min_dist, angle);
     pub_pose.publish(closest_person);
     if(pub_marker.getNumSubscribers())
         createVisualisation(ppl);
