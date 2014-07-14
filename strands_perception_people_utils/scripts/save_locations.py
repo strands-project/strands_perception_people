@@ -36,7 +36,6 @@ class SaveLocations():
         ts.registerCallback(self.people_callback)
 
     def people_callback(self, pl, pt, up):
-        rospy.loginfo("CALLED")
         if len(pl.distances) == 0:
             return
         meta = {}
