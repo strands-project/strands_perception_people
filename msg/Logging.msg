@@ -7,3 +7,5 @@ float64[] distances
 float64[] angles
 float64 min_distance
 float64 min_distance_angle
+PedestrianTracking[] pedestrian_tracking
+UpperBodyDetector upper_body_detections
