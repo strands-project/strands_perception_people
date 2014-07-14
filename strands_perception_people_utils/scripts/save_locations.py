@@ -28,10 +28,8 @@ class SaveLocations():
         )
 
     def people_callback(self, pl):
-        rospy.loginfo("people")
         if len(pl.distances) == 0:
             return
-        rospy.loginfo("found")
         meta = {}
         meta["people"] = self.dataset_name
         insert = strands_perception_people_msgs.msg.Logging()
@@ -47,8 +45,7 @@ class SaveLocations():
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):
-        self.pose = pose
-        rospy.loginfo("robot_pose")
+        self.robot_pose = pose
 
 if __name__ == '__main__':
     rospy.init_node('save_people_locations')
