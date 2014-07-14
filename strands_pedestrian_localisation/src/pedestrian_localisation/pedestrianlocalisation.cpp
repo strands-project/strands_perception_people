@@ -45,7 +45,7 @@ void PedestrianLocalisation::publishDetections(
         double min_dist,
         double angle) {
     strands_perception_people_msgs::PedestrianLocations result;
-    result.header.stamp = ros::Time::now();
+    result.header.stamp = header.stamp;
     result.header.frame_id = target_frame;
     result.header.seq = ++detect_seq;
     for(int i = 0; i < ppl.size(); i++) {
