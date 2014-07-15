@@ -5,10 +5,11 @@ This directory contains a cmake wrapper file that will take care of downloading,
 At the moment this library is only needed to build the ground_hog package.
 
 ## Dependencies
-* NVIDIA - CUDA: Please follow instructions: http://developer.download.nvidia.com/compute/cuda/5_5/rel/docs/CUDA_Getting_Started_Linux.pdf or go directly to: https://developer.nvidia.com/cuda-downloads to find the latest version (tested with version 5.5)
+* NVIDIA - CUDA: Please follow instructions: http://developer.download.nvidia.com/compute/cuda/5_5/rel/docs/CUDA_Getting_Started_Linux.pdf or go directly to: https://developer.nvidia.com/cuda-downloads to find the latest version (tested with CUDA 5.5 (nvidia-319) and CUDA 6.0 (nvidia-331))
 	* This requires a NVIDIA graphics card
 	* Make sure to follow the instructions especially the part about exporting the PATH and LD_LIBRARY_PATH variables. Add these statements to your `.bashrc`.
-* qmake (Qt4)
+* QT4
+* qmake
 
 ## Installation
 As mentioned the cmake file will take care of almost everything. Just follow these simple instructions:
