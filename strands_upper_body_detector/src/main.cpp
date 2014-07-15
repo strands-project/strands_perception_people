@@ -33,6 +33,8 @@
 #include <QImage>
 #include <QPainter>
 
+#include <XmlRpcException.h>
+
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
@@ -44,7 +46,7 @@ image_transport::Publisher pub_result_image;
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
-Matrix<double> upper_body_template;
+Matrix<double>* upper_body_template;
 Detector* detector;
 
 
@@ -143,19 +145,24 @@ void ReadConfigParams(ros::NodeHandle n)
 
 }
 
-void ReadUpperBodyTemplate(string template_path)
+void ReadUpperBodyTemplate(std::vector<double> up_temp)
 {
+    ROS_INFO("Reading template");
+    for(int i = 0; i < up_temp.size(); i++){
+        ROS_INFO("%d: %f", i, up_temp[i]);
+    }
+
     // read template from file
-    upper_body_template.ReadFromTXT(template_path, 150, 150);
+    upper_body_template = new Matrix<double>(150, 150, &up_temp[0]);
 
     // resize it to the fixed size that is defined in Config File
-    if(upper_body_template.x_size() > Globals::template_size)
+    if(upper_body_template->x_size() > Globals::template_size)
     {
-        upper_body_template.DownSample(Globals::template_size, Globals::template_size);
+        upper_body_template->DownSample(Globals::template_size, Globals::template_size);
     }
-    else if(upper_body_template.x_size() < Globals::template_size)
+    else if(upper_body_template->x_size() < Globals::template_size)
     {
-        upper_body_template.UpSample(Globals::template_size, Globals::template_size);
+        upper_body_template->UpSample(Globals::template_size, Globals::template_size);
     }
 }
 
@@ -191,7 +198,7 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     Camera camera(K,R,t,GP);
     PointCloud point_cloud(camera, matrix_depth);
     Vector<Vector< double > > detected_bounding_boxes;
-    detector->ProcessFrame(camera, matrix_depth, point_cloud, upper_body_template, detected_bounding_boxes);
+    detector->ProcessFrame(camera, matrix_depth, point_cloud, *upper_body_template, detected_bounding_boxes);
 
     // Generate messages
     UpperBodyDetector detection_msg;
@@ -295,6 +302,8 @@ int main(int argc, char **argv)
     string pub_topic_ubd;
     string pub_topic_result_image;
 
+    std::vector<double> up_temp;
+
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
@@ -306,22 +315,11 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_namespace", cam_ns, string("/camera"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
 
+    private_node_handle_.getParam("upper_body_template", up_temp);
+
     string topic_depth_image = cam_ns + "/depth/image_rect_meters";
     string topic_color_image = cam_ns + "/rgb/image_rect_color";
     string topic_camera_info = cam_ns + "/depth/camera_info";
-   
-    // Checking if all config files could be loaded
-    if(strcmp(config_file.c_str(),"") == 0) {
-        ROS_ERROR("No config file specified.");
-        ROS_ERROR("Run with: rosrun strands_upperbody_detector upper_body_detector _config_file:=/path/to/config");
-        exit(0);
-    }
-
-    if(strcmp(template_path.c_str(),"") == 0) {
-        ROS_ERROR("No template file specified.");
-        ROS_ERROR("Run with: rosrun strands_upper_body_detector upper_body_detector _template_file:=/path/to/template");
-        exit(0);
-    }
 
     // Printing queue size
     ROS_DEBUG("upper_body_detector: Queue size for synchronisation is set to: %i", queue_size);
@@ -356,7 +354,7 @@ int main(int argc, char **argv)
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     // Initialise detector
-    ReadUpperBodyTemplate(template_path);
+    ReadUpperBodyTemplate(up_temp);
     ReadConfigParams(boost::ref(n));
     detector = new Detector();
 
