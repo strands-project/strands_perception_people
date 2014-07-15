@@ -9,3 +9,4 @@ float64 min_distance
 float64 min_distance_angle
 PedestrianTracking[] pedestrian_tracking
 UpperBodyDetector upper_body_detections
+geometry_msgs/Transform tf
