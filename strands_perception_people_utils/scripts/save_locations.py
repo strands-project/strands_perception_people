@@ -5,12 +5,19 @@ from ros_datacentre.message_store import MessageStoreProxy
 import strands_perception_people_msgs.msg
 import geometry_msgs.msg
 import message_filters
+import tf
+import thread
 
 
 class SaveLocations():
     def __init__(self):
         rospy.loginfo("Intialising logging")
+        target_frame = rospy.get_param("~target_frame", "/base_link")
+        self.fps = rospy.Rate(25)
+        self.source_frame = ""
         self.robot_pose = geometry_msgs.msg.Pose()
+        self.transform = geometry_msgs.msg.Transform()
+        self.tfl = tf.TransformListener()
         self.dataset_name = "locations"
         self.msg_store = MessageStoreProxy(collection="people_perception")
         locations = message_filters.Subscriber(
@@ -32,10 +39,46 @@ class SaveLocations():
             None,
             10
         )
-        ts = message_filters.TimeSynchronizer([locations, pedestrian, upper], 100)
+        ts = message_filters.TimeSynchronizer(
+            [locations, pedestrian, upper],
+            100
+        )
         ts.registerCallback(self.people_callback)
+        thread.start_new_thread(self.tf_thread, (target_frame,))
+
+    def tf_thread(self, target_frame):
+        rospy.loginfo("tf thread started")
+        while not rospy.is_shutdown():
+            if self.tfl.frameExists(self.source_frame[1:]) \
+                    and self.tfl.frameExists(target_frame[1:]):
+                try:
+                    t = self.tfl.getLatestCommonTime(
+                        self.source_frame,
+                        target_frame
+                    )
+                    translation, rotation = self.tfl.lookupTransform(
+                        target_frame,
+                        self.source_frame,
+                        t
+                    )
+                    self.transform.translation = translation
+                    self.transform.rotation = rotation
+                except (
+                    tf.Exception,
+                    tf.ConnectivityException,
+                    tf.LookupException,
+                    tf.ExtrapolationException
+                ) as e:
+                    rospy.logwarn(e)
+            self.fps.sleep()
 
     def people_callback(self, pl, pt, up):
+        if not self.source_frame:
+            self.source_frame = pt.header.frame_id
+            rospy.loginfo(
+                "Setting frame source frame to: %s",
+                self.source_frame
+            )
         if len(pl.distances) == 0:
             return
         meta = {}
@@ -52,6 +95,7 @@ class SaveLocations():
         insert.min_distance_angle = pl.min_distance_angle
         insert.pedestrian_tracking = pt.pedestrians
         insert.upper_body_detections = up
+        insert.tf = self.transform
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):

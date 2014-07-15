@@ -2,7 +2,7 @@
     <!-- Global paramters -->
     <arg name="gh_queue_size" default="10" />
     <arg name="gp_queue_size" default="5" />
-    <arg name="vo_queue_size" default="5" />
+    <!-- <arg name="vo_queue_size" default="5" /> -->
     <arg name="ubd_queue_size" default="5" />
     <arg name="pt_queue_size" default="10" />
     <arg name="model" default="$(find strands_ground_hog)/model/config" />
@@ -115,6 +115,7 @@
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="log" value="$(arg log)"/>
+        <arg name="target_frame" value="$(arg tf_target_frame)"/>
     </include>
 
 </launch> 
