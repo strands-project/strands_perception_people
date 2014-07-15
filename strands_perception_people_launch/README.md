@@ -8,6 +8,8 @@ roslaunch strands_perception_people_launch file.launch gh_queue_size:=11 vo_queu
 ```
 This will overwrite the default values.  _gh = ground_hog, vo = visual_odemetry, ubd = upper_body_detector, pt = pedestrian_tracking_
 
+The whole pipeline is desinged to unsuscribe from everything if there is no subscriber to the published topics. This causes the nodes to not use any CPU when there is no one listening on the published topics. This might result in a 1-2 second dealy after subscribing to one of the topics before the first data is published. Also, setting `log` to true when starting the perception pipeline will cause it to always run and log data.
+
 ## Running on robot
 These launch files will make use of the fixed ground plane which is just rotated according to the PTU tilt and the robot odometry instead of the visual odometry.
 
@@ -16,7 +18,6 @@ This version of the tracking does not rely on the ground_hog feature extraction 
 
 Parameters:
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
-* `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
 * `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
 * `model` _default = $(find strands_ground_hog)/model/config_: The ground HOG detection models
@@ -49,7 +50,6 @@ This version of the tracking does rely on the ground_hog feature extraction and 
 Parameters:
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
 * `gh_queue_size` _default = 20_: The ground plane sync queue size
-* `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
 * `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
 * `model` _default = $(find strands_ground_hog)/model/config_: The ground HOG detection models

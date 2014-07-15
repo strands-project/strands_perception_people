@@ -11,12 +11,12 @@ import thread
 
 class SaveLocations():
     def __init__(self):
-        rospy.loginfo("Intialising logging")
+        rospy.logdebug("Intialising logging")
         target_frame = rospy.get_param("~target_frame", "/base_link")
         self.fps = rospy.Rate(25)
         self.source_frame = ""
         self.robot_pose = geometry_msgs.msg.Pose()
-        self.transform = geometry_msgs.msg.Transform()
+        self.transform = None
         self.tfl = tf.TransformListener()
         self.dataset_name = "locations"
         self.msg_store = MessageStoreProxy(collection="people_perception")
@@ -47,7 +47,7 @@ class SaveLocations():
         thread.start_new_thread(self.tf_thread, (target_frame,))
 
     def tf_thread(self, target_frame):
-        rospy.loginfo("tf thread started")
+        rospy.logdebug("tf thread started")
         while not rospy.is_shutdown():
             if self.tfl.frameExists(self.source_frame[1:]) \
                     and self.tfl.frameExists(target_frame[1:]):
@@ -61,8 +61,16 @@ class SaveLocations():
                         self.source_frame,
                         t
                     )
-                    self.transform.translation = translation
-                    self.transform.rotation = rotation
+                    if not self.transform:
+                        rospy.logdebug("First transform received")
+                        self.transform = geometry_msgs.msg.Transform()
+                    self.transform.translation.x = translation[0]
+                    self.transform.translation.y = translation[1]
+                    self.transform.translation.z = translation[2]
+                    self.transform.rotation.x = rotation[0]
+                    self.transform.rotation.y = rotation[1]
+                    self.transform.rotation.z = rotation[2]
+                    self.transform.rotation.w = rotation[3]
                 except (
                     tf.Exception,
                     tf.ConnectivityException,
@@ -75,14 +83,15 @@ class SaveLocations():
     def people_callback(self, pl, pt, up):
         if not self.source_frame:
             self.source_frame = pt.header.frame_id
-            rospy.loginfo(
+            rospy.logdebug(
                 "Setting frame source frame to: %s",
                 self.source_frame
             )
-        if len(pl.distances) == 0:
+        if len(pl.distances) == 0 or not self.transform:
             return
         meta = {}
         meta["people"] = self.dataset_name
+        rospy.logdebug("Person detected. Logging to people_perception collection.")
         insert = strands_perception_people_msgs.msg.Logging()
         insert.header = pl.header
         insert.ids = pl.ids
