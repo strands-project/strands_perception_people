@@ -78,8 +78,17 @@ void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
     }
 }
 
-void ReadConfigParams(ros::NodeHandle n)
+bool checkParam(bool success, std::string param) {
+    if(!success) {
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the datacentre is running or start with 'with_datacentre:=false'", param.c_str());
+    }
+    return success;
+}
+
+bool ReadConfigParams(ros::NodeHandle n)
 {
+    bool success = true;
+
     std::string ns = ros::this_node::getName();
     ns += "/";
 
@@ -91,9 +100,9 @@ void ReadConfigParams(ros::NodeHandle n)
     //======================================
     // ROI
     //======================================
-    n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio);
+    success = checkParam(n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio), ns+"inc_width_ratio") && success;
     ROS_INFO("ratio: %f",Globals::inc_width_ratio);
-    n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio);
+    success = checkParam(n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio), ns+"inc_height_ratio") && success;
     n.param(ns+"region_size_threshold", Globals::region_size_threshold, int(10));
 
     //======================================
@@ -124,28 +133,29 @@ void ReadConfigParams(ros::NodeHandle n)
     //======================================
     // World scale
     //======================================
-    n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE);
+    success = checkParam(n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE), ns+"WORLD_SCALE") && success;
 
     //======================================
     // height and width of images
     //======================================
-    n.getParam(ns+"dImHeight", Globals::dImHeight);
-    n.getParam(ns+"dImWidth", Globals::dImWidth);
+    success = checkParam(n.getParam(ns+"dImHeight", Globals::dImHeight), ns+"dImHeight") && success;
+    success = checkParam(n.getParam(ns+"dImWidth", Globals::dImWidth), ns+"dImWidth") && success;
 
     //====================================
     // Number of Frames / offset
     //====================================
-    n.getParam(ns+"numberFrames", Globals::numberFrames);
-    n.getParam(ns+"nOffset", Globals::nOffset);
+    success = checkParam(n.getParam(ns+"numberFrames", Globals::numberFrames), ns+"numberFrames") && success;
+    success = checkParam(n.getParam(ns+"nOffset", Globals::nOffset), ns+"nOffset") && success;
 
     //====================================
     // Size of Template
     //====================================
-    n.getParam(ns+"template_size", Globals::template_size);
+    success = checkParam(n.getParam(ns+"template_size", Globals::template_size), ns+"template_size") && success;
 
     n.param(ns+"max_height", Globals::max_height, double(2.0));
     n.param(ns+"min_height", Globals::min_height, double(1.4));
 
+    return success;
 }
 
 void ReadUpperBodyTemplate(std::vector<double> up_temp, int x_size, int y_size)
@@ -320,8 +330,7 @@ int main(int argc, char **argv)
     int x_size, y_size;
     private_node_handle_.getParam("x_size", x_size);
     private_node_handle_.getParam("y_size", y_size);
-    private_node_handle_.getParam("upper_body_template", up_temp);
-    if(up_temp.empty()){
+    if(!checkParam(private_node_handle_.getParam("upper_body_template", up_temp), ros::this_node::getName()+"/upper_body_template")){
         ROS_FATAL("No upper body template found");
         return 1;
     }
@@ -363,7 +372,7 @@ int main(int argc, char **argv)
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     // Initialise detector
-    ReadConfigParams(boost::ref(n));
+    if(!ReadConfigParams(boost::ref(n))) return 1;
     ReadUpperBodyTemplate(up_temp, x_size, y_size);
     detector = new Detector();
 

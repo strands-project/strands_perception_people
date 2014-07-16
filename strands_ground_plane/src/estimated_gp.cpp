@@ -38,13 +38,24 @@ cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
 GroundPlaneEstimator GPEstimator;
 
-void ReadConfigParams(ros::NodeHandle n)
+bool checkParam(bool success, std::string param) {
+    if(!success) {
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the datacentre is running or start with 'with_datacentre:=false'", param.c_str());
+    }
+    return success;
+}
+
+bool ReadConfigParams(ros::NodeHandle n)
 {
+    bool success = true;
+
     std::string ns = ros::this_node::getName();
     ns += "/";
 
-    n.getParam(ns+"nrInter_ransac", Globals::nrInter_ransac);
-    n.getParam(ns+"numberOfPoints_reconAsObstacle", Globals::numberOfPoints_reconAsObstacle);
+    success = checkParam(n.getParam(ns+"nrInter_ransac", Globals::nrInter_ransac), ns+"nrInter_ransac") && success;
+    success = checkParam(n.getParam(ns+"numberOfPoints_reconAsObstacle", Globals::numberOfPoints_reconAsObstacle), ns+"numberOfPoints_reconAsObstacle") && success;
+
+    return success;
 }
 
 
@@ -142,7 +153,7 @@ int main(int argc, char **argv)
     sync_policies::ApproximateTime<Image, CameraInfo> MySyncPolicy(queue_size);
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
-    ReadConfigParams(boost::ref(n));
+    if(!ReadConfigParams(boost::ref(n))) return 1;
 
     const sync_policies::ApproximateTime<Image, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
 

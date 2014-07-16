@@ -113,18 +113,27 @@ void get_image(unsigned char* b_image, uint w, uint h, CImg<unsigned char>& cim)
     }
 }
 
-void ReadConfigParams(ros::NodeHandle n)
+bool checkParam(bool success, std::string param) {
+    if(!success) {
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the datacentre is running or start with 'with_datacentre:=false'", param.c_str());
+    }
+    return success;
+}
+
+bool ReadConfigParams(ros::NodeHandle n)
 {
+    bool success = true;
+
     std::string ns = ros::this_node::getName();
     ns += "/";
 
     //=====================================
     // Input paths
     //=====================================
-    n.getParam(ns+"camPath_left", Globals::camPath_left);
-    n.getParam(ns+"sImagePath_left", Globals::sImagePath_left);
-    n.getParam(ns+"tempDepthL", Globals::tempDepthL);
-    n.getParam(ns+"path_to_planes", Globals::path_to_planes);
+    success = checkParam(n.getParam(ns+"camPath_left", Globals::camPath_left), ns+"camPath_left") && success;
+    success = checkParam(n.getParam(ns+"sImagePath_left", Globals::sImagePath_left), ns+"sImagePath_left") && success;
+    success = checkParam(n.getParam(ns+"tempDepthL", Globals::tempDepthL), ns+"tempDepthL") && success;
+    success = checkParam(n.getParam(ns+"path_to_planes", Globals::path_to_planes), ns+"path_to_planes") && success;
 
     //=====================================
     // Distance Range Accepted Detections
@@ -134,8 +143,8 @@ void ReadConfigParams(ros::NodeHandle n)
     //======================================
     // ROI
     //======================================
-    n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio);
-    n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio);
+    success = checkParam(n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio), ns+"inc_width_ratio") && success;
+    success = checkParam(n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio), ns+"inc_height_ratio") && success;
     n.param(ns+"region_size_threshold", Globals::region_size_threshold, int(10));
 
     //======================================
@@ -166,42 +175,42 @@ void ReadConfigParams(ros::NodeHandle n)
     //======================================
     // World scale
     //======================================
-    n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE);
+    success = checkParam(n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE), ns+"WORLD_SCALE") && success;
 
     //======================================
     // height and width of images
     //======================================
-    n.getParam(ns+"dImHeight", Globals::dImHeight);
-    n.getParam(ns+"dImWidth", Globals::dImWidth);
+    success = checkParam(n.getParam(ns+"dImHeight", Globals::dImHeight), ns+"dImHeight") && success;
+    success = checkParam(n.getParam(ns+"dImWidth", Globals::dImWidth), ns+"dImWidth") && success;
 
     //======================================
     // Camera
     //======================================
-    n.getParam(ns+"baseline", Globals::baseline);
+    success = checkParam(n.getParam(ns+"baseline", Globals::baseline), ns+"baseline") && success;
 
     //====================================
     // Number of Frames / offset
     //====================================
-    n.getParam(ns+"numberFrames", Globals::numberFrames);
-    n.getParam(ns+"nOffset", Globals::nOffset);
+    success = checkParam(n.getParam(ns+"numberFrames", Globals::numberFrames), ns+"numberFrames") && success;
+    success = checkParam(n.getParam(ns+"nOffset", Globals::nOffset), ns+"nOffset") && success;
 
     //=====================================
     // Determines if save bounding boxes or not
     //=====================================
     n.param(ns+"export_bounding_box", Globals::export_bounding_box, bool(false));
     // Path of exported bounding boxes
-    n.getParam(ns+"bounding_box_path", Globals::bounding_box_path);
+    success = checkParam(n.getParam(ns+"bounding_box_path", Globals::bounding_box_path), ns+"bounding_box_path") && success;
 
     //=====================================
     // Determines if save result images or not
     //=====================================
     n.param(ns+"export_result_images", Globals::export_result_images, bool(false));
-    n.getParam(ns+"result_images_path", Globals::result_images_path);
+    success = checkParam(n.getParam(ns+"result_images_path", Globals::result_images_path), ns+"result_images_path") && success;
 
     //====================================
     // Size of Template
     //====================================
-    n.getParam(ns+"template_size", Globals::template_size);
+    success = checkParam(n.getParam(ns+"template_size", Globals::template_size), ns+"template_size") && success;
 
 
     /////////////////////////////////TRACKING PART/////////////////////////
@@ -210,102 +219,102 @@ void ReadConfigParams(ros::NodeHandle n)
     //======================================
     n.param(ns+"cutDetectionsUsingDepth", Globals::cutDetectionsUsingDepth, bool(false));
 
-    n.getParam(ns+"frameRate", Globals::frameRate);
+    success = checkParam(n.getParam(ns+"frameRate", Globals::frameRate), ns+"frameRate") && success;
 
     //======================================
     // Camera
     //======================================
-    n.getParam(ns+"farPlane", Globals::farPlane);
+    success = checkParam(n.getParam(ns+"farPlane", Globals::farPlane), ns+"farPlane") && success;
 
     //======================================
     // World scale
     //======================================
-    n.getParam(ns+"binSize", Globals::binSize);
+    success = checkParam(n.getParam(ns+"binSize", Globals::binSize), ns+"binSize") && success;
 
     //======================================
     // Pedestrians width and height
     //======================================
-    n.getParam(ns+"pedSizeWVis", Globals::pedSizeWVis);
-    n.getParam(ns+"pedSizeWCom", Globals::pedSizeWCom);
-    n.getParam(ns+"pedSizeHCom", Globals::pedSizeHCom);
+    success = checkParam(n.getParam(ns+"pedSizeWVis", Globals::pedSizeWVis), ns+"pedSizeWVis") && success;
+    success = checkParam(n.getParam(ns+"pedSizeWCom", Globals::pedSizeWCom), ns+"pedSizeWCom") && success;
+    success = checkParam(n.getParam(ns+"pedSizeHCom", Globals::pedSizeHCom), ns+"pedSizeHCom") && success;
 
     //======================================
     // History
     //======================================
-    n.getParam(ns+"history", Globals::history);
+    success = checkParam(n.getParam(ns+"history", Globals::history), ns+"history") && success;
 
     //======================================
     // Pedestrians parameter
     //======================================
-    n.getParam(ns+"dObjHeight", Globals::dObjHeight);
-    n.getParam(ns+"dObjHVar", Globals::dObjHVar);
+    success = checkParam(n.getParam(ns+"dObjHeight", Globals::dObjHeight), ns+"dObjHeight") && success;
+    success = checkParam(n.getParam(ns+"dObjHVar", Globals::dObjHVar), ns+"dObjHVar") && success;
 
     //======================================
     // Adjustment for HOG detections
     //======================================
-    n.getParam(ns+"cutHeightBBOXforColor", Globals::cutHeightBBOXforColor);
-    n.getParam(ns+"cutWidthBBOXColor", Globals::cutWidthBBOXColor);
-    n.getParam(ns+"posponeCenterBBOXColor", Globals::posponeCenterBBOXColor);
+    success = checkParam(n.getParam(ns+"cutHeightBBOXforColor", Globals::cutHeightBBOXforColor), ns+"cutHeightBBOXforColor") && success;
+    success = checkParam(n.getParam(ns+"cutWidthBBOXColor", Globals::cutWidthBBOXColor), ns+"cutWidthBBOXColor") && success;
+    success = checkParam(n.getParam(ns+"posponeCenterBBOXColor", Globals::posponeCenterBBOXColor), ns+"posponeCenterBBOXColor") && success;
 
     //======================================
     // Thresholds for combining the detection from left and right camera
     //======================================
-    n.getParam(ns+"probHeight", Globals::probHeight);
+    success = checkParam(n.getParam(ns+"probHeight", Globals::probHeight), ns+"probHeight") && success;
 
     //======================================
     // MDL parameters for trajectories
     //======================================
-    n.getParam(ns+"k1", Globals::k1);
-    n.getParam(ns+"k2", Globals::k2);
-    n.getParam(ns+"k3", Globals::k3);
-    n.getParam(ns+"k4", Globals::k4);
+    success = checkParam(n.getParam(ns+"k1", Globals::k1), ns+"k1") && success;
+    success = checkParam(n.getParam(ns+"k2", Globals::k2), ns+"k2") && success;
+    success = checkParam(n.getParam(ns+"k3", Globals::k3), ns+"k3") && success;
+    success = checkParam(n.getParam(ns+"k4", Globals::k4), ns+"k4") && success;
 
     //======================================
     // Threshold for distinction between static/moving object
     //======================================
-    n.getParam(ns+"minvel", Globals::minvel);
-    n.getParam(ns+"dMaxPedVel", Globals::dMaxPedVel);
+    success = checkParam(n.getParam(ns+"minvel", Globals::minvel), ns+"minvel") && success;
+    success = checkParam(n.getParam(ns+"dMaxPedVel", Globals::dMaxPedVel), ns+"dMaxPedVel") && success;
 
     //======================================
     // Threshold for identity management
     //======================================
-    n.getParam(ns+"dSameIdThresh", Globals::dSameIdThresh);
+    success = checkParam(n.getParam(ns+"dSameIdThresh", Globals::dSameIdThresh), ns+"dSameIdThresh") && success;
 
     //======================================
     // Trajectory
     //======================================
-    n.getParam(ns+"threshLengthTraj", Globals::threshLengthTraj);
+    success = checkParam(n.getParam(ns+"threshLengthTraj", Globals::threshLengthTraj), ns+"threshLengthTraj") && success;
 
     //======================================
     // Thresholds for accepted and displayed hypotheses
     //======================================
-    n.getParam(ns+"dTheta2", Globals::dTheta2);
+    success = checkParam(n.getParam(ns+"dTheta2", Globals::dTheta2), ns+"dTheta2") && success;
 
     //======================================
     // Time ant for temporal decay
     //======================================
-    n.getParam(ns+"dTau", Globals::dTau);
+    success = checkParam(n.getParam(ns+"dTau", Globals::dTau), ns+"dTau") && success;
 
     //======================================
     // Time horizon for event cone search
     //======================================
-    n.getParam(ns+"coneTimeHorizon", Globals::coneTimeHorizon);
-    n.getParam(ns+"maxHoleLen", Globals::maxHoleLen);
-    n.getParam(ns+"dHolePenalty", Globals::dHolePenalty);
+    success = checkParam(n.getParam(ns+"coneTimeHorizon", Globals::coneTimeHorizon), ns+"coneTimeHorizon") && success;
+    success = checkParam(n.getParam(ns+"maxHoleLen", Globals::maxHoleLen), ns+"maxHoleLen") && success;
+    success = checkParam(n.getParam(ns+"dHolePenalty", Globals::dHolePenalty), ns+"dHolePenalty") && success;
 
     // Q - the system covariance
-    n.getParam(ns+"sysUncX", Globals::sysUncX);
-    n.getParam(ns+"sysUncY", Globals::sysUncY);
-    n.getParam(ns+"sysUncRot", Globals::sysUncRot);
-    n.getParam(ns+"sysUncVel", Globals::sysUncVel);
-    n.getParam(ns+"sysUncAcc", Globals::sysUncAcc);
+    success = checkParam(n.getParam(ns+"sysUncX", Globals::sysUncX), ns+"sysUncX") && success;
+    success = checkParam(n.getParam(ns+"sysUncY", Globals::sysUncY), ns+"sysUncY") && success;
+    success = checkParam(n.getParam(ns+"sysUncRot", Globals::sysUncRot), ns+"sysUncRot") && success;
+    success = checkParam(n.getParam(ns+"sysUncVel", Globals::sysUncVel), ns+"sysUncVel") && success;
+    success = checkParam(n.getParam(ns+"sysUncAcc", Globals::sysUncAcc), ns+"sysUncAcc") && success;
 
-    n.getParam(ns+"kalmanObsMotionModelthresh", Globals::kalmanObsMotionModelthresh);
-    n.getParam(ns+"kalmanObsColorModelthresh", Globals::kalmanObsColorModelthresh);
+    success = checkParam(n.getParam(ns+"kalmanObsMotionModelthresh", Globals::kalmanObsMotionModelthresh), ns+"kalmanObsMotionModelthresh") && success;
+    success = checkParam(n.getParam(ns+"kalmanObsColorModelthresh", Globals::kalmanObsColorModelthresh), ns+"kalmanObsColorModelthresh") && success;
 
     /////////////////////////////////GP Estimator/////////////////////////
-    n.getParam(ns+"nrInter_ransac", Globals::nrInter_ransac);
-    n.getParam(ns+"numberOfPoints_reconAsObstacle", Globals::numberOfPoints_reconAsObstacle);
+    success = checkParam(n.getParam(ns+"nrInter_ransac", Globals::nrInter_ransac), ns+"nrInter_ransac") && success;
+    success = checkParam(n.getParam(ns+"numberOfPoints_reconAsObstacle", Globals::numberOfPoints_reconAsObstacle), ns+"numberOfPoints_reconAsObstacle") && success;
 
     //======================================
     // ROI Segmentation
@@ -321,14 +330,16 @@ void ReadConfigParams(ros::NodeHandle n)
 
     ///////////////////////////Recording /////////////////////
     n.param(ns+"from_camera", Globals::from_camera, bool(true));
-    n.getParam(ns+"from_file_path", Globals::from_file_path);
+    success = checkParam(n.getParam(ns+"from_file_path", Globals::from_file_path), ns+"from_file_path") && success;
 
     //////////////////////////Streaming///////////////////////
-    n.getParam(ns+"stream_dest_IP", Globals::stream_dest_IP);
+    success = checkParam(n.getParam(ns+"stream_dest_IP", Globals::stream_dest_IP), ns+"stream_dest_IP") && success;
 
     ////////////////////////HOG Detector////////////////////////
     n.param(ns+"hog_max_scale", Globals::hog_max_scale, double(1.9));
     n.param(ns+"hog_score_thresh", Globals::hog_score_thresh, double(0.4));
+
+    return success;
 }
 
 Camera createCamera(Vector<double>& GP,
@@ -614,13 +625,7 @@ int main(int argc, char **argv)
     string topic_color_image = cam_ns + "/rgb/image_rect_color";
     string topic_camera_info = cam_ns + "/rgb/camera_info";
 
-    if(strcmp(config_file.c_str(),"") == 0) {
-        ROS_ERROR("No config file specified.");
-        ROS_ERROR("Run with: rosrun strands_pedestrian_tracking pedestrian_tracking _config_file:=/path/to/config");
-        exit(0);
-    }
-
-    ReadConfigParams(boost::ref(n));
+    if(!ReadConfigParams(boost::ref(n))) return 1;
     det_comb = new Detections(23, 0);
 
     ROS_DEBUG("pedestrian_tracker: Queue size for synchronisation is set to: %i", queue_size);
