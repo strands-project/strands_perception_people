@@ -115,7 +115,8 @@ void get_image(unsigned char* b_image, uint w, uint h, CImg<unsigned char>& cim)
 
 void ReadConfigParams(ros::NodeHandle n)
 {
-    std::string ns = "/pedestrian_tracking/";
+    std::string ns = ros::this_node::getName();
+    ns += "/";
 
     //=====================================
     // Input paths
