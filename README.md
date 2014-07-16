@@ -1,4 +1,4 @@
 strands_perception_people
 =========================
 
-long-term detection, tracking and recognition of people
+Please see `strands_perception_people_launch` README.md for start-up information.

@@ -22,6 +22,7 @@
     <arg name="tf_target_frame" default="/base_link" />
     <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
     <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
+    <arg name="log" default="false" />
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -92,5 +93,12 @@
         <arg name="marker" value="$(arg pd_marker)"/>
     </include>
 
+    <!-- Logging -->
+    <include file="$(find strands_perception_people_utils)/launch/logging.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
+        <arg name="log" value="$(arg log)"/>
+        <arg name="target_frame" value="$(arg tf_target_frame)"/>
+    </include>
 
 </launch> 

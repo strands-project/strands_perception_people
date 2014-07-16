@@ -385,13 +385,13 @@ void callbackWithoutHOG(const ImageConstPtr &color,
 
 
     PedestrianTrackingArray allHypoMsg;
-    allHypoMsg.header = color->header;
+    allHypoMsg.header = upper->header;
     Vector<Vector<double> > trajPts;
     Vector<double> dir;
     for(int i = 0; i < hyposMDL.getSize(); i++)
     {
         PedestrianTracking oneHypoMsg;
-        oneHypoMsg.header = color->header;
+        oneHypoMsg.header = upper->header;
         hyposMDL(i).getTrajPts(trajPts);
         for(int j = 0; j < trajPts.getSize(); j++)
         {
@@ -496,13 +496,13 @@ void callbackWithHOG(const ImageConstPtr &color,
 
 
     PedestrianTrackingArray allHypoMsg;
-    allHypoMsg.header = color->header;
+    allHypoMsg.header = upper->header;
     Vector<Vector<double> > trajPts;
     Vector<double> dir;
     for(int i = 0; i < hyposMDL.getSize(); i++)
     {
         PedestrianTracking oneHypoMsg;
-        oneHypoMsg.header = color->header;
+        oneHypoMsg.header = upper->header;
         hyposMDL(i).getTrajPts(trajPts);
         for(int j = 0; j < trajPts.getSize(); j++)
         {
