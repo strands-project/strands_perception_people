@@ -33,7 +33,7 @@ Parameters:
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
-* `tf_target_frame` _default = /base_link_: The coordinate system into which the localisations should be transformed
+* `tf_target_frame` _default = /map: The coordinate system into which the localisations should be transformed
 * `pd_localisations` _default = /pedestrian_localisation/localisations_: The pedestrian localisations
 * `pd_marker` _default = /pedestrian_localisation/marker_array_: A marker arry to visualise found people in rviz
 * `log` _default = false_: Log people and robot locations together with tracking and detection results to message_store database into people_perception collection. Disabled by default because if it is enabled the perception is running continuously.
@@ -65,7 +65,7 @@ Parameters:
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
-* `tf_target_frame` _default = /base_link_: The coordinate system into which the localisations should be transformed
+* `tf_target_frame` _default = /map: The coordinate system into which the localisations should be transformed
 * `pd_localisations` _default = /pedestrian_localisation/localisations_: The pedestrian localisations
 * `pd_marker` _default = /pedestrian_localisation/marker_array_: A marker arry to visualise found people in rviz
 * `log` _default = false_: Log people and robot locations together with tracking and detection results to message_store database into people_perception collection. Disabled by default because if it is enabled the perception is running continuously.
