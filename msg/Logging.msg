@@ -1,5 +1,5 @@
 std_msgs/Header header #The header taken from the pedestrian localosation msg
-int32[] ids #Unique person id. Reset to 0 on restart of tracker
+string[] ids #Unique uuid5 (NAMESPACE_DNS) person id as string. Id is based on system time on start-up and tracker id.
 geometry_msgs/Pose[] people #The real world poses of the detected people in the given target frame. Default: /base_link. Array index matches ids array index
 geometry_msgs/Pose robot #The last received robot pose
 float64[] scores #The confidence score of the tracker. Array index matches ids array index.
