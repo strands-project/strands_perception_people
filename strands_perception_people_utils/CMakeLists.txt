@@ -8,8 +8,10 @@ find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   eigen
   eigen_conversions
+  geometry_msgs
   nav_msgs
   roscpp
+  ros_datacentre
   sensor_msgs
   std_msgs
   strands_perception_people_msgs

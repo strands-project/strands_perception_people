@@ -8,15 +8,16 @@ roslaunch strands_perception_people_launch file.launch gh_queue_size:=11 vo_queu
 ```
 This will overwrite the default values.  _gh = ground_hog, vo = visual_odemetry, ubd = upper_body_detector, pt = pedestrian_tracking_
 
+The whole pipeline is desinged to unsuscribe from everything if there is no subscriber to the published topics. This causes the nodes to not use any CPU when there is no one listening on the published topics. This might result in a 1-2 second dealy after subscribing to one of the topics before the first data is published. Also, setting `log` to true when starting the perception pipeline will cause it to always run and log data.
+
 ## Running on robot
-These launch files will make use of the fixed ground plane which is just rotated according to the PTU tilt.
+These launch files will make use of the fixed ground plane which is just rotated according to the PTU tilt and the robot odometry instead of the visual odometry.
 
 ### pedestrian_tracker_robot.launch
 This version of the tracking does not rely on the ground_hog feature extraction and is therefore usable on PCs with no NVIDIA graphics card (like the embedded robot PC). However, this has the drawback that the system only relies on depth data to detect people which limits the distance at which persons can be detected to approx. 5 meters. Where possible the ground_hog detection should be used to enhance tracking results. It also uses the fixed ground plane assumption because it is ment to be executed on the robots head xtion camera.
 
 Parameters:
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
-* `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
 * `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
 * `model` _default = $(find strands_ground_hog)/model/config_: The ground HOG detection models
@@ -26,15 +27,16 @@ Parameters:
 * `pt_config_file` _default = $(find strands_upper_body_detector)/config/config_Asus.inp_: The camera config file
 * `template_file` _default = $(find strands_upper_body_detector)/config/upper_temp_n.txt_: The upper body templates
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
-* `ground_plane` _default = /ground_plane_: The estimated ground plane
+* `ground_plane` _default = /ground_plane_: The fixed ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
 * `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
-* `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
+* `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
 * `tf_target_frame` _default = /base_link_: The coordinate system into which the localisations should be transformed
 * `pd_localisations` _default = /pedestrian_localisation/localisations_: The pedestrian localisations
 * `pd_marker` _default = /pedestrian_localisation/marker_array_: A marker arry to visualise found people in rviz
+* `log` _default = false_: Log people and robot locations together with tracking and detection results to message_store database into people_perception collection. Disabled by default because if it is enabled the perception is running continuously.
 
 
 Running:
@@ -48,7 +50,6 @@ This version of the tracking does rely on the ground_hog feature extraction and 
 Parameters:
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
 * `gh_queue_size` _default = 20_: The ground plane sync queue size
-* `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
 * `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
 * `model` _default = $(find strands_ground_hog)/model/config_: The ground HOG detection models
@@ -58,15 +59,16 @@ Parameters:
 * `pt_config_file` _default = $(find strands_upper_body_detector)/config/config_Asus.inp_: The camera config file
 * `template_file` _default = $(find strands_upper_body_detector)/config/upper_temp_n.txt_: The upper body templates
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
-* `ground_plane` _default = /ground_plane_: The estimated ground plane
+* `ground_plane` _default = /ground_plane_: The fixed ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
 * `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
-* `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
+* `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
 * `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
 * `tf_target_frame` _default = /base_link_: The coordinate system into which the localisations should be transformed
 * `pd_localisations` _default = /pedestrian_localisation/localisations_: The pedestrian localisations
 * `pd_marker` _default = /pedestrian_localisation/marker_array_: A marker arry to visualise found people in rviz
+* `log` _default = false_: Log people and robot locations together with tracking and detection results to message_store database into people_perception collection. Disabled by default because if it is enabled the perception is running continuously.
 
 
 Running:
