@@ -1,4 +1,6 @@
 upper_body_detector:
+    x_size: 150
+    y_size: 150
     upper_body_template:
         - 0
         - 0

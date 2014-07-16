@@ -80,7 +80,9 @@ void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
 
 void ReadConfigParams(ros::NodeHandle n)
 {
-    std::string ns = "/upper_body_detector/";
+    std::string ns = ros::this_node::getName();
+    ns += "/";
+
     //=====================================
     // Distance Range Accepted Detections
     //=====================================
@@ -90,6 +92,7 @@ void ReadConfigParams(ros::NodeHandle n)
     // ROI
     //======================================
     n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio);
+    ROS_INFO("ratio: %f",Globals::inc_width_ratio);
     n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio);
     n.param(ns+"region_size_threshold", Globals::region_size_threshold, int(10));
 
@@ -145,15 +148,15 @@ void ReadConfigParams(ros::NodeHandle n)
 
 }
 
-void ReadUpperBodyTemplate(std::vector<double> up_temp)
+void ReadUpperBodyTemplate(std::vector<double> up_temp, int x_size, int y_size)
 {
-    ROS_INFO("Reading template");
-    for(int i = 0; i < up_temp.size(); i++){
-        ROS_INFO("%d: %f", i, up_temp[i]);
-    }
+    ROS_INFO("Reading template of size %d x %d = %d", x_size, y_size, x_size*y_size);
+//    for(int i = 0; i < up_temp.size(); i++){
+//        ROS_INFO("%d: %f", i, up_temp[i]);
+//    }
 
     // read template from file
-    upper_body_template = new Matrix<double>(150, 150, &up_temp[0]);
+    upper_body_template = new Matrix<double>(x_size, y_size, &up_temp[0]);
 
     // resize it to the fixed size that is defined in Config File
     if(upper_body_template->x_size() > Globals::template_size)
@@ -302,8 +305,6 @@ int main(int argc, char **argv)
     string pub_topic_ubd;
     string pub_topic_result_image;
 
-    std::vector<double> up_temp;
-
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
@@ -315,7 +316,15 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_namespace", cam_ns, string("/camera"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
 
+    std::vector<double> up_temp;
+    int x_size, y_size;
+    private_node_handle_.getParam("x_size", x_size);
+    private_node_handle_.getParam("y_size", y_size);
     private_node_handle_.getParam("upper_body_template", up_temp);
+    if(up_temp.empty()){
+        ROS_FATAL("No upper body template found");
+        return 1;
+    }
 
     string topic_depth_image = cam_ns + "/depth/image_rect_meters";
     string topic_color_image = cam_ns + "/rgb/image_rect_color";
@@ -354,8 +363,8 @@ int main(int argc, char **argv)
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
     // Initialise detector
-    ReadUpperBodyTemplate(up_temp);
     ReadConfigParams(boost::ref(n));
+    ReadUpperBodyTemplate(up_temp, x_size, y_size);
     detector = new Detector();
 
     // Create synchronization policy. Here: async because time stamps will never match exactly
