@@ -77,7 +77,7 @@ include_directories(include
 # )
 
 ## Declare a cpp executable
-add_executable(ground_plane_estimated src/estimated_gp.cpp src/Camera.cpp src/ConfigFile.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
+add_executable(ground_plane_estimated src/estimated_gp.cpp src/Camera.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
 add_executable(ground_plane_fixed src/fixed_gp.cpp)
 
 ## Add cmake target dependencies of the executable/library
