@@ -1,7 +1,7 @@
 // ROS includes.
 #include <ros/ros.h>
 
-#if WITH_CUDA
+#if 1
 #include <ros/time.h>
 #include <image_transport/image_transport.h>
 #include <image_transport/subscriber_filter.h>
@@ -25,6 +25,10 @@
 #include "Matrix.h"
 #include "Vector.h"
 
+#include <XmlRpc.h>
+#include <XmlRpcValue.h>
+#include <XmlRpcException.h>
+
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
@@ -35,6 +39,13 @@ using namespace strands_perception_people_msgs;
 cudaHOG::cudaHOGManager *hog;
 ros::Publisher pub_message;
 image_transport::Publisher pub_result_image;
+
+bool checkParam(bool success, std::string param) {
+    if(!success) {
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the datacentre is running or start with 'with_datacentre:=false'", param.c_str());
+    }
+    return success;
+}
 
 void render_bbox_2D(GroundHOGDetections& detections, QImage& image, int r, int g, int b, int lineWidth)
 {
@@ -161,8 +172,8 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
     float_K(2,2) = K(2,2); float_K(0,2) = K(0,2); float_K(1,2) = K(1,2);
 
 
-    //    float_K.Show();
-    //    float_GPN.show();
+    float_K.Show();
+    float_GPN.show();
     //    printf("%f\n", float_GPd)
 
     try
@@ -253,7 +264,7 @@ void connectCallback(ros::Subscriber &sub_msg,
 int main(int argc, char **argv)
 {
     // Set up ROS.
-    ros::init(argc, argv, "groundHOG");
+    ros::init(argc, argv, "ground_hog");
     ros::NodeHandle n;
 
     // Declare variables that can be modified by launch file or command line.
@@ -277,19 +288,34 @@ int main(int argc, char **argv)
     string image_color = camera_ns + "/rgb/image_rect_color";
     string camera_info = camera_ns + "/depth/camera_info";
 
+    int hog_descriptor_height, hog_descritpor_width, hog_window_height, hog_window_width;
+    string model_name;
+    XmlRpc::XmlRpcValue model;
+    char* svm_model;
 
-    //Initialise cudaHOG
-    if(strcmp(conf.c_str(),"") == 0) {
-        ROS_ERROR("No model path specified.");
-        ROS_ERROR("Run with: rosrun strands_ground_hog groundHOG _model:=/path/to/model");
-        exit(0);
+    bool success = true;
+    success = checkParam(private_node_handle_.getParam("hog_descriptor_height", hog_descriptor_height), "hog_descriptor_height") && success;
+    success = checkParam(private_node_handle_.getParam("hog_descritpor_width", hog_descritpor_width), "hog_descritpor_width") && success;
+    success = checkParam(private_node_handle_.getParam("hog_window_height", hog_window_height), "hog_window_height") && success;
+    success = checkParam(private_node_handle_.getParam("hog_window_width", hog_window_width), "hog_window_width") && success;
+    success = checkParam(private_node_handle_.getParam("name", model_name), "name") && success;
+    success = checkParam(private_node_handle_.getParam("model", model), "model") && success;
+    if(!success) return 1;
+
+    try {
+        ROS_ASSERT(model.getType() == XmlRpc::XmlRpcValue::TypeBase64);
+        std::vector<char> tmp = model;
+        svm_model = &tmp[0];
+        ROS_INFO("Size: %d, Model: %s", tmp.size(), svm_model);
+    } catch (XmlRpc::XmlRpcException &e) {
+        ROS_ERROR("%s", e.getMessage().c_str());
     }
 
     ROS_DEBUG("groundHOG: Queue size for synchronisation is set to: %i", queue_size);
 
     hog = new  cudaHOG::cudaHOGManager();
-    hog->read_params_file(conf);
-    hog->load_svm_models();
+    hog->set_params(model_name, hog_window_width, hog_window_height, hog_descritpor_width, hog_descriptor_height);
+//    hog->load_svm_models();
 
     // Image transport handle
     image_transport::ImageTransport it(private_node_handle_);
