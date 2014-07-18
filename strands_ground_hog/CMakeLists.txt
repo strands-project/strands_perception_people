@@ -7,6 +7,7 @@ project(strands_ground_hog)
 find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs message_filters image_transport)
 pkg_check_modules(CUDAHOG cudaHOG)
+pkg_check_modules(GLIB glib-2.0)
 
 ## Include Qt
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
@@ -82,6 +83,7 @@ catkin_package(
 include_directories( include
   ${catkin_INCLUDE_DIRS}
   ${CUDAHOG_INCLUDE_DIRS}
+  ${GLIB_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -89,7 +91,10 @@ include_directories( include
 #   src/${PROJECT_NAME}/groundHOG.cpp
 # )
 
-link_directories(${CUDAHOG_LIBRARY_DIRS})
+link_directories(
+  ${CUDAHOG_LIBRARY_DIRS}
+  ${GLIB_LIBRARY_DIRS}
+)
 
 ## Declare a cpp executable
 add_executable(groundHOG src/main.cpp)
@@ -105,6 +110,7 @@ add_dependencies(groundHOG ${catkin_EXPORTED_TARGETS}) #TODO: might need a fake 
    ${QT_QTCORE_LIBRARY}
    ${QT_QTGUI_LIBRARY}
    ${CUDAHOG_LIBRARIES}
+   ${GLIB_LIBRARIES}
  )
 
 #############
