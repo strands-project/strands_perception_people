@@ -1,5 +1,6 @@
 ground_hog:
     name: pedestrian
+    model_path: /tmp
     hog_window_width: 64
     hog_window_height: 128
     hog_descritpor_width: 7

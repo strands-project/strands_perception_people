@@ -11,8 +11,13 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 
+#include <XmlRpc.h>
+#include <XmlRpcValue.h>
+#include <XmlRpcException.h>
 
 #include <string.h>
+#include <sstream>
+#include <glib.h>
 #include <QImage>
 #include <QPainter>
 
@@ -24,10 +29,6 @@
 
 #include "Matrix.h"
 #include "Vector.h"
-
-#include <XmlRpc.h>
-#include <XmlRpcValue.h>
-#include <XmlRpcException.h>
 
 using namespace std;
 using namespace sensor_msgs;
@@ -273,14 +274,13 @@ int main(int argc, char **argv)
     string camera_ns;
     string pub_topic;
     string pub_image_topic;
-    string conf;
+    string model_path;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(10));
-    private_node_handle_.param("model", conf, string(""));
 
     private_node_handle_.param("camera_namespace", camera_ns, string("/head_xtion"));
     private_node_handle_.param("ground_plane", ground_plane, string(""));
@@ -291,7 +291,7 @@ int main(int argc, char **argv)
     int hog_descriptor_height, hog_descritpor_width, hog_window_height, hog_window_width;
     string model_name;
     XmlRpc::XmlRpcValue model;
-    char* svm_model;
+    unsigned char* svm_model;
 
     bool success = true;
     success = checkParam(private_node_handle_.getParam("hog_descriptor_height", hog_descriptor_height), "hog_descriptor_height") && success;
@@ -300,13 +300,19 @@ int main(int argc, char **argv)
     success = checkParam(private_node_handle_.getParam("hog_window_width", hog_window_width), "hog_window_width") && success;
     success = checkParam(private_node_handle_.getParam("name", model_name), "name") && success;
     success = checkParam(private_node_handle_.getParam("model", model), "model") && success;
+    success = checkParam(private_node_handle_.getParam("model_path", model_path), "model_path") && success;
     if(!success) return 1;
 
     try {
-        ROS_ASSERT(model.getType() == XmlRpc::XmlRpcValue::TypeBase64);
-        std::vector<char> tmp = model;
-        svm_model = &tmp[0];
-        ROS_INFO("Size: %d, Model: %s", tmp.size(), svm_model);
+        std::stringstream ss;
+        ROS_ASSERT(model.getType() == XmlRpc::XmlRpcValue::TypeBase64); // This is taken from the example for lists but it never fails regardles of the type.
+        ss << model; // Not nice but the only way I found to get a char array from the model.
+        long unsigned int len;
+        svm_model = g_base64_decode_inplace(const_cast<char*>(ss.str().c_str()), &len);
+        std::string save_path = model_path; save_path += "/"; save_path += model_name;
+        FILE* file = fopen(save_path.c_str(), "wb");
+        fwrite(svm_model, sizeof(char), len, file);
+        fclose(file);
     } catch (XmlRpc::XmlRpcException &e) {
         ROS_ERROR("%s", e.getMessage().c_str());
     }
@@ -314,8 +320,8 @@ int main(int argc, char **argv)
     ROS_DEBUG("groundHOG: Queue size for synchronisation is set to: %i", queue_size);
 
     hog = new  cudaHOG::cudaHOGManager();
-    hog->set_params(model_name, hog_window_width, hog_window_height, hog_descritpor_width, hog_descriptor_height);
-//    hog->load_svm_models();
+    hog->set_params(model_name, model_path, hog_window_width, hog_window_height, hog_descritpor_width, hog_descriptor_height);
+    hog->load_svm_models();
 
     // Image transport handle
     image_transport::ImageTransport it(private_node_handle_);
