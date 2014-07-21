@@ -6,19 +6,12 @@ import strands_perception_people_msgs.msg
 import geometry_msgs.msg
 import message_filters
 import tf
-import thread
-import uuid
 
 
 class SaveLocations():
     def __init__(self):
         rospy.logdebug("Intialising logging")
-        target_frame = rospy.get_param("~target_frame", "/base_link")
-        self.uuid_key = str(rospy.get_time())
-        self.fps = rospy.Rate(25)
-        self.source_frame = ""
         self.robot_pose = geometry_msgs.msg.Pose()
-        self.transform = None
         self.tfl = tf.TransformListener()
         self.dataset_name = "locations"
         self.msg_store = MessageStoreProxy(collection="people_perception")
@@ -46,68 +39,59 @@ class SaveLocations():
             100
         )
         ts.registerCallback(self.people_callback)
-        thread.start_new_thread(self.tf_thread, (target_frame,))
 
-    def tf_thread(self, target_frame):
-        rospy.logdebug("tf thread started")
-        while not rospy.is_shutdown():
-            if self.tfl.frameExists(self.source_frame[1:]) \
-                    and self.tfl.frameExists(target_frame[1:]):
-                try:
-                    t = self.tfl.getLatestCommonTime(
-                        self.source_frame,
-                        target_frame
-                    )
-                    translation, rotation = self.tfl.lookupTransform(
-                        target_frame,
-                        self.source_frame,
-                        t
-                    )
-                    if not self.transform:
-                        rospy.logdebug("First transform received")
-                        self.transform = geometry_msgs.msg.Transform()
-                    self.transform.translation.x = translation[0]
-                    self.transform.translation.y = translation[1]
-                    self.transform.translation.z = translation[2]
-                    self.transform.rotation.x = rotation[0]
-                    self.transform.rotation.y = rotation[1]
-                    self.transform.rotation.z = rotation[2]
-                    self.transform.rotation.w = rotation[3]
-                except (
-                    tf.Exception,
-                    tf.ConnectivityException,
-                    tf.LookupException,
-                    tf.ExtrapolationException
-                ) as e:
-                    rospy.logwarn(e)
-            self.fps.sleep()
+    def transform(self, source_frame, target_frame):
+        rospy.logdebug("Looking up transform: %s -> %s", source_frame, target_frame)
+        transform = geometry_msgs.msg.Transform()
+        if self.tfl.frameExists(source_frame[1:]) \
+                and self.tfl.frameExists(target_frame[1:]):
+            try:
+                t = self.tfl.getLatestCommonTime(
+                    source_frame,
+                    target_frame
+                )
+                translation, rotation = self.tfl.lookupTransform(
+                    target_frame,
+                    source_frame,
+                    t
+                )
+                transform.translation.x = translation[0]
+                transform.translation.y = translation[1]
+                transform.translation.z = translation[2]
+                transform.rotation.x = rotation[0]
+                transform.rotation.y = rotation[1]
+                transform.rotation.z = rotation[2]
+                transform.rotation.w = rotation[3]
+            except (
+                tf.Exception,
+                tf.ConnectivityException,
+                tf.LookupException,
+                tf.ExtrapolationException
+            ) as e:
+                rospy.logwarn(e)
+        return transform
 
     def people_callback(self, pl, pt, up):
-        if not self.source_frame:
-            self.source_frame = pt.header.frame_id
-            rospy.logdebug(
-                "Setting frame source frame to: %s",
-                self.source_frame
-            )
-        if len(pl.distances) == 0 or not self.transform:
+        if len(pl.distances) == 0:
             return
         meta = {}
         meta["people"] = self.dataset_name
         rospy.logdebug("Person detected. Logging to people_perception collection.")
         insert = strands_perception_people_msgs.msg.Logging()
         insert.header = pl.header
-        for id in pl.ids:
-            insert.ids.append(str(uuid.uuid5(uuid.NAMESPACE_DNS, self.uuid_key+str(id))))
+        insert.ids = pl.ids
+        insert.uuids = pl.uuids
         insert.people = pl.poses
         insert.robot = self.robot_pose
         insert.scores = pl.scores
-        insert.distances = pl.distances
-        insert.angles = pl.angles
-        insert.min_distance = pl.min_distance
-        insert.min_distance_angle = pl.min_distance_angle
+        insert.pedestrian_locations = pl
         insert.pedestrian_tracking = pt.pedestrians
         insert.upper_body_detections = up
-        insert.tf = self.transform
+        insert.target_frame = self.transform(pt.header.frame_id, pl.header.frame_id)
+        if pl.header.frame_id == '/base_link':
+            insert.base_link = insert.target_frame
+        else:
+            insert.base_link = self.transform(pt.header.frame_id, '/base_link')
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):
