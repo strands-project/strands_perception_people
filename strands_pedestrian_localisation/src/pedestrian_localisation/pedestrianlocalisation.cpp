@@ -61,9 +61,9 @@ void PedestrianLocalisation::publishDetections(
         pose.orientation.w = 1.0;
         result.poses.push_back(pose);
         ROS_DEBUG("publishDetections: Publishing detection: x: %f, y: %f, z: %f",
-                 pose.position.x,
-                 pose.position.y,
-                 pose.position.z);
+                  pose.position.x,
+                  pose.position.y,
+                  pose.position.z);
     }
     result.ids = ids;
     result.uuids = uuids;
@@ -131,13 +131,13 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
         strands_perception_people_msgs::PedestrianTracking pt = pta->pedestrians[i];
         if(pt.traj_x.size() && pt.traj_y.size() && pt.traj_z.size()) {
             ROS_DEBUG("trackingCallback: Received: Position world x: %f, y: %f, z: %f",
-                     pt.traj_x[0],
-                     pt.traj_y[0],
-                     pt.traj_z[0]);
+                      pt.traj_x[0],
+                      pt.traj_y[0],
+                      pt.traj_z[0]);
             ROS_DEBUG("trackingCallback: Received: Position cam x: %f, y: %f, z: %f",
-                     pt.traj_x_camera[0],
-                     pt.traj_y_camera[0],
-                     pt.traj_z_camera[0]);
+                      pt.traj_x_camera[0],
+                      pt.traj_y_camera[0],
+                      pt.traj_z_camera[0]);
 
             //Create stamped pose for tf
             geometry_msgs::PoseStamped poseInCamCoords;
@@ -162,9 +162,13 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
                 listener->transformPose(BASE_LINK, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInRobotCoords);
 
                 // Transform into given traget frame. Default /map
-                ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
-                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
-                listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
+                if(strcmp(target_frame.c_str(), BASE_LINK)) {
+                    ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
+                    listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                    listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
+                } else {
+                    poseInTargetCoords = poseInRobotCoords;
+                }
             }
             catch(tf::TransformException ex) {
                 ROS_WARN("Failed transform: %s", ex.what());
