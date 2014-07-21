@@ -23,13 +23,23 @@
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/PedestrianLocations.h"
 
+#define BASE_LINK "/base_link"
+
 class PedestrianLocalisation
 {
 public:
     PedestrianLocalisation();
 
 private:
-    void publishDetections(std_msgs::Header header, std::vector<geometry_msgs::Point> ppl, std::vector<int> ids, std::vector<double> scores, std::vector<double> distances, std::vector<double> angles, double min_dist, double angle);
+    void publishDetections(std_msgs::Header header,
+                           std::vector<geometry_msgs::Point> ppl,
+                           std::vector<int> ids,
+                           std::vector<std::string> uuids,
+                           std::vector<double> scores,
+                           std::vector<double> distances,
+                           std::vector<double> angles,
+                           double min_dist,
+                           double angle);
     void createVisualisation(std::vector<geometry_msgs::Point> points);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta);

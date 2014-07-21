@@ -39,6 +39,7 @@ void PedestrianLocalisation::publishDetections(
         std_msgs::Header header,
         std::vector<geometry_msgs::Point> ppl,
         std::vector<int> ids,
+        std::vector<std::string> uuids,
         std::vector<double> scores,
         std::vector<double> distances,
         std::vector<double> angles,
@@ -65,6 +66,7 @@ void PedestrianLocalisation::publishDetections(
                  pose.position.z);
     }
     result.ids = ids;
+    result.uuids = uuids;
     result.scores = scores;
     result.distances = distances;
     result.angles = angles;
@@ -119,6 +121,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
     geometry_msgs::PoseStamped closest_person;
     std::vector<geometry_msgs::Point> ppl;
     std::vector<int> ids;
+    std::vector<std::string> uuids;
     std::vector<double> scores;
     std::vector<double> distances;
     std::vector<double> angles;
@@ -139,6 +142,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
             //Create stamped pose for tf
             geometry_msgs::PoseStamped poseInCamCoords;
             geometry_msgs::PoseStamped poseInRobotCoords;
+            geometry_msgs::PoseStamped poseInTargetCoords;
             poseInCamCoords.header = pta->header;
             poseInCamCoords.pose.position.x = pt.traj_x_camera[0];
             poseInCamCoords.pose.position.y = pt.traj_y_camera[0];
@@ -152,16 +156,24 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
 
             //Transform
             try {
+                // Transform into robot coordinate system /base_link for the caluclation of relative distances and angles
+                ROS_DEBUG("Transforming received position into %s coordinate system.", BASE_LINK);
+                listener->waitForTransform(poseInCamCoords.header.frame_id, BASE_LINK, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                listener->transformPose(BASE_LINK, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInRobotCoords);
+
+                // Transform into given traget frame. Default /map
                 ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
                 listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
-                listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInRobotCoords);
+                listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
             }
             catch(tf::TransformException ex) {
                 ROS_WARN("Failed transform: %s", ex.what());
                 return;
             }
-            ppl.push_back(poseInRobotCoords.pose.position);
+
+            ppl.push_back(poseInTargetCoords.pose.position);
             ids.push_back(pt.id);
+            uuids.push_back(pt.uuid);
             scores.push_back(pt.score);
             std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
             distances.push_back(polar[0]);
@@ -172,7 +184,7 @@ void PedestrianLocalisation::trackingCallback(const strands_perception_people_ms
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
         }
     }
-    publishDetections(pta->header, ppl, ids, scores, distances, angles, min_dist, angle);
+    publishDetections(pta->header, ppl, ids, uuids, scores, distances, angles, min_dist, angle);
     pub_pose.publish(closest_person);
     if(pub_marker.getNumSubscribers())
         createVisualisation(ppl);
