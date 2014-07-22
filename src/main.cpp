@@ -1,7 +1,7 @@
 // ROS includes.
 #include <ros/ros.h>
 
-#if 1
+#if WITH_CUDA
 #include <ros/time.h>
 #include <image_transport/image_transport.h>
 #include <image_transport/subscriber_filter.h>

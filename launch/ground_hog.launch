@@ -1,4 +1,8 @@
 <launch>
+    <arg name="with_datacentre" default="true" />
+    <arg name="param_file" default="$(find strands_ground_hog)/config/ground_hog.yaml" />
+    <rosparam command="load" file="$(arg param_file)" unless="$(arg with_datacentre)"/>
+    
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="detections" default="/groundHOG/detections" />
     <arg name="result_image" default="/groundHOG/image" />
