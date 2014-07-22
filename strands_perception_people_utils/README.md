@@ -23,4 +23,3 @@ Run with:
 
 Parameters:
 * `log`: _Default: true_ This convenience parameter allows to start the whole system without logging the data
-* `target_frame`: _Default: /base_link_ The frame for which the tf should be saved. The source frame is taken from the pedestrian tracker messages and this parameter should be set according to the `target_frame` parameter of the `strands_pedestrian_localisation` node to save the correct tf. If you use one of the convenience launch files for the robot from the `strands_perception_people_launch` package, this is taken care of.
