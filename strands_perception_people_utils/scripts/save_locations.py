@@ -7,12 +7,14 @@ import geometry_msgs.msg
 import message_filters
 import tf
 import thread
+import uuid
 
 
 class SaveLocations():
     def __init__(self):
         rospy.logdebug("Intialising logging")
         target_frame = rospy.get_param("~target_frame", "/base_link")
+        self.uuid_key = str(rospy.get_time())
         self.fps = rospy.Rate(25)
         self.source_frame = ""
         self.robot_pose = geometry_msgs.msg.Pose()
@@ -94,7 +96,8 @@ class SaveLocations():
         rospy.logdebug("Person detected. Logging to people_perception collection.")
         insert = strands_perception_people_msgs.msg.Logging()
         insert.header = pl.header
-        insert.ids = pl.ids
+        for id in pl.ids:
+            insert.ids.append(str(uuid.uuid5(uuid.NAMESPACE_DNS, self.uuid_key+str(id))))
         insert.people = pl.poses
         insert.robot = self.robot_pose
         insert.scores = pl.scores

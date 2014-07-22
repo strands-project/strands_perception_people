@@ -19,7 +19,7 @@
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
-    <arg name="tf_target_frame" default="/base_link" />
+    <arg name="tf_target_frame" default="/map" />
     <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
     <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
     <arg name="log" default="false" />
