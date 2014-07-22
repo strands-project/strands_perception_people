@@ -101,7 +101,6 @@ bool ReadConfigParams(ros::NodeHandle n)
     // ROI
     //======================================
     success = checkParam(n.getParam(ns+"inc_width_ratio", Globals::inc_width_ratio), ns+"inc_width_ratio") && success;
-    ROS_INFO("ratio: %f",Globals::inc_width_ratio);
     success = checkParam(n.getParam(ns+"inc_height_ratio", Globals::inc_height_ratio), ns+"inc_height_ratio") && success;
     n.param(ns+"region_size_threshold", Globals::region_size_threshold, int(10));
 
@@ -160,10 +159,7 @@ bool ReadConfigParams(ros::NodeHandle n)
 
 void ReadUpperBodyTemplate(std::vector<double> up_temp, int x_size, int y_size)
 {
-    ROS_INFO("Reading template of size %d x %d = %d", x_size, y_size, x_size*y_size);
-//    for(int i = 0; i < up_temp.size(); i++){
-//        ROS_INFO("%d: %f", i, up_temp[i]);
-//    }
+    ROS_DEBUG("Reading template of size %d x %d = %d", x_size, y_size, x_size*y_size);
 
     // read template from file
     upper_body_template = new Matrix<double>(x_size, y_size, &up_temp[0]);

@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     _normal.setX(read_normal[0]);
     _normal.setY(read_normal[1]);
     _normal.setZ(read_normal[2]);
-    ROS_INFO("Using normal: %f, %f, %f", _normal.getX(), _normal.getY(), _normal.getZ());
+    ROS_DEBUG("Using normal: %f, %f, %f", _normal.getX(), _normal.getY(), _normal.getZ());
 
     // Create a subscriber.
     ros::Subscriber ptu_sub;
