@@ -1,5 +1,5 @@
 <launch>
-    <arg name="with_datacentre" default="true" />
+    <arg name="with_datacentre" default="false" />
     <arg name="config_file" default="$(find strands_pedestrian_tracking)/config/pedestrian_tracking.yaml" />
     <rosparam command="load" file="$(arg config_file)" unless="$(arg with_datacentre)"/>
     
