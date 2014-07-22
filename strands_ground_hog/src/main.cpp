@@ -173,9 +173,9 @@ void imageGroundPlaneCallback(const ImageConstPtr &color, const CameraInfoConstP
     float_K(2,2) = K(2,2); float_K(0,2) = K(0,2); float_K(1,2) = K(1,2);
 
 
-    float_K.Show();
-    float_GPN.show();
-    //    printf("%f\n", float_GPd)
+//    float_K.Show();
+//    float_GPN.show();
+//    printf("%f\n", float_GPd)
 
     try
     {
