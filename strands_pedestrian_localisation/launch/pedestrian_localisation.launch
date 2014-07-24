@@ -8,7 +8,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
     
-    <node pkg="strands_pedestrian_localisation" type="pedestrian_localisation" name="pedestrian_localisation" output="screen">
+    <node pkg="strands_pedestrian_localisation" type="pedestrian_localisation" name="pedestrian_localisation" output="log">
         <param name="target_frame" value="$(arg target_frame)" type="string"/>
         <param name="pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
         <param name="localisations" value="$(arg localisations)" type="string"/>

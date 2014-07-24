@@ -7,7 +7,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
-    <node pkg="strands_visual_odometry" type="visual_odometry" name="visual_odometry" output="screen">
+    <node pkg="strands_visual_odometry" type="visual_odometry" name="visual_odometry" output="log">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>

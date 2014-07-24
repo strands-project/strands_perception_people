@@ -8,7 +8,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
-    <node pkg="strands_ground_hog" type="groundHOG" name="groundHOG" output="screen">
+    <node pkg="strands_ground_hog" type="groundHOG" name="groundHOG" output="log">
         <param name="model" value="$(arg model)" type="string"/>
         <param name="ground_plane" value="" type="string"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>

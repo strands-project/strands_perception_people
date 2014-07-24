@@ -7,7 +7,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
-    <node pkg="strands_ground_plane" type="ground_plane_fixed" name="ground_plane" output="screen">
+    <node pkg="strands_ground_plane" type="ground_plane_fixed" name="ground_plane" output="log">
         <rosparam command="load" file="$(arg param_file)"/>
         <param name="ptu_state" value="$(arg ptu_state)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
