@@ -4,8 +4,8 @@ project(strands_pedestrian_localisation)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS 
-    geometry_msgs 
+find_package(catkin REQUIRED COMPONENTS
+    geometry_msgs
     roscpp
     std_msgs
     strands_perception_people_msgs
@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-
+find_package(Bayestracking REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -67,8 +67,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${BAYESTRACKING_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -77,8 +78,8 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(pedestrian_localisation 
-    src/pedestrian_localisation/pedestrianlocalisation.cpp
+add_executable(pedestrian_localisation
+  src/pedestrian_localisation/pedestrianlocalisation.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
@@ -88,6 +89,7 @@ add_dependencies(pedestrian_localisation ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pedestrian_localisation
   ${catkin_LIBRARIES}
+  ${BAYESTRACKING_LIBRARIES}
 )
 
 #############

@@ -32,6 +32,8 @@ PedestrianLocalisation::PedestrianLocalisation() :
     private_node_handle_.param("marker", pub_marker_topic, std::string("/pedestrian_localisation/marker_array"));
     pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
 
+    st = new SimpleTracking();
+
     ros::spin();
 }
 
