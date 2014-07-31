@@ -21,18 +21,20 @@
 #include "strands_perception_people_msgs/PedestrianTracking.h"
 #include "strands_perception_people_msgs/PedestrianTrackingArray.h"
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
-#include "strands_perception_people_msgs/PedestrianLocations.h"
+#include "strands_perception_people_msgs/PeopleTracker.h"
 
-#include "pedestrian_localisation/simple_tracking.h"
+#include "people_tracker/simple_tracking.h"
 
 #define BASE_LINK "/base_link"
 
-class PedestrianLocalisation
+class PeopleTracker
 {
 public:
-    PedestrianLocalisation();
+    PeopleTracker();
 
 private:
+    void trackingThread();
+    void publishDetections(strands_perception_people_msgs::PeopleTracker msg);
     void publishDetections(std_msgs::Header header,
                            std::vector<geometry_msgs::Point> ppl,
                            std::vector<int> ids,
@@ -42,9 +44,10 @@ private:
                            std::vector<double> angles,
                            double min_dist,
                            double angle);
-    void createVisualisation(std::vector<geometry_msgs::Point> points);
+    void createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
-    void trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta);
+//    void trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta);
+    void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta);
     void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, std::string topic);
 
     visualization_msgs::Marker createMarker(
@@ -163,6 +166,7 @@ private:
     ros::Publisher pub_detect;
     ros::Publisher pub_pose;
     ros::Publisher pub_marker;
+    ros::Publisher test_marker;
     tf::TransformListener* listener;
     std::string target_frame;
     unsigned long detect_seq;

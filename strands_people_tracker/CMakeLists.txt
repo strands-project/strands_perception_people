@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_pedestrian_localisation)
+project(strands_people_tracker)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -78,16 +78,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(pedestrian_localisation
-  src/pedestrian_localisation/pedestrianlocalisation.cpp
+add_executable(people_tracker
+  src/people_tracker/people_tracker.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(pedestrian_localisation ${catkin_EXPORTED_TARGETS})
+add_dependencies(people_tracker ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(pedestrian_localisation
+target_link_libraries(people_tracker
   ${catkin_LIBRARIES}
   ${BAYESTRACKING_LIBRARIES}
 )

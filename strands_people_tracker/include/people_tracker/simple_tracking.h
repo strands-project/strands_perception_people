@@ -26,16 +26,17 @@
 #include <geometry_msgs/Point.h>
 #include <bayestracking/multitracker.h>
 #include <bayestracking/models.h>
-#include <bayestracking/ukfilter.h>
+#include <bayestracking/ekfilter.h>
 #include <cstdio>
 #include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
 
 using namespace std;
 using namespace MTRK;
 using namespace Models;
 
 
-typedef UKFilter Filter;
+typedef EKFilter Filter;
 
 // rule to detect lost track
 template<class FilterType>
@@ -78,56 +79,55 @@ class SimpleTracking
 {
 public:
     SimpleTracking() :
-        obsvTime(-1),
         alg(NNJPDA) {
         time = getTime();
 
-        cvm = new CVModel(5.0, 5.0);
-        ctm = new CartesianModel(0.5, 0.5);
+        cvm = new CVModel(1.4, 1.4);
+        ctm = new CartesianModel(0.2, 0.2);
         observation = new FM::Vec(2);
-
-//        tracking_thread = new boost::thread(boost::bind(&SimpleTracking::track, this));
     }
 
-    std::vector<geometry_msgs::Point> track(std::vector<geometry_msgs::Point> obsv) {
-       std::vector<geometry_msgs::Point> result;
-//        while(ros::ok()){
-            ROS_INFO("Tracking");
-            dt = getTime() - time;
-            time += dt;
+    std::vector<geometry_msgs::Point> track() {
+        boost::mutex::scoped_lock lock(mutex);
+        std::vector<geometry_msgs::Point> result;
+        dt = getTime() - time;
+        time += dt;
 
-            // prediction
-            cvm->update(dt);
-            mtrk.predict<CVModel>(*cvm);
+        // prediction
+        cvm->update(dt);
+        mtrk.predict<CVModel>(*cvm);
 
-            // add last observation/s to tracker
-            std::vector<geometry_msgs::Point>::iterator li, liEnd = obsv.end();
-            for (li = obsv.begin(); li != liEnd; li++) {
-                (*observation)[0] = li->x;
-                (*observation)[1] = li->y;
-                mtrk.addObservation(*observation, obsvTime);
-            }
+        // process observations (if available) and update tracks
+        mtrk.process(*ctm, alg);
 
-            // process observations (if available) and update tracks
-            mtrk.process(*ctm, alg);
+        // print
+        int n = mtrk.size();
 
-            // print
-            int n = mtrk.size();
-
-            for (int i = 0; i < n; i++) {
-                ROS_INFO("trk_%ld", mtrk[i].id);
-                ROS_INFO("Position: (%f, %f), Orientation: %f, Std Deviation: %f",
-                         mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
-                         atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]), //orientation
-                         sqrt(mtrk[i].filter->X(0,0)), sqrt(mtrk[i].filter->X(2,2))//std dev
-                         );
-                geometry_msgs::Point point;
-                point.x = mtrk[i].filter->x[0];
-                point.y = mtrk[i].filter->x[2];
-                result.push_back(point);
-            }
-//        }
+        for (int i = 0; i < n; i++) {
+            ROS_INFO("trk_%ld", mtrk[i].id);
+            ROS_INFO("Position: (%f, %f), Orientation: %f, Std Deviation: %f",
+                     mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
+                    atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]), //orientation
+                    sqrt(mtrk[i].filter->X(0,0)), sqrt(mtrk[i].filter->X(2,2))//std dev
+                    );
+            geometry_msgs::Point point;
+            point.x = mtrk[i].filter->x[0];
+            point.y = mtrk[i].filter->x[2];
+            result.push_back(point);
+        }
         return result;
+    }
+
+    void addObservation(std::vector<geometry_msgs::Point> obsv, double obsv_time) {
+        boost::mutex::scoped_lock lock(mutex);
+        ROS_INFO("+++ Adding new observation! +++");
+        // add last observation/s to tracker
+        std::vector<geometry_msgs::Point>::iterator li, liEnd = obsv.end();
+        for (li = obsv.begin(); li != liEnd; li++) {
+            (*observation)[0] = li->x;
+            (*observation)[1] = li->y;
+            mtrk.addObservation(*observation, obsv_time);
+        }
     }
 
 private:
@@ -135,23 +135,12 @@ private:
     CVModel *cvm;                    // CV model with sigma_x = sigma_y = 5.0
     CartesianModel *ctm;             // Cartesian observation model
     FM::Vec *observation;            // observation [x, y]
-//    boost::thread *tracking_thread;
-    double dt, time, obsvTime;
+    double dt, time;
     const association_t alg;
+    boost::mutex mutex;
 
     double getTime() {
         return ros::Time::now().toSec();
     }
-
-//    void addObservation(std::vector<geometry_msgs::Point> obsv) {
-//        // add last observation/s to tracker
-//        std::vector<geometry_msgs::Point>::iterator li, liEnd = obsv.end();
-//        for (li = obsv.begin(); li != liEnd; li++) {
-//            (*observation)[0] = li->x;
-//            (*observation)[1] = li->y;
-//            mtrk.addObservation(*observation, obsvTime);
-//        }
-//    }
-
 };
 #endif //SIMPLE_TRACKING_H
