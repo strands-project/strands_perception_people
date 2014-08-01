@@ -48,7 +48,7 @@ private:
                            double angle);
     void createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
-    void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta);
+    void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
     void parseParams(ros::NodeHandle);
 
@@ -174,7 +174,7 @@ private:
     unsigned long detect_seq;
     unsigned long marker_seq;
     SimpleTracking *st;
-    std::map<std::string, ros::Subscriber> subscribers;
+    std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
 };
 
 #endif // PEDESTRIANLOCALISATION_H

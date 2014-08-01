@@ -44,7 +44,7 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     n.getParam("detectors", detectors);
     ROS_ASSERT(detectors.getType() == XmlRpc::XmlRpcValue::TypeStruct);
     for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = detectors.begin(); it != detectors.end(); ++it) {
-        std::cout << (std::string)(it->first) << " ==> " << detectors[it->first] << std::endl;
+        ROS_INFO_STREAM("Found detector: " << (std::string)(it->first) << " ==> " << detectors[it->first]);
         st->addDetectorModel(it->first,
                              detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "JPDA" ? JPDA : NNJPDA,
                              detectors[it->first]["noise_model"]["velocity"]["x"],
@@ -52,7 +52,7 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
                              detectors[it->first]["noise_model"]["position"]["x"],
                              detectors[it->first]["noise_model"]["position"]["y"]);
         ros::Subscriber sub;
-        subscribers[detectors[it->first]["topic"]] = sub;
+        subscribers[std::pair<std::string, std::string>(it->first, detectors[it->first]["topic"])] = sub;
     }
 }
 
@@ -142,7 +142,7 @@ std::vector<double> PeopleTracker::cartesianToPolar(geometry_msgs::Point point) 
     return output;
 }
 
-void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta)
+void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, std::string detector)
 {
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
@@ -211,7 +211,7 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
     }
     if(ppl.size())
-        st->addObservation("upper_body_detector", ppl, pta->header.stamp.toSec());
+        st->addObservation(detector, ppl, pta->header.stamp.toSec());
     publishDetections(pta->header, ppl, ids, uuids, scores, distances, angles, min_dist, angle);
     pub_pose.publish(closest_person);
     createVisualisation(ppl, test_marker);
@@ -222,7 +222,7 @@ void PeopleTracker::connectCallback(ros::NodeHandle &n) {
     bool loc = pub_detect.getNumSubscribers();
     bool markers = pub_marker.getNumSubscribers();
     bool test_markers = pub_marker.getNumSubscribers();
-    std::map<std::string, ros::Subscriber>::const_iterator it;
+    std::map<std::pair<std::string, std::string>, ros::Subscriber>::const_iterator it;
     if(!loc && !markers && !test_markers) {
         ROS_DEBUG("Pedestrian Localisation: No subscribers. Unsubscribing.");
         for(it = subscribers.begin(); it != subscribers.end(); ++it)
@@ -230,7 +230,7 @@ void PeopleTracker::connectCallback(ros::NodeHandle &n) {
     } else {
         ROS_DEBUG("Pedestrian Localisation: New subscribers. Subscribing.");
         for(it = subscribers.begin(); it != subscribers.end(); ++it)
-            subscribers[it->first] = n.subscribe(it->first.c_str(), 10, &PeopleTracker::detectorCallback, this);
+            subscribers[it->first] = n.subscribe<geometry_msgs::PoseArray>(it->first.second.c_str(), 10, boost::bind(&PeopleTracker::detectorCallback, this, _1, it->first.first));
     }
 }
 
