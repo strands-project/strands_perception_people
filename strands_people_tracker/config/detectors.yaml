@@ -1,12 +1,12 @@
 people_tracker:
     detectors:
         upper_body_detector:
-            topic: /upper_body_detector/bounding_box_centres
-            noise_models:
+            topic: "/upper_body_detector/bounding_box_centres"
+            noise_model:
                 velocity:
                     x: 1.4
                     y: 1.4
                 position:
                     x: 0.2
                     y: 0.2
-            matching_algorithm: NNJPDA
+            matching_algorithm: "NNJPDA"

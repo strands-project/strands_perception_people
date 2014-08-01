@@ -78,13 +78,18 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq) {
 class SimpleTracking
 {
 public:
-    SimpleTracking() :
-        alg(NNJPDA) {
+    SimpleTracking() {
         time = getTime();
-
-        cvm = new CVModel(1.4, 1.4);
-        ctm = new CartesianModel(0.2, 0.2);
         observation = new FM::Vec(2);
+    }
+
+    void addDetectorModel(std::string name, association_t alg, double vel_noise_x, double vel_noise_y, double pos_noise_x, double pos_noise_y) {
+        ROS_INFO("Adding detector model for: %s.", name.c_str());
+        detector_model det;
+        det.alg = alg;
+        det.cvm = new CVModel(vel_noise_x, vel_noise_y);
+        det.ctm = new CartesianModel(pos_noise_x, pos_noise_y);
+        detectors[name] = det;
     }
 
     std::vector<geometry_msgs::Point> track() {
@@ -93,17 +98,18 @@ public:
         dt = getTime() - time;
         time += dt;
 
-        // prediction
-        cvm->update(dt);
-        mtrk.predict<CVModel>(*cvm);
+        for(std::map<std::string, detector_model>::const_iterator it = detectors.begin();
+            it != detectors.end();
+            ++it) {
+            // prediction
+            it->second.cvm->update(dt);
+            mtrk.predict<CVModel>(*(it->second.cvm));
 
-        // process observations (if available) and update tracks
-        mtrk.process(*ctm, alg);
+            // process observations (if available) and update tracks
+            mtrk.process(*(it->second.ctm), it->second.alg);
+        }
 
-        // print
-        int n = mtrk.size();
-
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < mtrk.size(); i++) {
             ROS_INFO("trk_%ld", mtrk[i].id);
             ROS_INFO("Position: (%f, %f), Orientation: %f, Std Deviation: %f",
                      mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
@@ -118,10 +124,27 @@ public:
         return result;
     }
 
-    void addObservation(std::vector<geometry_msgs::Point> obsv, double obsv_time) {
+    void addObservation(std::string detector_name, std::vector<geometry_msgs::Point> obsv, double obsv_time) {
         boost::mutex::scoped_lock lock(mutex);
-        ROS_INFO("+++ Adding new observation! +++");
+        ROS_INFO("Adding new observations for detector: %s", detector_name.c_str());
         // add last observation/s to tracker
+        detector_model det;
+        try {
+            det = detectors.at(detector_name);
+        } catch (std::out_of_range &exc) {
+            ROS_ERROR("Detector %s was not registered!", detector_name.c_str());
+            return;
+        }
+
+        dt = getTime() - obsv_time;
+        time += dt;
+
+        // prediction
+        det.cvm->update(dt);
+        mtrk.predict<CVModel>(*(det.cvm));
+
+        mtrk.process(*(det.ctm), det.alg);
+
         std::vector<geometry_msgs::Point>::iterator li, liEnd = obsv.end();
         for (li = obsv.begin(); li != liEnd; li++) {
             (*observation)[0] = li->x;
@@ -132,12 +155,16 @@ public:
 
 private:
     MultiTracker<Filter, 4> mtrk;    // state [x, v_x, y, v_y]
-    CVModel *cvm;                    // CV model with sigma_x = sigma_y = 5.0
-    CartesianModel *ctm;             // Cartesian observation model
     FM::Vec *observation;            // observation [x, y]
     double dt, time;
-    const association_t alg;
     boost::mutex mutex;
+
+    struct detector_model {
+        CVModel *cvm;               // CV model
+        CartesianModel *ctm;        // Cartesian observation model
+        association_t alg;          // Data association algorithm
+    };
+    std::map<std::string, detector_model> detectors;
 
     double getTime() {
         return ros::Time::now().toSec();

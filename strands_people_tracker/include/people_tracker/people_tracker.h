@@ -14,6 +14,8 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/ColorRGBA.h>
 
+#include <XmlRpcValue.h>
+
 #include <string.h>
 #include <vector>
 #include <math.h>
@@ -46,9 +48,9 @@ private:
                            double angle);
     void createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
-//    void trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta);
-    void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, std::string topic);
+    void connectCallback(ros::NodeHandle &n);
+    void parseParams(ros::NodeHandle);
 
     visualization_msgs::Marker createMarker(
             int id,
@@ -172,6 +174,7 @@ private:
     unsigned long detect_seq;
     unsigned long marker_seq;
     SimpleTracking *st;
+    std::map<std::string, ros::Subscriber> subscribers;
 };
 
 #endif // PEDESTRIANLOCALISATION_H

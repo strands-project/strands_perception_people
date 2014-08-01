@@ -7,6 +7,7 @@ PeopleTracker::PeopleTracker() :
     ros::NodeHandle n;
 
     listener = new tf::TransformListener();
+    st = new SimpleTracking();
 
     // Declare variables that can be modified by launch file or command line.
     std::string pta_topic;
@@ -17,28 +18,44 @@ PeopleTracker::PeopleTracker() :
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
-    ros::NodeHandle private_node_handle_("~");
-    private_node_handle_.param("target_frame", target_frame, std::string("/base_link"));
-//    private_node_handle_.param("pedestrian_array", pta_topic, std::string("/pedestrian_tracking/pedestrian_array"));
-    private_node_handle_.param("pedestrian_array", pta_topic, std::string("/upper_body_detector/bounding_box_centres"));
+    ros::NodeHandle private_node_handle("~");
+    private_node_handle.param("target_frame", target_frame, std::string("/base_link"));
+    private_node_handle.param("pedestrian_array", pta_topic, std::string("/upper_body_detector/bounding_box_centres"));
+    parseParams(private_node_handle);
 
-    // Create a subscriber.
-    ros::Subscriber pta_sub;
-    ros::SubscriberStatusCallback con_cb = boost::bind(&PeopleTracker::connectCallback, this, boost::ref(n), boost::ref(pta_sub), pta_topic);
+    // Create a status callback.
+    ros::SubscriberStatusCallback con_cb = boost::bind(&PeopleTracker::connectCallback, this, boost::ref(n));
 
-    private_node_handle_.param("positions", pub_topic, std::string("/pedestrian_localisation/localisations"));
+    private_node_handle.param("positions", pub_topic, std::string("/people_tracker/localisations"));
     pub_detect = n.advertise<strands_perception_people_msgs::PeopleTracker>(pub_topic.c_str(), 10, con_cb, con_cb);
-    private_node_handle_.param("pose", pub_topic_pose, std::string("/pedestrian_localisation/pose"));
+    private_node_handle.param("pose", pub_topic_pose, std::string("/people_tracker/pose"));
     pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
-    private_node_handle_.param("marker", pub_marker_topic, std::string("/pedestrian_localisation/marker_array"));
+    private_node_handle.param("marker", pub_marker_topic, std::string("/people_tracker/marker_array"));
     pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
     test_marker = n.advertise<visualization_msgs::MarkerArray>("/test/markers", 10, con_cb, con_cb);
 
-    st = new SimpleTracking();
     boost::thread tracking_thread(boost::bind(&PeopleTracker::trackingThread, this));
 
     ros::spin();
 }
+
+void PeopleTracker::parseParams(ros::NodeHandle n) {
+    XmlRpc::XmlRpcValue detectors;
+    n.getParam("detectors", detectors);
+    ROS_ASSERT(detectors.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+    for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = detectors.begin(); it != detectors.end(); ++it) {
+        std::cout << (std::string)(it->first) << " ==> " << detectors[it->first] << std::endl;
+        st->addDetectorModel(it->first,
+                             detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "JPDA" ? JPDA : NNJPDA,
+                             detectors[it->first]["noise_model"]["velocity"]["x"],
+                             detectors[it->first]["noise_model"]["velocity"]["y"],
+                             detectors[it->first]["noise_model"]["position"]["x"],
+                             detectors[it->first]["noise_model"]["position"]["y"]);
+        ros::Subscriber sub;
+        subscribers[detectors[it->first]["topic"]] = sub;
+    }
+}
+
 
 void PeopleTracker::trackingThread() {
     ros::Rate fps(25);
@@ -125,12 +142,10 @@ std::vector<double> PeopleTracker::cartesianToPolar(geometry_msgs::Point point) 
     return output;
 }
 
-//void PedestrianLocalisation::trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta)
 void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta)
 {
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
-//    if(pta->pedestrians.size() == 0) {
     if(pta->poses.size() == 0) {
         strands_perception_people_msgs::PeopleTracker empty;
         empty.header.stamp = ros::Time::now();
@@ -149,35 +164,15 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
     std::vector<double> angles;
     double min_dist = 10000.0d;
     double angle;
-//    for(int i = 0; i < pta->pedestrians.size(); i++) {
     for(int i = 0; i < pta->poses.size(); i++) {
-//        strands_perception_people_msgs::PedestrianTracking pt = pta->pedestrians[i];
         geometry_msgs::Pose pt = pta->poses[i];
-        if(/*pt.traj_x.size() && pt.traj_y.size() && pt.traj_z.size()*/ 1) {
-//            ROS_DEBUG("trackingCallback: Received: Position world x: %f, y: %f, z: %f",
-//                      pt.traj_x[0],
-//                      pt.traj_y[0],
-//                      pt.traj_z[0]);
-//            ROS_DEBUG("trackingCallback: Received: Position cam x: %f, y: %f, z: %f",
-//                      pt.traj_x_camera[0],
-//                      pt.traj_y_camera[0],
-//                      pt.traj_z_camera[0]);
 
             //Create stamped pose for tf
             geometry_msgs::PoseStamped poseInCamCoords;
             geometry_msgs::PoseStamped poseInRobotCoords;
             geometry_msgs::PoseStamped poseInTargetCoords;
             poseInCamCoords.header = pta->header;
-//            poseInCamCoords.pose.position.x = pt.traj_x_camera[0];
-//            poseInCamCoords.pose.position.y = pt.traj_y_camera[0];
-//            poseInCamCoords.pose.position.z = pt.traj_z_camera[0];
             poseInCamCoords.pose = pt;
-
-//            //Counteracting rotation in tf because it is already done in the pedestrian tracking.
-//            poseInCamCoords.pose.orientation.x = -0.5;
-//            poseInCamCoords.pose.orientation.y =  0.5;
-//            poseInCamCoords.pose.orientation.z =  0.5;
-//            poseInCamCoords.pose.orientation.w =  0.5;
 
             //Transform
             try {
@@ -204,11 +199,8 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             poseInRobotCoords.pose.position.z = 0.0;
 
             ppl.push_back(poseInTargetCoords.pose.position);
-//            ids.push_back(pt.id);
             ids.push_back(0);
-//            uuids.push_back(pt.uuid);
             uuids.push_back("");
-//            scores.push_back(pt.score);
             scores.push_back(0);
             std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
             distances.push_back(polar[0]);
@@ -217,28 +209,28 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             angle = polar[0] < min_dist ? polar[1] : angle;
             closest_person = polar[0] < min_dist ? poseInRobotCoords : closest_person;
             min_dist = polar[0] < min_dist ? polar[0] : min_dist;
-        }
     }
     if(ppl.size())
-        st->addObservation(ppl, pta->header.stamp.toSec());
+        st->addObservation("upper_body_detector", ppl, pta->header.stamp.toSec());
     publishDetections(pta->header, ppl, ids, uuids, scores, distances, angles, min_dist, angle);
     pub_pose.publish(closest_person);
     createVisualisation(ppl, test_marker);
-//    if(pub_marker.getNumSubscribers())
-//        createVisualisation(ppl);
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
-void PeopleTracker::connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, std::string topic) {
+void PeopleTracker::connectCallback(ros::NodeHandle &n) {
     bool loc = pub_detect.getNumSubscribers();
     bool markers = pub_marker.getNumSubscribers();
     bool test_markers = pub_marker.getNumSubscribers();
-    if(!loc && !markers && !test_marker) {
+    std::map<std::string, ros::Subscriber>::const_iterator it;
+    if(!loc && !markers && !test_markers) {
         ROS_DEBUG("Pedestrian Localisation: No subscribers. Unsubscribing.");
-        sub.shutdown();
+        for(it = subscribers.begin(); it != subscribers.end(); ++it)
+            const_cast<ros::Subscriber&>(it->second).shutdown();
     } else {
         ROS_DEBUG("Pedestrian Localisation: New subscribers. Subscribing.");
-        sub = n.subscribe(topic.c_str(), 10, &PeopleTracker::detectorCallback, this);
+        for(it = subscribers.begin(); it != subscribers.end(); ++it)
+            subscribers[it->first] = n.subscribe(it->first.c_str(), 10, &PeopleTracker::detectorCallback, this);
     }
 }
 
