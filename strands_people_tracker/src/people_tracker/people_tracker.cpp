@@ -26,7 +26,7 @@ PeopleTracker::PeopleTracker() :
     // Create a status callback.
     ros::SubscriberStatusCallback con_cb = boost::bind(&PeopleTracker::connectCallback, this, boost::ref(n));
 
-    private_node_handle.param("positions", pub_topic, std::string("/people_tracker/localisations"));
+    private_node_handle.param("positions", pub_topic, std::string("/people_tracker/positions"));
     pub_detect = n.advertise<strands_perception_people_msgs::PeopleTracker>(pub_topic.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("pose", pub_topic_pose, std::string("/people_tracker/pose"));
     pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
@@ -237,7 +237,7 @@ void PeopleTracker::connectCallback(ros::NodeHandle &n) {
 int main(int argc, char **argv)
 {
     // Set up ROS.
-    ros::init(argc, argv, "people_tracker");
+    ros::init(argc, argv, "strands_people_tracker");
     PeopleTracker* pl = new PeopleTracker();
     return 0;
 }

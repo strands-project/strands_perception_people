@@ -10,7 +10,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
     
-    <node pkg="strands_people_tracker" type="people_tracker" name="people_tracker" output="screen">
+    <node pkg="strands_people_tracker" type="strands_people_tracker" name="strands_people_tracker" output="screen">
         <param name="target_frame" value="$(arg target_frame)" type="string"/>
         <param name="positions" value="$(arg positions)" type="string"/>
         <param name="marker" value="$(arg marker)" type="string"/>
