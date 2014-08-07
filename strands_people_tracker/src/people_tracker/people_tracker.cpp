@@ -9,6 +9,9 @@ PeopleTracker::PeopleTracker() :
     listener = new tf::TransformListener();
     st = new SimpleTracking();
 
+    startup_time = ros::Time::now().toSec();
+    startup_time_str = num_to_str<double>(startup_time);
+
     // Declare variables that can be modified by launch file or command line.
     std::string pta_topic;
     std::string pub_topic;
@@ -32,7 +35,6 @@ PeopleTracker::PeopleTracker() :
     pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("marker", pub_marker_topic, std::string("/people_tracker/marker_array"));
     pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
-    test_marker = n.advertise<visualization_msgs::MarkerArray>("/test/markers", 10, con_cb, con_cb);
 
     boost::thread tracking_thread(boost::bind(&PeopleTracker::trackingThread, this));
 
@@ -58,27 +60,51 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
 
 
 void PeopleTracker::trackingThread() {
-    ros::Rate fps(25);
+    ros::Rate fps(30);
     while(ros::ok()) {
-        std::vector<geometry_msgs::Point> ppl = st->track();
-        if(pub_marker.getNumSubscribers())
-            createVisualisation(ppl, pub_marker);
+        std::map<long, geometry_msgs::Point> ppl = st->track();
+        if(ppl.size()) {
+            geometry_msgs::Point closest_person_point;
+            std::vector<geometry_msgs::Point> tmp;
+            std::vector<std::string> uuids;
+            std::vector<double> distances;
+            std::vector<double> angles;
+            double min_dist = 10000.0d;
+            double angle;
+
+            for(std::map<long, geometry_msgs::Point>::const_iterator it = ppl.begin();
+                it != ppl.end(); ++it) {
+                tmp.push_back(it->second);
+                ROS_INFO_STREAM(""<<it->first);
+                uuids.push_back(generateUUID(startup_time_str, it->first));
+                std::vector<double> polar = cartesianToPolar(it->second);
+                distances.push_back(polar[0]);
+                angles.push_back(polar[1]);
+
+                //Find closest person and get distance and angle
+                angle = polar[0] < min_dist ? polar[1] : angle;
+                closest_person_point = polar[0] < min_dist ? it->second : closest_person_point;
+                min_dist = polar[0] < min_dist ? polar[0] : min_dist;
+            }
+
+            if(pub_marker.getNumSubscribers())
+                createVisualisation(tmp, pub_marker);
+            publishDetections(closest_person_point, tmp, uuids, distances, angles, min_dist, angle);
+        }
         fps.sleep();
     }
 }
 
 void PeopleTracker::publishDetections(
-        std_msgs::Header header,
+        geometry_msgs::Point closest,
         std::vector<geometry_msgs::Point> ppl,
-        std::vector<int> ids,
         std::vector<std::string> uuids,
-        std::vector<double> scores,
         std::vector<double> distances,
         std::vector<double> angles,
         double min_dist,
         double angle) {
     strands_perception_people_msgs::PeopleTracker result;
-    result.header.stamp = header.stamp;
+    result.header.stamp = ros::Time::now();
     result.header.frame_id = target_frame;
     result.header.seq = ++detect_seq;
     for(int i = 0; i < ppl.size(); i++) {
@@ -97,18 +123,29 @@ void PeopleTracker::publishDetections(
                   pose.position.y,
                   pose.position.z);
     }
-    result.ids = ids;
     result.uuids = uuids;
-    result.scores = scores;
     result.distances = distances;
     result.angles = angles;
     result.min_distance = min_dist;
     result.min_distance_angle = angle;
     publishDetections(result);
+
+    geometry_msgs::PoseStamped pose;
+    pose.header = result.header;
+    pose.pose.position = closest;
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    publishDetections(pose);
 }
 
 void PeopleTracker::publishDetections(strands_perception_people_msgs::PeopleTracker msg) {
     pub_detect.publish(msg);
+}
+
+void PeopleTracker::publishDetections(geometry_msgs::PoseStamped msg) {
+    pub_pose.publish(msg);
 }
 
 void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub) {
@@ -199,22 +236,10 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             poseInRobotCoords.pose.position.z = 0.0;
 
             ppl.push_back(poseInTargetCoords.pose.position);
-            ids.push_back(0);
-            uuids.push_back("");
-            scores.push_back(0);
-            std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
-            distances.push_back(polar[0]);
-            angles.push_back(polar[1]);
 
-            angle = polar[0] < min_dist ? polar[1] : angle;
-            closest_person = polar[0] < min_dist ? poseInRobotCoords : closest_person;
-            min_dist = polar[0] < min_dist ? polar[0] : min_dist;
     }
     if(ppl.size())
         st->addObservation(detector, ppl, pta->header.stamp.toSec());
-    publishDetections(pta->header, ppl, ids, uuids, scores, distances, angles, min_dist, angle);
-    pub_pose.publish(closest_person);
-    createVisualisation(ppl, test_marker);
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.

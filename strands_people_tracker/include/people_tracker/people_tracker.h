@@ -14,6 +14,10 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/ColorRGBA.h>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include <XmlRpcValue.h>
 
 #include <string.h>
@@ -37,11 +41,10 @@ public:
 private:
     void trackingThread();
     void publishDetections(strands_perception_people_msgs::PeopleTracker msg);
-    void publishDetections(std_msgs::Header header,
+    void publishDetections(geometry_msgs::PoseStamped msg);
+    void publishDetections(geometry_msgs::Point closest,
                            std::vector<geometry_msgs::Point> ppl,
-                           std::vector<int> ids,
                            std::vector<std::string> uuids,
-                           std::vector<double> scores,
                            std::vector<double> distances,
                            std::vector<double> angles,
                            double min_dist,
@@ -51,6 +54,14 @@ private:
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
     void parseParams(ros::NodeHandle);
+
+    inline std::string generateUUID(std::string time, int id) {
+        boost::uuids::uuid dns_namespace_uuid;
+        boost::uuids::name_generator gen(dns_namespace_uuid);
+        time += num_to_str<int>(id);
+
+        return num_to_str<boost::uuids::uuid>(gen(time.c_str()));
+    }
 
     visualization_msgs::Marker createMarker(
             int id,
@@ -165,14 +176,23 @@ private:
         return human;
     }
 
+    template<typename T>
+    inline std::string num_to_str(T num) {
+        std::stringstream ss;
+        ss << num;
+        return ss.str();
+    }
+
     ros::Publisher pub_detect;
     ros::Publisher pub_pose;
     ros::Publisher pub_marker;
-    ros::Publisher test_marker;
     tf::TransformListener* listener;
     std::string target_frame;
     unsigned long detect_seq;
     unsigned long marker_seq;
+    double startup_time;
+    std::string startup_time_str;
+
     SimpleTracking *st;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
 };

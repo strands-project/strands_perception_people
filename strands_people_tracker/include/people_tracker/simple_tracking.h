@@ -92,9 +92,9 @@ public:
         detectors[name] = det;
     }
 
-    std::vector<geometry_msgs::Point> track() {
+    std::map<long, geometry_msgs::Point> track() {
         boost::mutex::scoped_lock lock(mutex);
-        std::vector<geometry_msgs::Point> result;
+        std::map<long, geometry_msgs::Point> result;
         dt = getTime() - time;
         time += dt;
 
@@ -119,7 +119,7 @@ public:
             geometry_msgs::Point point;
             point.x = mtrk[i].filter->x[0];
             point.y = mtrk[i].filter->x[2];
-            result.push_back(point);
+            result[mtrk[i].id] = point;
         }
         return result;
     }
