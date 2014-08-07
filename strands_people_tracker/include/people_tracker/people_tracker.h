@@ -63,7 +63,7 @@ private:
         marker.header.frame_id = target_frame;
         marker.header.stamp = ros::Time::now();
         marker.header.seq = ++marker_seq;
-        marker.ns = "pedestrian_localisation";
+        marker.ns = "people_tracker";
         marker.id = id;
         marker.type = type;
         marker.action = action;
