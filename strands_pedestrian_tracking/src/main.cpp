@@ -650,7 +650,7 @@ void callbackWithHOG(const ImageConstPtr &color,
     pub_message.publish(allHypoMsg);
     cnt++;
 
-    if(pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers()){
+    if(strcmp(target_frame.c_str(), "") && (pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers())){
         geometry_msgs::PoseArray p = transform(allHypoMsg);
         if(pub_pose.getNumSubscribers())
             pub_pose.publish(p);

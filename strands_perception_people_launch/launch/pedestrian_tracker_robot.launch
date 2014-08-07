@@ -15,13 +15,16 @@
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
+    <arg name="upper_body_markers" default="/upper_body_detector/marker_array" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
+    <arg name="pedestrian_markers" default="/pedestrian_tracking/marker_array" />
+    <arg name="pedestrian_poses" default="/pedestrian_tracking/pose_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
     <arg name="tf_target_frame" default="/map" />
     <arg name="pd_positions" default="/people_tracker/positions" />
-    <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
+    <arg name="pd_marker" default="/people_tracker/marker_array" />
     <arg name="log" default="false" />
 
     <arg name="machine" default="localhost" />
@@ -65,6 +68,7 @@
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)"/>
+        <arg name="upper_body_markers" value="$(arg upper_body_markers)"/>
         <arg name="upper_body_image" value="$(arg upper_body_image)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
@@ -81,6 +85,9 @@
         <arg name="visual_odometry" value="$(arg visual_odometry)"/>
         <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
         <arg name="pedestrian_image" value="$(arg pedestrian_image)"/>
+        <arg name="pedestrian_markers" value="$(arg pedestrian_markers)"/>
+        <arg name="pedestrian_poses" value="$(arg pedestrian_poses)"/>
+        <arg name="target_frame" value="$(arg tf_target_frame)"/>
     </include>
 
     <!-- People Tracker -->

@@ -15,14 +15,15 @@
     <arg name="ground_hog_detections" default="/groundHOG/detections" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
+    <arg name="upper_body_markers" default="/upper_body_detector/marker_array" />
     <arg name="ground_hog_image" default="/groundHOG/image" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
-    <arg name="tf_target_frame" default="/base_link" />
-    <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
-    <arg name="pd_marker" default="/pedestrian_localisation/marker_array" />
+    <arg name="pedestrian_markers" default="/pedestrian_tracking/marker_array" />
+    <arg name="pedestrian_poses" default="/pedestrian_tracking/pose_array" />
+    <arg name="tf_target_frame" default="" />
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -71,6 +72,7 @@
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)"/>
         <arg name="upper_body_image" value="$(arg upper_body_image)"/>
+        <arg name="upper_body_markers" value="$(arg upper_body_markers)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
 
@@ -87,17 +89,9 @@
         <arg name="visual_odometry" value="$(arg visual_odometry)"/>
         <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
         <arg name="pedestrian_image" value="$(arg pedestrian_image)"/>
-    </include>
-
-    <!-- Pedestrian Localisation -->
-    <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch">
-        <arg name="machine" value="$(arg machine)"/>
-        <arg name="user" value="$(arg user)"/>
+        <arg name="pedestrian_markers" value="$(arg pedestrian_markers)"/>
+        <arg name="pedestrian_poses" value="$(arg pedestrian_poses)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
-        <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
-        <arg name="localisations" value="$(arg pd_localisations)"/>
-        <arg name="marker" value="$(arg pd_marker)"/>
     </include>
-
 
 </launch> 
