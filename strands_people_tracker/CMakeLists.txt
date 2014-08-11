@@ -5,6 +5,7 @@ project(strands_people_tracker)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+    bayestracking
     geometry_msgs
     roscpp
     std_msgs
@@ -56,7 +57,7 @@ find_package(Bayestracking REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES strands_pedestrian_localisation
-  CATKIN_DEPENDS geometry_msgs roscpp strands_perception_people_msgs tf
+  CATKIN_DEPENDS bayestracking geometry_msgs roscpp strands_perception_people_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -69,7 +70,6 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${BAYESTRACKING_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -89,7 +89,6 @@ add_dependencies(strands_people_tracker ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(strands_people_tracker
   ${catkin_LIBRARIES}
-  ${BAYESTRACKING_LIBRARIES}
 )
 
 #############
