@@ -4,7 +4,7 @@
 
     <arg name="target_frame" default="/base_link" />
     <arg name="positions" default="/people_tracker/positions" />
-    <arg name="marker" default="/pedestrian_localisation/marker_array" />
+    <arg name="marker" default="/people_tracker/marker_array" />
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 

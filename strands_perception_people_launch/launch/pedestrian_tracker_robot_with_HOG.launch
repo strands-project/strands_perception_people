@@ -26,7 +26,7 @@
     <arg name="pedestrian_poses" default="/pedestrian_tracking/pose_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
     <arg name="tf_target_frame" default="/map" />
-    <arg name="pd_localisations" default="/pedestrian_localisation/localisations" />
+    <arg name="pd_positions" default="/people_tracker/positions" />
     <arg name="pd_marker" default="/people_tracker/marker_array" />
     <arg name="log" default="false" />
 
@@ -107,13 +107,12 @@
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
     </include>
 
-    <!-- Pedestrian Localisation -->
-    <include file="$(find strands_pedestrian_localisation)/launch/pedestrian_localisation.launch">
+    <!-- People Tracker -->
+    <include file="$(find strands_people_tracker)/launch/people_tracker.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
-        <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
-        <arg name="localisations" value="$(arg pd_localisations)"/>
+        <arg name="positions" value="$(arg pd_positions)"/>
         <arg name="marker" value="$(arg pd_marker)"/>
     </include>
 
