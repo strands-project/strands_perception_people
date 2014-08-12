@@ -10,7 +10,7 @@ strands_people_tracker:
                     x: 1.2
                     y: 1.2
             matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, JPDA = Joint Probability Data Association, NNJPDA = NN + JPDA
-        leg_detector:                                   # Name of detector (used internally to identify them. Has to be unique.
+        leg_detector:                                          # Name of detector (used internally to identify them. Has to be unique.
             topic: "/to_pose_array/leg_detector" # The topic on which the geometry_msgs/PoseArray is published
             noise_model:
                 velocity:                                      # The std deviation for the constanc velocity model

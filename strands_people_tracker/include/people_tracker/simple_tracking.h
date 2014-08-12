@@ -30,6 +30,7 @@
 #include <cstdio>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/optional.hpp>
 
 using namespace std;
 using namespace MTRK;
@@ -64,10 +65,10 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq) {
     x[2] = obsvSeq.back().vec[1];
     x[3] = v[1];
     X.clear();
-    X(0,0) = sqr(0.5);
-    X(1,1) = sqr(1.5);
-    X(2,2) = sqr(0.5);
-    X(3,3) = sqr(1.5);
+    X(0,0) = sqr(0.2);
+    X(1,1) = sqr(1.0);
+    X(2,2) = sqr(0.2);
+    X(3,3) = sqr(1.0);
 
     filter = new FilterType(4);
     filter->init(x, X);
@@ -92,11 +93,12 @@ public:
         detectors[name] = det;
     }
 
-    std::map<long, geometry_msgs::Point> track() {
+    std::map<long, geometry_msgs::Point> track(double* track_time = NULL) {
         boost::mutex::scoped_lock lock(mutex);
         std::map<long, geometry_msgs::Point> result;
         dt = getTime() - time;
         time += dt;
+        if(track_time) *track_time = time;
 
         for(std::map<std::string, detector_model>::const_iterator it = detectors.begin();
             it != detectors.end();
@@ -110,9 +112,9 @@ public:
         }
 
         for (int i = 0; i < mtrk.size(); i++) {
-            ROS_INFO("trk_%ld", mtrk[i].id);
-            ROS_INFO("Position: (%f, %f), Orientation: %f, Std Deviation: %f",
-                     mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
+            ROS_DEBUG("trk_%ld: Position: (%f, %f), Orientation: %f, Std Deviation: %f",
+                    mtrk[i].id,
+                    mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
                     atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]), //orientation
                     sqrt(mtrk[i].filter->X(0,0)), sqrt(mtrk[i].filter->X(2,2))//std dev
                     );
@@ -126,7 +128,7 @@ public:
 
     void addObservation(std::string detector_name, std::vector<geometry_msgs::Point> obsv, double obsv_time) {
         boost::mutex::scoped_lock lock(mutex);
-        ROS_INFO("Adding new observations for detector: %s", detector_name.c_str());
+        ROS_DEBUG("Adding new observations for detector: %s", detector_name.c_str());
         // add last observation/s to tracker
         detector_model det;
         try {
@@ -136,7 +138,7 @@ public:
             return;
         }
 
-        dt = getTime() - obsv_time;
+        dt = getTime() - time;
         time += dt;
 
         // prediction
