@@ -178,11 +178,7 @@ visualization_msgs::MarkerArray createVisualisation(geometry_msgs::PoseArray pos
 void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     // Check if calculation is necessary
-    bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0 || pub_closest.getNumSubscribers() > 0;
-    bool vis = pub_result_image.getNumSubscribers() > 0;
-
-    if(!detect && !vis)
-        return;
+    bool vis = pub_result_image.getNumSubscribers() > 0 || pub_markers.getNumSubscribers() > 0;
 
     // Get depth image as matrix
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
