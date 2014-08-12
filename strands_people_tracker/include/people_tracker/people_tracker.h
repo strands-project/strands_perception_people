@@ -42,7 +42,8 @@ private:
     void trackingThread();
     void publishDetections(strands_perception_people_msgs::PeopleTracker msg);
     void publishDetections(geometry_msgs::PoseStamped msg);
-    void publishDetections(geometry_msgs::Point closest,
+    void publishDetections(double time_sec,
+                           geometry_msgs::Point closest,
                            std::vector<geometry_msgs::Point> ppl,
                            std::vector<std::string> uuids,
                            std::vector<double> distances,
@@ -55,10 +56,9 @@ private:
     void connectCallback(ros::NodeHandle &n);
     void parseParams(ros::NodeHandle);
 
-    inline std::string generateUUID(std::string time, int id) {
-        boost::uuids::uuid dns_namespace_uuid;
+    std::string generateUUID(std::string time, long id) {
         boost::uuids::name_generator gen(dns_namespace_uuid);
-        time += num_to_str<int>(id);
+        time += num_to_str<long>(id);
 
         return num_to_str<boost::uuids::uuid>(gen(time.c_str()));
     }
@@ -177,7 +177,7 @@ private:
     }
 
     template<typename T>
-    inline std::string num_to_str(T num) {
+    std::string num_to_str(T num) {
         std::stringstream ss;
         ss << num;
         return ss.str();
@@ -192,6 +192,8 @@ private:
     unsigned long marker_seq;
     double startup_time;
     std::string startup_time_str;
+
+    boost::uuids::uuid dns_namespace_uuid;
 
     SimpleTracking *st;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
