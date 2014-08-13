@@ -17,7 +17,7 @@
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 
 // For the db
-#include "ros_datacentre/message_store.h"
+#include "mongodb_store/message_store.h"
 
 // For the service
 #include "strands_perception_people_msgs/StartHeadAnalysis.h"
@@ -29,7 +29,7 @@ using namespace strands_perception_people_msgs;
 
 // WHY CAN'T I HOLD ALL THESE GLOBALS?
 bool g_running = false;
-ros_datacentre::MessageStoreProxy* g_messageStore = 0;
+mongodb_store::MessageStoreProxy* g_messageStore = 0;
 
 // Safety-counters.
 unsigned long g_nStoredDetections = 0;
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
     ROS_INFO("Planning for a runtime of %ds (%.2f days) => p(Big) = %g", g_expectedRuntime, g_expectedRuntime/60./60./24., g_pWholeImage);
 
     // we will store our results in a separate collection.
-    g_messageStore = new ros_datacentre::MessageStoreProxy(nh_, "heads");
+    g_messageStore = new mongodb_store::MessageStoreProxy(nh_, "heads");
 
     // Image transport is optimized for, well, pub/sub images.
     image_transport::ImageTransport it(nh_);
