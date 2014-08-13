@@ -12,9 +12,9 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     std_msgs
     strands_perception_people_msgs
-    ros_datacentre_cpp_client
-    ros_datacentre_msgs
-    ros_datacentre
+    mongodb_store_cpp_client
+    mongodb_store_msgs
+    mongodb_store
     opencv_warco
 )
 
@@ -94,7 +94,7 @@ add_executable(status src/status.cpp)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(strands_head_orientation strands_perception_people_msgs_generate_messages_cpp)
-add_dependencies(store_detections strands_perception_people_msgs_generate_messages_cpp ros_datacentre_generate_messages_cpp)
+add_dependencies(store_detections strands_perception_people_msgs_generate_messages_cpp mongodb_store_generate_messages_cpp)
 add_dependencies(start strands_perception_people_msgs_generate_messages_cpp)
 add_dependencies(stop strands_perception_people_msgs_generate_messages_cpp)
 add_dependencies(status strands_perception_people_msgs_generate_messages_cpp)
