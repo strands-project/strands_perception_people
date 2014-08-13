@@ -13,7 +13,11 @@
 #include <sensor_msgs/CameraInfo.h>
 
 #include <string.h>
+#include <sstream>
 #include <boost/thread.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -54,9 +58,18 @@ Vector< Hypo > HyposAll;
 Detections *det_comb;
 Tracker tracker;
 int cnt = 0;
+double startup_time = 0.0;
+std::string startup_time_str = "";
 
 //CImgDisplay* main_disp;
 CImg<unsigned char> cim(640,480,1,3);
+
+template<typename T>
+std::string num_to_str(T num) {
+    std::stringstream ss;
+    ss << num;
+    return ss.str();
+}
 
 Vector<double> fromCam2World(Vector<double> posInCamera, Camera cam)
 {
@@ -355,6 +368,14 @@ Camera createCamera(Vector<double>& GP,
     return Camera(K, R, t, GP_world);
 }
 
+std::string generateUUID(std::string time, int id) {
+    boost::uuids::uuid dns_namespace_uuid;
+    boost::uuids::name_generator gen(dns_namespace_uuid);
+    time += num_to_str<int>(id);
+
+    return num_to_str<boost::uuids::uuid>(gen(time.c_str()));
+}
+
 void callbackWithoutHOG(const ImageConstPtr &color,
               const CameraInfoConstPtr &info,
               const GroundPlane::ConstPtr &gp,
@@ -418,6 +439,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         }
 
         oneHypoMsg.id = hyposMDL(i).getHypoID();
+        oneHypoMsg.uuid = generateUUID(startup_time_str, oneHypoMsg.id);
         oneHypoMsg.score = hyposMDL(i).getScoreMDL();
         oneHypoMsg.speed = hyposMDL(i).getSpeed();
         hyposMDL(i).getDir(dir);
@@ -530,6 +552,7 @@ void callbackWithHOG(const ImageConstPtr &color,
         }
 
         oneHypoMsg.id = hyposMDL(i).getHypoID();
+        oneHypoMsg.uuid = generateUUID(startup_time_str, oneHypoMsg.id);
         oneHypoMsg.score = hyposMDL(i).getScoreMDL();
         oneHypoMsg.speed = hyposMDL(i).getSpeed();
         hyposMDL(i).getDir(dir);
@@ -596,6 +619,9 @@ int main(int argc, char **argv)
     // Set up ROS.
     ros::init(argc, argv, "pedestrian_tracking");
     ros::NodeHandle n;
+
+    startup_time = ros::Time::now().toSec();
+    startup_time_str = num_to_str<double>(startup_time);
 
     // Declare variables that can be modified by launch file or command line.
     int queue_size;

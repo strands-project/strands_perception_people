@@ -11,7 +11,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
-    <node pkg="strands_ground_plane" type="ground_plane_estimated" name="ground_plane" output="screen">
+    <node pkg="strands_ground_plane" type="ground_plane_estimated" name="ground_plane" output="log">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>

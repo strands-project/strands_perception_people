@@ -13,7 +13,7 @@
 
     <env name="LD_LIBRARY_PATH" value="$(env LD_LIBRARY_PATH)"/>
 
-    <node pkg="strands_ground_hog" type="groundHOG" name="ground_hog" output="screen">
+    <node pkg="strands_ground_hog" type="groundHOG" name="ground_hog" output="log">
         <param name="ground_plane" value="" type="string"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="detections" value="$(arg detections)" type="string"/>

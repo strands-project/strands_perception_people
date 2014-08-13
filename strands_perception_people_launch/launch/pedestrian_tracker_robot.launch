@@ -93,7 +93,6 @@
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="log" value="$(arg log)"/>
-        <arg name="target_frame" value="$(arg tf_target_frame)"/>
     </include>
 
 </launch> 

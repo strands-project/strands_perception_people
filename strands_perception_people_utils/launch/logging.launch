@@ -2,12 +2,10 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
     <arg name="log" default="true" />
-    <arg name="target_frame" default="/base_link" />
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
     
-    <node pkg="strands_perception_people_utils" type="save_locations.py" name="save_people_locations" output="screen" if="$(arg log)">
-        <param name="target_frame" value="$(arg target_frame)" type="string"/>
+    <node pkg="strands_perception_people_utils" type="save_locations.py" name="save_people_locations" output="log" if="$(arg log)">
     </node>
 
 </launch> 
