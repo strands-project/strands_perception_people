@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nav_msgs
   roscpp
-  ros_datacentre
+  mongodb_store
   sensor_msgs
   std_msgs
   strands_perception_people_msgs
