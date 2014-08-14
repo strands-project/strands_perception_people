@@ -28,7 +28,7 @@ add_message_files(
   GroundPlane.msg
   PedestrianTracking.msg
   PedestrianTrackingArray.msg
-  PedestrianLocations.msg
+  PeopleTracker.msg
   HeadOrientations.msg
   Logging.msg
 )

@@ -1,10 +1,8 @@
 std_msgs/Header header
-int64[] ids                                # Tracker ids
 string[] uuids                             # Unique uuid5 (NAMESPACE_DNS) person id as string. Id is based on system time on start-up and tracker id. Array index matches ids array index
 geometry_msgs/Pose[] people                # The real world poses of the detected people in the given target frame. Default: /map. Array index matches ids/uuids array index
 geometry_msgs/Pose robot                   # The last received robot pose
-float64[] scores                           # The confidence score of the tracker. Array index matches ids/uuids array index.
-PedestrianLocations pedestrian_locations # Output of the pedestrian localisation
+PeopleTracker people_tracker               # Output of the people_tracker
 PedestrianTracking[] pedestrian_tracking   # Output of the pedestrian tracker
 UpperBodyDetector upper_body_detections    # Ouput of the upper body detector
 geometry_msgs/Transform target_frame       # The transformation used to optain real world coordinates of detections. Default /map
