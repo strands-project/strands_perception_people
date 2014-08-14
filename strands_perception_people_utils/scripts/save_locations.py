@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from ros_datacentre.message_store import MessageStoreProxy
+from mongodb_store.message_store import MessageStoreProxy
 import strands_perception_people_msgs.msg
 import geometry_msgs.msg
 import message_filters
