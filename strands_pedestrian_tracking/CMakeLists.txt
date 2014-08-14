@@ -4,7 +4,7 @@ project(strands_pedestrian_tracking)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp sensor_msgs std_msgs strands_perception_people_msgs image_transport)
+find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp sensor_msgs geometry_msgs visualization_msgs tf std_msgs strands_perception_people_msgs image_transport)
 
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
 include(${QT_USE_FILE})

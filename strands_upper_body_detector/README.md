@@ -1,5 +1,5 @@
 ## Upper Body Detector
-This package detects the upper bodies of persons using depth and colour images.
+This package detects the upper bodies of persons using the depth image.
 
 ### Run
 Parameters:
@@ -11,6 +11,7 @@ Parameters:
 * `upper_body_detections` _default = /upper_body_detector/detections_: The deteced upper bodies
 * `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
 * `upper_body_image` _default = /upper_body_detector/image_: The resulting image showing the detections as a boundingbox
+* `upper_body_markers default = /upper_body_detector/marker_array_: A visualisation array for rviz
 
 
 rosrun:

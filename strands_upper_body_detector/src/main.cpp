@@ -27,6 +27,7 @@
 #include "detector.h"
 #include "Globals.h"
 #include "ConfigFile.h"
+#include "VisualisationMarkers.h"
 
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
@@ -39,8 +40,10 @@ using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
-ros::Publisher pub_message, pub_centres, pub_closest;
+ros::Publisher pub_message, pub_centres, pub_closest, pub_markers;
 image_transport::Publisher pub_result_image;
+
+VisualisationMarkers* vm;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -162,14 +165,20 @@ void ReadUpperBodyTemplate(string template_path)
     }
 }
 
-void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
+visualization_msgs::MarkerArray createVisualisation(geometry_msgs::PoseArray poses, std::string target_frame) {
+    ROS_DEBUG("Creating markers");
+    visualization_msgs::MarkerArray marker_array;
+    for(int i = 0; i < poses.poses.size(); i++) {
+        geometry_msgs::Pose p = poses.poses[i];
+        marker_array.markers.push_back(vm->createMarker(target_frame, p));
+    }
+    return marker_array;
+}
+
+void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     // Check if calculation is necessary
-    bool detect = pub_message.getNumSubscribers() > 0 || pub_centres.getNumSubscribers() > 0 || pub_closest.getNumSubscribers() > 0;
-    bool vis = pub_result_image.getNumSubscribers() > 0;
-
-    if(!detect && !vis)
-        return;
+    bool vis = pub_result_image.getNumSubscribers() > 0 || pub_markers.getNumSubscribers() > 0;
 
     // Get depth image as matrix
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
@@ -256,6 +265,9 @@ void callback(const ImageConstPtr &depth,  const ImageConstPtr &color,const Grou
     pub_message.publish(detection_msg);
     pub_centres.publish(bb_centres);
     if(found) pub_closest.publish(closest);
+
+    if(pub_markers.getNumSubscribers())
+        pub_markers.publish(createVisualisation(bb_centres, bb_centres.header.frame_id));
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
@@ -264,7 +276,11 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      image_transport::SubscriberFilter &sub_col,
                      image_transport::SubscriberFilter &sub_dep,
                      image_transport::ImageTransport &it){
-    if(!pub_message.getNumSubscribers() && !pub_result_image.getNumSubscribers() && !pub_centres.getNumSubscribers()) {
+    if(!pub_message.getNumSubscribers()
+            && !pub_result_image.getNumSubscribers()
+            && !pub_centres.getNumSubscribers()
+            && !pub_closest.getNumSubscribers()
+            && !pub_markers.getNumSubscribers()) {
         ROS_DEBUG("Upper Body Detector: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
@@ -286,6 +302,8 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "upper_body_detector");
     ros::NodeHandle n;
 
+    vm = new VisualisationMarkers();
+
     // Declare variables that can be modified by launch file or command line.
     int queue_size;
     string cam_ns;
@@ -297,6 +315,7 @@ int main(int argc, char **argv)
     string pub_topic_closest;
     string pub_topic_ubd;
     string pub_topic_result_image;
+    string pub_markers_topic;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
@@ -383,6 +402,9 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("upper_body_closest_bb_centres", pub_topic_closest, string("/upper_body_detector/closest_bounding_box_centre"));
     pub_closest = n.advertise<geometry_msgs::PoseStamped>(pub_topic_closest.c_str(), 10, con_cb, con_cb);
+
+    private_node_handle_.param("upper_body_markers", pub_markers_topic, string("/upper_body_detector/marker_array"));
+    pub_markers = n.advertise<visualization_msgs::MarkerArray>(pub_markers_topic.c_str(), 10, con_cb, con_cb);
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = it.advertise(pub_topic_result_image.c_str(), 1, image_cb, image_cb);

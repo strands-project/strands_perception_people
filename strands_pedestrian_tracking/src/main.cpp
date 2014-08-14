@@ -4,6 +4,9 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/PoseArray.h>
+#include <tf/transform_listener.h>
 
 #include <QImage>
 #include <QPainter>
@@ -33,6 +36,7 @@
 #include "Detections.h"
 #include "AncillaryMethods.h"
 #include "Tracker.h"
+#include "VisualisationMarkers.h"
 
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
 #include "strands_perception_people_msgs/GroundPlane.h"
@@ -47,8 +51,11 @@ using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_perception_people_msgs;
 
-ros::Publisher pub_message;
+ros::Publisher pub_message, pub_markers, pub_pose;
 image_transport::Publisher pub_image;
+
+tf::TransformListener* listener;
+VisualisationMarkers* vm;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
@@ -60,7 +67,7 @@ Detections *det_comb;
 Tracker tracker;
 int cnt = 0;
 double startup_time = 0.0;
-std::string startup_time_str = "";
+std::string startup_time_str = "", target_frame;
 
 //CImgDisplay* main_disp;
 CImg<unsigned char> cim(640,480,1,3);
@@ -379,11 +386,60 @@ std::string generateUUID(std::string time, int id) {
     return num_to_str<boost::uuids::uuid>(gen(time.c_str()));
 }
 
+visualization_msgs::MarkerArray createVisualisation(geometry_msgs::PoseArray poses, std::string target_frame) {
+    ROS_DEBUG("Creating markers");
+    visualization_msgs::MarkerArray marker_array;
+    for(int i = 0; i < poses.poses.size(); i++) {
+        geometry_msgs::Pose pose = poses.poses[i];
+        pose.position.z = 0.6;
+        std::vector<visualization_msgs::Marker> human = vm->createHuman(i*10, target_frame, pose);
+        marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
+    }
+    return marker_array;
+}
+
+geometry_msgs::PoseArray transform(PedestrianTrackingArray pta) {
+    geometry_msgs::PoseArray result;
+    for(int i = 0; i < pta.pedestrians.size(); i++) {
+        PedestrianTracking pt = pta.pedestrians[i];
+
+        //Create stamped pose for tf
+        geometry_msgs::PoseStamped poseInCamCoords;
+        geometry_msgs::PoseStamped poseInTargetCoords;
+        poseInCamCoords.header = pta.header;
+        poseInCamCoords.pose.position.x = pt.traj_x_camera[0];
+        poseInCamCoords.pose.position.y = pt.traj_y_camera[0];
+        poseInCamCoords.pose.position.z = pt.traj_z_camera[0];
+
+        //Counteracting rotation in tf because it is already done in the pedestrian tracking.
+        poseInCamCoords.pose.orientation.x = -0.5;
+        poseInCamCoords.pose.orientation.y =  0.5;
+        poseInCamCoords.pose.orientation.z =  0.5;
+        poseInCamCoords.pose.orientation.w =  0.5;
+
+        //Transform
+        try {
+            // Transform into given traget frame. Default /map
+            ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
+            listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+            listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
+        }
+        catch(tf::TransformException ex) {
+            ROS_WARN("Failed transform: %s", ex.what());
+            return geometry_msgs::PoseArray();
+        }
+        result.poses.push_back(poseInTargetCoords.pose);
+        if(result.header.seq == 0)
+            result.header = poseInTargetCoords.header;
+    }
+    return result;
+}
+
 void callbackWithoutHOG(const ImageConstPtr &color,
-              const CameraInfoConstPtr &info,
-              const GroundPlane::ConstPtr &gp,
-              const UpperBodyDetector::ConstPtr &upper,
-              const VisualOdometry::ConstPtr &vo)
+                        const CameraInfoConstPtr &info,
+                        const GroundPlane::ConstPtr &gp,
+                        const UpperBodyDetector::ConstPtr &upper,
+                        const VisualOdometry::ConstPtr &vo)
 {
     ROS_DEBUG("Entered callback without groundHOG data");
     Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
@@ -434,7 +490,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
             oneHypoMsg.traj_y.push_back(trajPts(j)(1));
             oneHypoMsg.traj_z.push_back(trajPts(j)(2));
             
-             Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(j), camera);
+            Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(j), camera);
             
             oneHypoMsg.traj_x_camera.push_back(posInCamera(0));
             oneHypoMsg.traj_y_camera.push_back(posInCamera(1));
@@ -472,14 +528,22 @@ void callbackWithoutHOG(const ImageConstPtr &color,
 
     pub_message.publish(allHypoMsg);
     cnt++;
+
+    if(pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers()){
+        geometry_msgs::PoseArray p = transform(allHypoMsg);
+        if(pub_pose.getNumSubscribers())
+            pub_pose.publish(p);
+        if(pub_markers.getNumSubscribers())
+            pub_markers.publish(createVisualisation(p, target_frame));
+    }
 }
 
 void callbackWithHOG(const ImageConstPtr &color,
-              const CameraInfoConstPtr &info,
-              const GroundPlane::ConstPtr &gp,
-              const GroundHOGDetections::ConstPtr& groundHOGDet,
-              const UpperBodyDetector::ConstPtr &upper,
-              const VisualOdometry::ConstPtr &vo)
+                     const CameraInfoConstPtr &info,
+                     const GroundPlane::ConstPtr &gp,
+                     const GroundHOGDetections::ConstPtr& groundHOGDet,
+                     const UpperBodyDetector::ConstPtr &upper,
+                     const VisualOdometry::ConstPtr &vo)
 {
     ROS_DEBUG("Entered callback with groundHOG data");
     Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
@@ -585,6 +649,14 @@ void callbackWithHOG(const ImageConstPtr &color,
 
     pub_message.publish(allHypoMsg);
     cnt++;
+
+    if(strcmp(target_frame.c_str(), "") && (pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers())){
+        geometry_msgs::PoseArray p = transform(allHypoMsg);
+        if(pub_pose.getNumSubscribers())
+            pub_pose.publish(p);
+        if(pub_markers.getNumSubscribers())
+            pub_markers.publish(createVisualisation(p, target_frame));
+    }
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
@@ -595,7 +667,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      message_filters::Subscriber<VisualOdometry> &sub_vo,
                      image_transport::SubscriberFilter &sub_col,
                      image_transport::ImageTransport &it){
-    if(!pub_message.getNumSubscribers() && !pub_image.getNumSubscribers()) {
+    if(!pub_message.getNumSubscribers() && !pub_image.getNumSubscribers() && !pub_markers.getNumSubscribers() && !pub_pose.getNumSubscribers()) {
         ROS_DEBUG("Tracker: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
@@ -623,6 +695,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "pedestrian_tracking");
     ros::NodeHandle n;
 
+    listener = new tf::TransformListener();
+    vm = new VisualisationMarkers();
+
     startup_time = ros::Time::now().toSec();
     startup_time_str = num_to_str<double>(startup_time);
 
@@ -637,6 +712,8 @@ int main(int argc, char **argv)
 
     string pub_topic;
     string pub_image_topic;
+    string pub_marker_topic;
+    string pub_pose_topic;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
@@ -644,6 +721,7 @@ int main(int argc, char **argv)
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(10));
     private_node_handle_.param("config_file", config_file, string(""));
+    private_node_handle_.param("target_frame", target_frame, string("/map"));
 
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
@@ -662,6 +740,8 @@ int main(int argc, char **argv)
 
     ReadConfigFile(config_file);
     det_comb = new Detections(23, 0);
+
+
 
     ROS_DEBUG("pedestrian_tracker: Queue size for synchronisation is set to: %i", queue_size);
 
@@ -710,7 +790,7 @@ int main(int argc, char **argv)
     Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
             GroundHOGDetections, UpperBodyDetector, VisualOdometry> >
             syncHOG(MyConstSyncPolicyHOG, subscriber_color, subscriber_camera_info, subscriber_gp,
-                 subscriber_groundHOG, subscriber_upperbody, subscriber_vo);
+                    subscriber_groundHOG, subscriber_upperbody, subscriber_vo);
     if(strcmp(topic_groundHOG.c_str(),"") != 0)
         syncHOG.registerCallback(boost::bind(&callbackWithHOG, _1, _2, _3, _4, _5, _6));
     ///////////////////////////////////////////////////////////////////////////////////
@@ -736,6 +816,12 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
     pub_image = it.advertise(pub_image_topic.c_str(), 1, image_cb, image_cb);
+
+    private_node_handle_.param("pedestrian_markers", pub_marker_topic, string("/pedestrian_tracking/marker_array"));
+    pub_markers = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
+
+    private_node_handle_.param("pedestrian_poses", pub_pose_topic, string("/pedestrian_tracking/pose_array"));
+    pub_pose = n.advertise<geometry_msgs::PoseArray>(pub_pose_topic.c_str(), 10, con_cb, con_cb);
 
     ros::spin();
     return 0;

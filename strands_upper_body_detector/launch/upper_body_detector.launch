@@ -6,6 +6,7 @@
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
+    <arg name="upper_body_markers" default="/upper_body_detector/marker_array" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -20,6 +21,7 @@
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
         <param name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)" type="string"/>
         <param name="upper_body_image" value="$(arg upper_body_image)" type="string"/>
+        <param name="upper_body_markers" value="$(arg upper_body_markers)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
     </node>
 

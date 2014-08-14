@@ -7,6 +7,9 @@
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
     <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
+    <arg name="pedestrian_markers" default="/pedestrian_tracking/marker_array" />
+    <arg name="pedestrian_poses" default="/pedestrian_tracking/pose_array" />
+    <arg name="target_frame" default="/map" />
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
@@ -23,6 +26,9 @@
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
         <param name="pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
         <param name="pedestrian_image" value="$(arg pedestrian_image)" type="string"/>
+        <param name="pedestrian_markers" value="$(arg pedestrian_markers)" type="string"/>
+        <param name="pedestrian_poses" value="$(arg pedestrian_poses)" type="string"/>
+        <param name="target_frame" value="$(arg target_frame)" type="string"/>
     </node>
 
 </launch> 
