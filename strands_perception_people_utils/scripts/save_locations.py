@@ -93,7 +93,7 @@ class SaveLocations():
         insert.uuids = pl.uuids
         insert.people = pl.poses
         insert.robot = self.robot_pose
-        insert.pedestrian_locations = pl
+        insert.people_tracker = pl
         insert.pedestrian_tracking = pt.pedestrians
         insert.upper_body_detections = up
         insert.target_frame = self.transform(
