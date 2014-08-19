@@ -25,6 +25,7 @@
     <arg name="tf_target_frame" default="/map" />
     <arg name="pd_positions" default="/people_tracker/positions" />
     <arg name="pd_marker" default="/people_tracker/marker_array" />
+    <arg name="scan" default="/scan" />
     <arg name="log" default="false" />
 
     <arg name="machine" default="localhost" />
@@ -32,22 +33,22 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
     
-    <!-- Visual Odometry -->
+    <!-- Visual Odometry 
     <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg vo_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
-    </include> 
+    </include> -->
 
-    <!-- Odometry
+    <!-- Odometry -->
     <include file="$(find strands_perception_people_utils)/launch/odom2visual.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="odom" value="$(arg odom)"/>
         <arg name="motion_parameters" value="$(arg visual_odometry)"/>
-    </include> -->
+    </include>
 
     <!-- Ground Plane - fixed -->
     <include file="$(find strands_ground_plane)/launch/ground_plane_fixed.launch">
@@ -99,6 +100,19 @@
         <arg name="marker" value="$(arg pd_marker)"/>
     </include>
 
+    <!-- To PoseArray -->
+    <include file="$(find strands_perception_people_utils)/launch/to_pose_array.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
+    </include>
+    
+    <!-- Leg Detector -->
+    <include file="$(find leg_detector)/launch/leg_detector.launch">
+        <arg name="machine" value="$(arg machine)"/>
+        <arg name="user" value="$(arg user)"/>
+        <arg name="scan" value="$(arg scan)"/>
+    </include>
+    
     <!-- Logging -->
     <include file="$(find strands_perception_people_utils)/launch/logging.launch">
         <arg name="machine" value="$(arg machine)"/>
