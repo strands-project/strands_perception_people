@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_pedestrian_localisation)
+project(strands_people_tracker)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS 
-    geometry_msgs 
+find_package(catkin REQUIRED COMPONENTS
+    bayestracking
+    geometry_msgs
     roscpp
     std_msgs
     strands_perception_people_msgs
@@ -14,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 ## System dependencies are found with CMake's conventions
-
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -56,7 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES strands_pedestrian_localisation
-  CATKIN_DEPENDS geometry_msgs roscpp strands_perception_people_msgs tf
+  CATKIN_DEPENDS bayestracking geometry_msgs roscpp strands_perception_people_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -67,8 +67,8 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
+  include
+  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
@@ -77,16 +77,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(pedestrian_localisation 
-    src/pedestrian_localisation/pedestrianlocalisation.cpp
+add_executable(strands_people_tracker
+  src/people_tracker/people_tracker.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(pedestrian_localisation ${catkin_EXPORTED_TARGETS})
+add_dependencies(strands_people_tracker ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(pedestrian_localisation
+target_link_libraries(strands_people_tracker
   ${catkin_LIBRARIES}
 )
 

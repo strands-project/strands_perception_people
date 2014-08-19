@@ -5,6 +5,7 @@ from mongodb_store.message_store import MessageStoreProxy
 import strands_perception_people_msgs.msg
 import geometry_msgs.msg
 import message_filters
+from camera_calibration.approxsync import ApproximateSynchronizer
 import tf
 
 
@@ -16,8 +17,8 @@ class SaveLocations():
         self.dataset_name = "locations"
         self.msg_store = MessageStoreProxy(collection="people_perception")
         locations = message_filters.Subscriber(
-            "/pedestrian_localisation/localisations",
-            strands_perception_people_msgs.msg.PedestrianLocations,
+            "/people_tracker/positions",
+            strands_perception_people_msgs.msg.PeopleTracker,
         )
         pedestrian = message_filters.Subscriber(
             "/pedestrian_tracking/pedestrian_array",
@@ -34,26 +35,33 @@ class SaveLocations():
             None,
             10
         )
-        ts = message_filters.TimeSynchronizer(
+        ts = ApproximateSynchronizer(
+            0.5,
             [locations, pedestrian, upper],
-            100
+            10
         )
         ts.registerCallback(self.people_callback)
 
-    def transform(self, source_frame, target_frame):
-        rospy.logdebug("Looking up transform: %s -> %s", source_frame, target_frame)
+    def transform(self, source_frame, target_frame, time):
+        rospy.logdebug(
+            "Looking up transform: %s -> %s",
+            source_frame,
+            target_frame
+        )
         transform = geometry_msgs.msg.Transform()
         if self.tfl.frameExists(source_frame[1:]) \
                 and self.tfl.frameExists(target_frame[1:]):
             try:
-                t = self.tfl.getLatestCommonTime(
+                self.tfl.waitForTransform(
+                    target_frame,
                     source_frame,
-                    target_frame
+                    time,
+                    rospy.Duration(0.1)
                 )
                 translation, rotation = self.tfl.lookupTransform(
                     target_frame,
                     source_frame,
-                    t
+                    time
                 )
                 transform.translation.x = translation[0]
                 transform.translation.y = translation[1]
@@ -76,22 +84,31 @@ class SaveLocations():
             return
         meta = {}
         meta["people"] = self.dataset_name
-        rospy.logdebug("Person detected. Logging to people_perception collection.")
+        rospy.logdebug(
+            "Person detected. "
+            "Logging to people_perception collection."
+        )
         insert = strands_perception_people_msgs.msg.Logging()
         insert.header = pl.header
-        insert.ids = pl.ids
         insert.uuids = pl.uuids
         insert.people = pl.poses
         insert.robot = self.robot_pose
-        insert.scores = pl.scores
-        insert.pedestrian_locations = pl
+        insert.people_tracker = pl
         insert.pedestrian_tracking = pt.pedestrians
         insert.upper_body_detections = up
-        insert.target_frame = self.transform(pt.header.frame_id, pl.header.frame_id)
+        insert.target_frame = self.transform(
+            pt.header.frame_id,
+            pl.header.frame_id,
+            pt.header.stamp
+        )
         if pl.header.frame_id == '/base_link':
             insert.base_link = insert.target_frame
         else:
-            insert.base_link = self.transform(pt.header.frame_id, '/base_link')
+            insert.base_link = self.transform(
+                pt.header.frame_id,
+                '/base_link',
+                pt.header.stamp
+            )
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):

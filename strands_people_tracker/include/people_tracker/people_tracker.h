@@ -14,6 +14,12 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/ColorRGBA.h>
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
+#include <XmlRpcValue.h>
+
 #include <string.h>
 #include <vector>
 #include <math.h>
@@ -21,29 +27,41 @@
 #include "strands_perception_people_msgs/PedestrianTracking.h"
 #include "strands_perception_people_msgs/PedestrianTrackingArray.h"
 #include "strands_perception_people_msgs/UpperBodyDetector.h"
-#include "strands_perception_people_msgs/PedestrianLocations.h"
+#include "strands_perception_people_msgs/PeopleTracker.h"
+
+#include "people_tracker/simple_tracking.h"
 
 #define BASE_LINK "/base_link"
 
-class PedestrianLocalisation
+class PeopleTracker
 {
 public:
-    PedestrianLocalisation();
+    PeopleTracker();
 
 private:
-    void publishDetections(std_msgs::Header header,
+    void trackingThread();
+    void publishDetections(strands_perception_people_msgs::PeopleTracker msg);
+    void publishDetections(geometry_msgs::PoseStamped msg);
+    void publishDetections(double time_sec,
+                           geometry_msgs::Point closest,
                            std::vector<geometry_msgs::Point> ppl,
-                           std::vector<int> ids,
                            std::vector<std::string> uuids,
-                           std::vector<double> scores,
                            std::vector<double> distances,
                            std::vector<double> angles,
                            double min_dist,
                            double angle);
-    void createVisualisation(std::vector<geometry_msgs::Point> points);
+    void createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
-    void trackingCallback(const strands_perception_people_msgs::PedestrianTrackingArray::ConstPtr &pta);
-    void connectCallback(ros::NodeHandle &n, ros::Subscriber &sub, std::string topic);
+    void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
+    void connectCallback(ros::NodeHandle &n);
+    void parseParams(ros::NodeHandle);
+
+    std::string generateUUID(std::string time, long id) {
+        boost::uuids::name_generator gen(dns_namespace_uuid);
+        time += num_to_str<long>(id);
+
+        return num_to_str<boost::uuids::uuid>(gen(time.c_str()));
+    }
 
     visualization_msgs::Marker createMarker(
             int id,
@@ -56,7 +74,7 @@ private:
         marker.header.frame_id = target_frame;
         marker.header.stamp = ros::Time::now();
         marker.header.seq = ++marker_seq;
-        marker.ns = "pedestrian_localisation";
+        marker.ns = "people_tracker";
         marker.id = id;
         marker.type = type;
         marker.action = action;
@@ -158,6 +176,13 @@ private:
         return human;
     }
 
+    template<typename T>
+    std::string num_to_str(T num) {
+        std::stringstream ss;
+        ss << num;
+        return ss.str();
+    }
+
     ros::Publisher pub_detect;
     ros::Publisher pub_pose;
     ros::Publisher pub_marker;
@@ -165,6 +190,13 @@ private:
     std::string target_frame;
     unsigned long detect_seq;
     unsigned long marker_seq;
+    double startup_time;
+    std::string startup_time_str;
+
+    boost::uuids::uuid dns_namespace_uuid;
+
+    SimpleTracking *st;
+    std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
 };
 
 #endif // PEDESTRIANLOCALISATION_H

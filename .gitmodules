@@ -1,0 +1,3 @@
+[submodule "bayestracking"]
+	path = bayestracking
+	url = https://github.com/LCAS/bayestracking.git
