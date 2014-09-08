@@ -1,7 +1,7 @@
 <launch>
-    <arg name="with_datacentre" default="false" />
+    <arg name="load_params" default="true" />
     <arg name="param_file" default="$(find strands_ground_plane)/config/fixed_gp.yaml" />
-    <rosparam command="load" file="$(arg param_file)" unless="$(arg with_datacentre)"/>
+    <rosparam command="load" file="$(arg param_file)" if="$(arg load_params)"/>
 
     <arg name="ptu_state" default="/ptu/state" />
     <arg name="ground_plane" default="/ground_plane" />

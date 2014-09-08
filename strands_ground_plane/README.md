@@ -5,8 +5,8 @@ It can also be used with a fixed ground plane which is just rotated according to
 
 ### Run
 Parameters for estimation:
-* `with_datacentre` _default = false_: `true` tries to read parameters from datacentre, `false` reads parameters from YAML file specified by `param_file`
-* `param_file` _default = $(find strands_ground_plane)/config/estimated_gp.yaml_: The config file which is also loaded by the datacentre. Only used if `with_datacentre == false`.
+* `load_params` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `param_file`
+* `param_file` _default = $(find strands_ground_plane)/config/estimated_gp.yaml_: The config file containing all the essential parameters. Only used if `load_params == true`.
 * `machine` _default = localhost_: Determines on which machine this node should run.
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `queue_size` _default = 5_: The synchronisation queue size
@@ -15,8 +15,8 @@ Parameters for estimation:
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 
 Parameters for the fixed ground plane:
-* `with_datacentre` _default = false_: `true` tries to read parameters from datacentre, `false` reads parameters from YAML file specified by `param_file`
-* `param_file` _default = $(find strands_ground_plane)/config/fixed_gp.yaml_: The config file which is also loaded by the datacentre. Only used if `with_datacentre == false`.
+* `load_params` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `param_file`
+* `param_file` _default = $(find strands_ground_plane)/config/fixed_gp.yaml_: The config file containing all the essential parameters. Only used if `load_params == true`.
 * `machine` _default = localhost_: Determines on which machine this node should run.
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `ptu_state` _default = /ptu/state_: The current angles of the ptu

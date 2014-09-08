@@ -3,9 +3,9 @@ This package detects the upper bodies of persons using the depth image.
 
 ### Run
 Parameters:
-* `with_datacentre` _default = false_: `true` tries to read parameters from datacentre, `false` reads parameters from YAML file specified by `config_file`
-* `config_file` _default = $(find strands_upper_body_detector)/config/upper_body_detector.yaml_: The config file which is also loaded by the datacentre. Only used if `with_datacentre == false`.
-* `template_file` _default = $(find strands_upper_body_detector)/config/upper_body_template.yaml_: The upper body template file. Read from the database if `with_datacentre == true`.
+* `load_params` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `config_file`
+* `config_file` _default = $(find strands_upper_body_detector)/config/upper_body_detector.yaml_: The config file containing all the essential parameters. Only used if `load_params == true`.
+* `template_file` _default = $(find strands_upper_body_detector)/config/upper_body_template.yaml_: The upper body template file. Read from the database if `load_params == true`.
 * `machine` _default = localhost_: Determines on which machine this node should run.
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `queue_size` _default = 20_: The synchronisation queue size

@@ -1,7 +1,7 @@
 <launch>
-    <arg name="with_datacentre" default="false" />
+    <arg name="load_params" default="true" />
     <arg name="config_file" default="$(find strands_pedestrian_tracking)/config/pedestrian_tracking.yaml" />
-    <rosparam command="load" file="$(arg config_file)" unless="$(arg with_datacentre)"/>
+    <rosparam command="load" file="$(arg config_file)" if="$(arg load_params)"/>
     
     <arg name="queue_size" default="10" />
     <arg name="camera_namespace" default="/head_xtion" />

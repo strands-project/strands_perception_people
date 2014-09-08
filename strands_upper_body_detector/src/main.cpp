@@ -83,7 +83,7 @@ void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
 
 bool checkParam(bool success, std::string param) {
     if(!success) {
-        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the datacentre is running or start with 'with_datacentre:=false'", param.c_str());
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the parameters are available on the parameter server or start with 'load_params:=true'", param.c_str());
     }
     return success;
 }
