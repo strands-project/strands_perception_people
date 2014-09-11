@@ -30,6 +30,7 @@
 #include "strands_perception_people_msgs/PeopleTracker.h"
 
 #include "people_tracker/simple_tracking.h"
+#include "people_tracker/asso_exception.h"
 
 #define BASE_LINK "/base_link"
 

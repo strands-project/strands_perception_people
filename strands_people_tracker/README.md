@@ -15,7 +15,7 @@ strands_people_tracker:
                 position:                                      # The std deviation for the cartesian model
                     x: 1.2
                     y: 1.2
-            matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, JPDA = Joint Probability Data Association, NNJPDA = NN + JPDA
+            matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN + Joint Probability Data Association
         leg_detector:                                          # Name of detector (used internally to identify them. Has to be unique.
             topic: "/to_pose_array/leg_detector" # The topic on which the geometry_msgs/PoseArray is published
             noise_model:
@@ -25,7 +25,7 @@ strands_people_tracker:
                 position:                                      # The std deviation for the cartesian model
                     x: 0.2
                     y: 0.2
-            matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, JPDA = Joint Probability Data Association, NNJPDA = NN + JPDA
+            matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN + Joint Probability Data Association
 ```
 
 New detectors are added under the parameter namespace `strands_people_tracker/detectors`. Let's have a look at the upper body detector as an example:
@@ -37,8 +37,7 @@ New detectors are added under the parameter namespace `strands_people_tracker/de
  * `position` specifies the standard deviation of x and y in the cartesian model in meters.
 * `matching_algorithm` specifies the algorithm used to match detections from different sensors/detectors. Currently there are three different algorithms which are based on the Mahalanobis distance of the detections (default being NNJPDA if parameter is misspelled):
  * NN: Nearest Neighbour
- * JPDA: Joint Probability Data Association
- * NNJPDA: NN + JPDA
+ * NNJPDA: NN + Joint Probability Data Association
 
 All of these are just normal ROS parameters and can be either specified by the parameter server or using the yaml file in the provided launch file.
 

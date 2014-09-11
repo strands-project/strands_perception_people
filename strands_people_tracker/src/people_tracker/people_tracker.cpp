@@ -47,12 +47,24 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     ROS_ASSERT(detectors.getType() == XmlRpc::XmlRpcValue::TypeStruct);
     for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = detectors.begin(); it != detectors.end(); ++it) {
         ROS_INFO_STREAM("Found detector: " << (std::string)(it->first) << " ==> " << detectors[it->first]);
-        st->addDetectorModel(it->first,
-                             detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "JPDA" ? JPDA : NNJPDA,
-                             detectors[it->first]["noise_model"]["velocity"]["x"],
-                             detectors[it->first]["noise_model"]["velocity"]["y"],
-                             detectors[it->first]["noise_model"]["position"]["x"],
-                             detectors[it->first]["noise_model"]["position"]["y"]);
+        try {
+            st->addDetectorModel(it->first,
+                    detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                    detectors[it->first]["noise_model"]["velocity"]["x"],
+                    detectors[it->first]["noise_model"]["velocity"]["y"],
+                    detectors[it->first]["noise_model"]["position"]["x"],
+                    detectors[it->first]["noise_model"]["position"]["y"]);
+        } catch (std::exception& e) {
+            ROS_FATAL_STREAM(""
+                    << e.what()
+                    << " "
+                    << detectors[it->first]["matching_algorithm"]
+                    << " is not specified. Unable to add "
+                    << (std::string)(it->first)
+                    << " to the tracker. Please use either NN or NNJPDA as association algorithms."
+            );
+            continue;
+        }
         ros::Subscriber sub;
         subscribers[std::pair<std::string, std::string>(it->first, detectors[it->first]["topic"])] = sub;
     }
