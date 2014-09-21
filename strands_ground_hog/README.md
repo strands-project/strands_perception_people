@@ -7,8 +7,8 @@ _If this dependency is not met, the package will still compile but won't have an
 
 ### Run
 Parameters:
-* `load_params` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `param_file`
-* `param_file` _default = $(find strands_ground_hog)/config/ground_hog.yaml_: The config file containing all the essential parameters. Only used if `load_params == true`.
+* `load_params_from_file` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `param_file`
+* `param_file` _default = $(find strands_ground_hog)/config/ground_hog.yaml_: The config file containing all the essential parameters. Only used if `load_params_from_file == true`.
 * `machine` _default = localhost_: Determines on which machine this node should run.
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `queue_size` _default = 20_: The synchronisation queue size

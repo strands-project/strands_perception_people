@@ -1,6 +1,6 @@
 <launch>
     <!-- Global paramters -->
-    <arg name="load_params" default="false" />
+    <arg name="load_params_from_file" default="false" />
     <arg name="gp_queue_size" default="5" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />
@@ -50,7 +50,7 @@
     <include file="$(find strands_ground_plane)/launch/ground_plane_fixed.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
-        <arg name="load_params" value="$(arg load_params)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="ptu_state" value="$(arg ptu_state)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
@@ -59,7 +59,7 @@
     <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
-        <arg name="load_params" value="$(arg load_params)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg ubd_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
@@ -73,7 +73,7 @@
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking_no_HOG.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
-        <arg name="load_params" value="$(arg load_params)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>

@@ -1,9 +1,9 @@
 <launch>
-    <arg name="load_params" default="true" />
+    <arg name="load_params_from_file" default="true" />
     <arg name="config_file" default="$(find strands_upper_body_detector)/config/upper_body_detector.yaml" />
-    <rosparam command="load" file="$(arg config_file)" if="$(arg load_params)"/>
+    <rosparam command="load" file="$(arg config_file)" if="$(arg load_params_from_file)"/>
     <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_body_template.yaml" />
-    <rosparam command="load" file="$(arg template_file)" if="$(arg load_params)"/>
+    <rosparam command="load" file="$(arg template_file)" if="$(arg load_params_from_file)"/>
     
     <arg name="queue_size" default="5" />
     <arg name="camera_namespace" default="/head_xtion" />

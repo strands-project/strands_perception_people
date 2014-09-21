@@ -137,7 +137,7 @@ void get_image(unsigned char* b_image, uint w, uint h, CImg<unsigned char>& cim)
 
 bool checkParam(bool success, std::string param) {
     if(!success) {
-        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the parameters are available on the parameter server or start with 'load_params:=true'", param.c_str());
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the parameters are available on the parameter server or start with 'load_params_from_file:=true'", param.c_str());
     }
     return success;
 }
