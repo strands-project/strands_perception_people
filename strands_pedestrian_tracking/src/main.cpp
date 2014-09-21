@@ -68,6 +68,8 @@ int cnt = 0;
 double startup_time = 0.0;
 std::string startup_time_str = "", target_frame;
 
+boost::uuids::uuid dns_namespace_uuid;
+
 //CImgDisplay* main_disp;
 CImg<unsigned char> cim(640,480,1,3);
 
@@ -376,7 +378,6 @@ Camera createCamera(Vector<double>& GP,
 }
 
 std::string generateUUID(std::string time, int id) {
-    boost::uuids::uuid dns_namespace_uuid;
     boost::uuids::name_generator gen(dns_namespace_uuid);
     time += num_to_str<int>(id);
 
