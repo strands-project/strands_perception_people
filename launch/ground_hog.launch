@@ -1,7 +1,7 @@
 <launch>
-    <arg name="load_params" default="true" />
+    <arg name="load_params_from_file" default="true" />
     <arg name="param_file" default="$(find strands_ground_hog)/config/ground_hog.yaml" />
-    <rosparam command="load" file="$(arg param_file)" if="$(arg load_params)"/>
+    <rosparam command="load" file="$(arg param_file)" if="$(arg load_params_from_file)"/>
     
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="detections" default="/groundHOG/detections" />
