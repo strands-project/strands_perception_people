@@ -1,5 +1,8 @@
 <launch>
+    <arg name="load_params_from_file" default="true" />
     <arg name="param_file" default="$(find strands_ground_plane)/config/fixed_gp.yaml" />
+    <rosparam command="load" file="$(arg param_file)" if="$(arg load_params_from_file)"/>
+
     <arg name="ptu_state" default="/ptu/state" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="machine" default="localhost" />
@@ -8,7 +11,6 @@
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
     <node pkg="strands_ground_plane" type="ground_plane_fixed" name="ground_plane" output="log">
-        <rosparam command="load" file="$(arg param_file)"/>
         <param name="ptu_state" value="$(arg ptu_state)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
     </node>

@@ -192,6 +192,6 @@ string Globals::from_file_path;
 string Globals::stream_dest_IP;
 
 ////////////////////////HOG Detector////////////////////////
-float Globals::hog_max_scale;
-float Globals::hog_score_thresh;
+double Globals::hog_max_scale;
+double Globals::hog_score_thresh;
 

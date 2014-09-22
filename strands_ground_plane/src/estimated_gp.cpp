@@ -23,7 +23,7 @@
 #include "pointcloud.h"
 #include "Globals.h"
 #include "groundplaneestimator.h"
-#include "ConfigFile.h"
+
 
 #include "strands_perception_people_msgs/GroundPlane.h"
 
@@ -38,14 +38,24 @@ cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 
 GroundPlaneEstimator GPEstimator;
 
-void ReadConfigFile(string path_config_file)
+bool checkParam(bool success, std::string param) {
+    if(!success) {
+        ROS_FATAL("Parameter: '%s' could not be found! Please make sure that the parameters are available on the parameter server or start with 'load_params_from_file:=true'", param.c_str());
+    }
+    return success;
+}
+
+bool ReadConfigParams(ros::NodeHandle n)
 {
+    bool success = true;
 
-    ConfigFile config(path_config_file);
+    std::string ns = ros::this_node::getName();
+    ns += "/";
 
-    /////////////////////////////////GP Estimator/////////////////////////
-    Globals::nrInter_ransac = config.read<int>("nrInter_ransac");
-    Globals::numberOfPoints_reconAsObstacle = config.read<int>("numberOfPoints_reconAsObstacle");
+    success = checkParam(n.getParam(ns+"nrInter_ransac", Globals::nrInter_ransac), ns+"nrInter_ransac") && success;
+    success = checkParam(n.getParam(ns+"numberOfPoints_reconAsObstacle", Globals::numberOfPoints_reconAsObstacle), ns+"numberOfPoints_reconAsObstacle") && success;
+
+    return success;
 }
 
 
@@ -112,24 +122,16 @@ int main(int argc, char **argv)
     int queue_size;
     string cam_ns;
     string pub_topic_gp;
-    string config_file;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("queue_size", queue_size, int(5));
-    private_node_handle_.param("config_file", config_file, string(""));
 
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
     string topic_depth_image = cam_ns + "/depth/image_rect_meters";
     string topic_camera_info = cam_ns + "/rgb/camera_info";
-
-    if(strcmp(config_file.c_str(),"") == 0) {
-        ROS_ERROR("No config file specified.");
-        ROS_ERROR("Run with: rosrun strands_ground_plane ground_plane _config_file:=/path/to/config");
-        exit(0);
-    }
 
     ROS_DEBUG("ground_plane: Queue size for synchronisation is set to: %i", queue_size);
 
@@ -151,7 +153,7 @@ int main(int argc, char **argv)
     sync_policies::ApproximateTime<Image, CameraInfo> MySyncPolicy(queue_size);
     MySyncPolicy.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
-    ReadConfigFile(config_file);
+    if(!ReadConfigParams(boost::ref(n))) return 1;
 
     const sync_policies::ApproximateTime<Image, CameraInfo> MyConstSyncPolicy = MySyncPolicy;
 

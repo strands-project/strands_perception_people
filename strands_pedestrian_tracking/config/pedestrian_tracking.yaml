@@ -1,0 +1,218 @@
+#=====================================
+# Pedestrian tracking parameters
+#=====================================
+pedestrian_tracking: 
+    #=====================================
+    # Input paths
+    #=====================================
+    camPath_left: camera
+    sImagePath_left: /data/corpora/aachen_inner_city/bumblebee/part6/images/rectified/png/left/image_%08d_0_rect.png
+    tempDepthL: /data/corpora/aachen_inner_city/bumblebee/part6/depth_float/left/disp_%08d_0.bin
+    path_to_planes: /data/corpora/aachen_inner_city/bumblebee/part6/ptsOnGP/plane/plane_%08d.txt
+    
+    #=====================================
+    # Distance Range Accepted Detections
+    #=====================================
+    distance_range_accepted_detections: 7
+    
+    #=====================================
+    # ROI
+    #=====================================
+    inc_width_ratio: 0.2
+    inc_height_ratio: 0.0
+    region_size_threshold: 10
+    
+    #======================
+    # Freespace
+    #======================
+    freespace_scaleZ: 20
+    freespace_scaleX: 20
+    freespace_minX: -20
+    freespace_minZ: 0
+    freespace_maxX: 20
+    freespace_maxZ: 30
+    freespace_threshold: 200
+    freespace_max_depth_to_cons: 20
+    
+    #====================================
+    # Evaluation Parameters
+    #====================================
+    evaluation_NMS_threshold: 0.15
+    evaluation_NMS_threshold_LM: 0.35
+    evaluation_NMS_threshold_Border: 0.0037
+    evaluation_inc_height_ratio: 0.2
+    evaluation_stride: 3
+    evaluation_scale_stride: 1.03
+    evaluation_nr_scales: 1
+    evaluation_inc_cropped_height: 20
+    evaluation_greedy_NMS_overlap_threshold: 0.3
+    evaluation_greedy_NMS_threshold: 0.25
+    
+    #======================
+    # World scale
+    #======================
+    WORLD_SCALE: 1.0
+    
+    #===========================
+    # height and width of images
+    #===========================
+    dImWidth: 640
+    dImHeight: 480
+    
+    #====================================
+    # Camera
+    #====================================
+    baseline: 120.168000
+    
+    #====================================
+    # Number of Frames / offset
+    #====================================
+    numberFrames: 1000000
+    nOffset: 0
+    
+    #====================================
+    #Determines if save bounding boxes or not
+    #====================================
+    export_bounding_box: true
+    bounding_box_path: /work/upper_results1/old_depth/part6/bboxes/imasge_%08d_BBoxes.txt
+    
+    #=====================================
+    # Determines if save result images or not
+    #=====================================
+    export_result_images: true
+    result_images_path: /work/upper_results1/Asus/image_%08d.png
+    
+    #====================================
+    # Size of Template
+    #====================================
+    template_size: 30
+    
+    
+    #=======TRACKIG========================================================================================================================
+    
+    #====================================
+    # Detections
+    #====================================
+    cutDetectionsUsingDepth: false
+    frameRate: 15
+    
+    #====================================
+    # Camera
+    #====================================
+    farPlane: 60
+    
+    #====================================
+    # World scale
+    #====================================
+    binSize: 8
+    
+    #====================================
+    # Pedestrians width and height
+    #====================================
+    pedSizeWVis: 0.6
+    pedSizeWCom: 0.2
+    pedSizeHCom: 1.7
+    
+    #====================================
+    # History
+    #====================================
+    history: 50
+    
+    #========================
+    # Pedestrians parameter
+    #========================
+    dObjHeight: 1.75
+    dObjHVar: 0.9
+    
+    #===========================
+    # Adjustment for Color Histogram
+    #===========================
+    cutHeightBBOXforColor: 0.1
+    cutWidthBBOXColor: 0.3
+    posponeCenterBBOXColor: 0.0
+    
+    #====================================
+    # Thresholds for combining the detectiob from left and right camera
+    #====================================
+    probHeight: 0.2
+    
+    #========================
+    # MDL parameters for trajectories
+    #========================
+    k1: 0.0 # "counterweight": min. support for a hypothesis
+    k2: 0.05  # rel. importance of poconst ints vs. poconst float strength
+    k3: 20  # overlap penalty
+    k4: 50  # temp. decay for static objects
+    
+    #=======================
+    # Threshold for distinction between static/moving object
+    #=======================
+    minvel: 0.025
+    dMaxPedVel: 1.11
+    
+    #====================================
+    # Trajectory
+    #====================================
+    threshLengthTraj: 5
+    dSameIdThresh: 0.49
+    
+    #=========================
+    # Thresholds for accepted and displayed hypotheses
+    #=========================
+    dTheta2: 0.1
+    
+    #=========================
+    # Time ant for temporal decay
+    #=========================
+    dTau: 35
+    
+    #==========================
+    # Time horizon for event cone search
+    #==========================
+    coneTimeHorizon: 5
+    maxHoleLen: 50
+    dHolePenalty: 0.01
+    
+    #==============================
+    # Kalman Filter
+    #==============================
+    # Q - the system covariance
+    sysUncX: 0.5
+    sysUncY: 0.9
+    sysUncRot: 0.1
+    sysUncVel: 0.1
+    sysUncAcc: 1
+    
+    kalmanObsMotionModelthresh: 0.8
+    kalmanObsColorModelthresh: 0.8
+    
+    
+    #=======GP-Estimation========================================================================================================================
+    nrInter_ransac: 30
+    numberOfPoints_reconAsObstacle: 500
+    
+    
+    #=======ROI-Segmentation========================================================================================================================
+    sigmaX: 2
+    precisionX: 2
+    sigmaZ: 3
+    precisionZ: 3
+    
+    max_height: 2.1
+    min_height: 1.0
+    
+    
+    #==========Recording================================================================================================================
+    from_camera: false
+    #from_file_path: /home/mmp/Desktop/Recorded_Sequence/rec
+    from_file_path: rec
+    
+    #==========Streaming============================================
+    # for ad-hoc
+    #stream_dest_IP: 10.42.0.17
+    # for MMP
+    stream_dest_IP: 192.168.1.101
+    
+    #==========HOG Detector===========================================
+    hog_max_scale: 1.3
+    hog_score_thresh: 0.1

@@ -1,5 +1,8 @@
 <launch>
-    <arg name="model" default="$(find strands_ground_hog)/model/config" />
+    <arg name="load_params_from_file" default="true" />
+    <arg name="param_file" default="$(find strands_ground_hog)/config/ground_hog.yaml" />
+    <rosparam command="load" file="$(arg param_file)" if="$(arg load_params_from_file)"/>
+    
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="detections" default="/groundHOG/detections" />
     <arg name="result_image" default="/groundHOG/image" />
@@ -8,8 +11,9 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
-    <node pkg="strands_ground_hog" type="groundHOG" name="groundHOG" output="log">
-        <param name="model" value="$(arg model)" type="string"/>
+    <env name="LD_LIBRARY_PATH" value="$(env LD_LIBRARY_PATH)"/>
+
+    <node pkg="strands_ground_hog" type="groundHOG" name="ground_hog" output="log">
         <param name="ground_plane" value="" type="string"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="detections" value="$(arg detections)" type="string"/>

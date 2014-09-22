@@ -63,26 +63,22 @@ int main(int argc, char **argv)
     string pub_topic_gp;
     string sub_ptu_topic;
 
+    std::vector<double> read_normal;
+    read_normal.push_back(0.0); //Setting default values
+    read_normal.push_back(-1.0);
+    read_normal.push_back(0.0);
+
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
     // while using different parameters.
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("ptu_state", sub_ptu_topic, string("/ptu/state"));
     private_node_handle_.param("distance", _distance, 1.7);
-    XmlRpc::XmlRpcValue read_normal;
-    if(!private_node_handle_.getParam("normal", read_normal)) { //Did not find a nicer way of setting a default
-        ROS_INFO("No normal given. Will use default: 0.0, -1.0, 0.0");
-        _normal.setX(0.0); _normal.setY(-1.0); _normal.setZ(0.0);
-    } else {
-        ROS_ASSERT(read_normal.getType() == XmlRpc::XmlRpcValue::TypeArray);
-        ROS_ASSERT(read_normal[0].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-        _normal.setX(static_cast<double>(read_normal[0]));
-        ROS_ASSERT(read_normal[1].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-        _normal.setY(static_cast<double>(read_normal[1]));
-        ROS_ASSERT(read_normal[2].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-        _normal.setZ(static_cast<double>(read_normal[2]));
-        ROS_DEBUG_STREAM("Loading from YAML file:" << _normal.getX() << ", " << _normal.getY() << ", " << _normal.getZ());
-    }
+    private_node_handle_.getParam("normal", read_normal);
+    _normal.setX(read_normal[0]);
+    _normal.setY(read_normal[1]);
+    _normal.setZ(read_normal[2]);
+    ROS_DEBUG("Using normal: %f, %f, %f", _normal.getX(), _normal.getY(), _normal.getZ());
 
     // Create a subscriber.
     ros::Subscriber ptu_sub;

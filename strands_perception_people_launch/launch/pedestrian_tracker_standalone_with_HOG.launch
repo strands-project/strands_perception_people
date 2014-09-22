@@ -1,15 +1,11 @@
 <launch>
     <!-- Global paramters -->
+    <arg name="load_params_from_file" default="true" />
     <arg name="gh_queue_size" default="10" />
     <arg name="gp_queue_size" default="5" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />
     <arg name="pt_queue_size" default="10" />
-    <arg name="model" default="$(find strands_ground_hog)/model/config" />
-    <arg name="ubd_config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
-    <arg name="pt_config_file" default="$(find strands_pedestrian_tracking)/config/config_Asus.inp" />
-    <arg name="gp_config_file" default="$(find strands_ground_plane)/config/config_Asus.inp" />
-    <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
     <arg name="camera_namespace" default="/camera" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="ground_hog_detections" default="/groundHOG/detections" />
@@ -34,8 +30,8 @@
     <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg gh_queue_size)"/>
-        <arg name="model" value="$(arg model)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="detections" value="$(arg ground_hog_detections)"/>
@@ -55,8 +51,8 @@
     <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg gp_queue_size)"/>
-        <arg name="config_file" value="$(arg gp_config_file)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
@@ -65,9 +61,8 @@
     <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg ubd_queue_size)"/>
-        <arg name="config_file" value="$(arg ubd_config_file)"/>
-        <arg name="template_file" value="$(arg template_file)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)"/>
@@ -80,8 +75,8 @@
     <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
+        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
-        <arg name="config_file" value="$(arg pt_config_file)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
         <arg name="ground_hog" value="$(arg ground_hog_detections)"/>

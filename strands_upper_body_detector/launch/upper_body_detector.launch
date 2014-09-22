@@ -1,6 +1,10 @@
 <launch>
-    <arg name="config_file" default="$(find strands_upper_body_detector)/config/config_Asus.inp" />
-    <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_temp_n.txt" />
+    <arg name="load_params_from_file" default="true" />
+    <arg name="config_file" default="$(find strands_upper_body_detector)/config/upper_body_detector.yaml" />
+    <rosparam command="load" file="$(arg config_file)" if="$(arg load_params_from_file)"/>
+    <arg name="template_file" default="$(find strands_upper_body_detector)/config/upper_body_template.yaml" />
+    <rosparam command="load" file="$(arg template_file)" if="$(arg load_params_from_file)"/>
+    
     <arg name="queue_size" default="5" />
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
@@ -14,8 +18,6 @@
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
     
     <node pkg="strands_upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="log">
-        <param name="config_file" value="$(arg config_file)" type="string"/>
-        <param name="template_file" value="$(arg template_file)" type="string"/>
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>

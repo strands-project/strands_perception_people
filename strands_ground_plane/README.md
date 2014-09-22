@@ -5,13 +5,20 @@ It can also be used with a fixed ground plane which is just rotated according to
 
 ### Run
 Parameters for estimation:
+* `load_params_from_file` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `param_file`
+* `param_file` _default = $(find strands_ground_plane)/config/estimated_gp.yaml_: The config file containing all the essential parameters. Only used if `load_params_from_file == true`.
+* `machine` _default = localhost_: Determines on which machine this node should run.
+* `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `queue_size` _default = 5_: The synchronisation queue size
 * `config_file` _default = ""_: The global config file. Can be found in strands_ground_plane/config
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 
 Parameters for the fixed ground plane:
-* `param_file` _default = ""_: The paramter file describing the fixed plane. Can be found in strands_ground_plane/config/fixed_gp.yaml
+* `load_params_from_file` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `param_file`
+* `param_file` _default = $(find strands_ground_plane)/config/fixed_gp.yaml_: The config file containing all the essential parameters. Only used if `load_params_from_file == true`.
+* `machine` _default = localhost_: Determines on which machine this node should run.
+* `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `ptu_state` _default = /ptu/state_: The current angles of the ptu
 * `ground_plane` _default = /ground_plane_: The rotated ground plane
 
