@@ -5,7 +5,15 @@ project(strands_ground_hog)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(PkgConfig REQUIRED)
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs sensor_msgs strands_perception_people_msgs message_filters image_transport)
+find_package(catkin REQUIRED COMPONENTS 
+    message_generation
+    roscpp 
+    rospy 
+    std_msgs 
+    sensor_msgs 
+    message_filters 
+    image_transport
+    )
 pkg_check_modules(CUDAHOG cudaHOG)
 pkg_check_modules(GLIB glib-2.0)
 
@@ -38,11 +46,12 @@ endif(CUDAHOG_FOUND)
 ## Declare ROS messages and services ##
 #######################################
 
+
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Detections.msg
-# )
+add_message_files(
+  FILES
+  GroundHOGDetections.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -51,11 +60,13 @@ endif(CUDAHOG_FOUND)
 #   Service2.srv
 # )
 
+
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -101,7 +112,7 @@ add_executable(groundHOG src/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(groundHOG ${catkin_EXPORTED_TARGETS}) #TODO: might need a fake 3rdparty message to make sure it is built?!
+add_dependencies(groundHOG ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS}) #TODO: might need a fake 3rdparty message to make sure it is built?!
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(groundHOG
