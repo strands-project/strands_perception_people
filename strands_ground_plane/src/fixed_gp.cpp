@@ -4,10 +4,10 @@
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_datatypes.h>
 
-#include "strands_perception_people_msgs/GroundPlane.h"
+#include "strands_ground_plane/GroundPlane.h"
 
 using namespace std;
-using namespace strands_perception_people_msgs;
+using namespace strands_ground_plane;
 
 ros::Publisher _pub_ground_plane;
 

@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 
-#include "strands_perception_people_msgs/IsHeadAnalysisRunning.h"
-using namespace strands_perception_people_msgs;
+#include "strands_head_orientation/IsHeadAnalysisRunning.h"
+using namespace strands_head_orientation;
 
 int main(int argc, char **argv)
 {

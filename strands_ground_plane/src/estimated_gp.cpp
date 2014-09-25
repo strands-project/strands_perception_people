@@ -25,7 +25,7 @@
 #include "groundplaneestimator.h"
 
 
-#include "strands_perception_people_msgs/GroundPlane.h"
+#include "strands_ground_plane/GroundPlane.h"
 
 using namespace std;
 using namespace sensor_msgs;
@@ -86,7 +86,7 @@ void callback(const ImageConstPtr &depth,  const CameraInfoConstPtr &info)
     GP = GPEstimator.ComputeGroundPlane(point_cloud);
 
     // Generate Ground Plane Message
-    strands_perception_people_msgs::GroundPlane ground_plane_msg;
+    strands_ground_plane::GroundPlane ground_plane_msg;
     ground_plane_msg.header = depth->header;
     ground_plane_msg.d = GP(3);
     ground_plane_msg.n.push_back(GP(0));
@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 
     // Create a topic publisher
     private_node_handle_.param("ground_plane", pub_topic_gp, string("/ground_plane"));
-    pub_ground_plane = n.advertise<strands_perception_people_msgs::GroundPlane>(pub_topic_gp.c_str(), 10, con_cb, con_cb);
+    pub_ground_plane = n.advertise<strands_ground_plane::GroundPlane>(pub_topic_gp.c_str(), 10, con_cb, con_cb);
 
 
     ros::spin();

@@ -36,7 +36,7 @@ and later on resumed if all available power is needed by someone else.
 
 ### Pausing
 
-Send a message of type `strands_perception_people_msgs/StopHeadAnalysis` to the
+Send a message of type `strands_head_orientation/StopHeadAnalysis` to the
 `stop_head_analysis` service and all activity will be paused.
 
 The `stop` executable in this package does exactly that, see its [source](src/stop.cpp)
@@ -49,7 +49,7 @@ rosrun strands_head_orientation stop recording
 ### Resuming
 
 For resuming from the paused state, send a message of type
-`strands_perception_people_msgs/StartHeadAnalysis` to the `start_head_analysis`
+`strands_head_orientation/StartHeadAnalysis` to the `start_head_analysis`
 service.
 
 Again, the `start` executable and its [source](src/start.cpp) can be helpful:
@@ -61,7 +61,7 @@ rosrun strands_head_orientation start recording
 ### Poking
 
 You can also check for the current state by sending a message of type
-`strands_perception_people_msgs/IsHeadAnalysisRunning` to the `status_head_analysis`
+`strands_head_orientation/IsHeadAnalysisRunning` to the `status_head_analysis`
 service.
 
 Yet again, the `status` executable and its [source](src/status.cpp) help you:

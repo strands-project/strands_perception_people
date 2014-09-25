@@ -4,7 +4,16 @@ project(strands_ground_plane)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp std_msgs strands_perception_people_msgs tf sensor_msgs image_transport)
+find_package(catkin REQUIRED COMPONENTS 
+    cv_bridge 
+    message_filters 
+    roscpp 
+    std_msgs 
+    message_generation 
+    tf 
+    sensor_msgs 
+    image_transport
+    )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -25,11 +34,10 @@ endif()
 #######################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  GroundPlane.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -39,10 +47,11 @@ endif()
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs#   strands_perception_people_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -56,7 +65,7 @@ endif()
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES strands_ground_plane
-#  CATKIN_DEPENDS cv_bridge message_filters rosccp std_msgs strands_perception_people_msgs
+#  CATKIN_DEPENDS cv_bridge message_filters rosccp std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -82,8 +91,8 @@ add_executable(ground_plane_fixed src/fixed_gp.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(ground_plane_estimated ${catkin_EXPORTED_TARGETS})
-add_dependencies(ground_plane_fixed ${catkin_EXPORTED_TARGETS})
+add_dependencies(ground_plane_estimated ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(ground_plane_fixed ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(ground_plane_estimated

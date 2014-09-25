@@ -14,16 +14,17 @@
 #include "warco.hpp"
 
 // For the node
-#include "strands_perception_people_msgs/UpperBodyDetector.h"
-#include "strands_perception_people_msgs/HeadOrientations.h"
+#include "strands_upper_body_detector/UpperBodyDetector.h"
+#include "strands_head_orientation/HeadOrientations.h"
 
 // For the service
-#include "strands_perception_people_msgs/StartHeadAnalysis.h"
-#include "strands_perception_people_msgs/StopHeadAnalysis.h"
-#include "strands_perception_people_msgs/IsHeadAnalysisRunning.h"
+#include "strands_head_orientation/StartHeadAnalysis.h"
+#include "strands_head_orientation/StopHeadAnalysis.h"
+#include "strands_head_orientation/IsHeadAnalysisRunning.h"
 
 // For UpperBodyDetector and HeadOrientations
-using namespace strands_perception_people_msgs;
+using namespace strands_head_orientation;
+using namespace strands_upper_body_detector;
 
 // WHY CAN'T I HOLD ALL THESE GLOBALS?
 bool g_running = false;

@@ -37,18 +37,22 @@
 #include "Tracker.h"
 #include "VisualisationMarkers.h"
 
-#include "strands_perception_people_msgs/UpperBodyDetector.h"
-#include "strands_perception_people_msgs/GroundPlane.h"
-#include "strands_perception_people_msgs/GroundHOGDetections.h"
-#include "strands_perception_people_msgs/VisualOdometry.h"
-#include "strands_perception_people_msgs/PedestrianTracking.h"
-#include "strands_perception_people_msgs/PedestrianTrackingArray.h"
+#include "strands_upper_body_detector/UpperBodyDetector.h"
+#include "strands_ground_plane/GroundPlane.h"
+#include "strands_ground_hog/GroundHOGDetections.h"
+#include "strands_visual_odometry/VisualOdometry.h"
+#include "strands_pedestrian_tracking/PedestrianTracking.h"
+#include "strands_pedestrian_tracking/PedestrianTrackingArray.h"
 
 
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
-using namespace strands_perception_people_msgs;
+using namespace strands_pedestrian_tracking;
+using namespace strands_upper_body_detector;
+using namespace strands_ground_plane;
+using namespace strands_ground_hog;
+using namespace strands_visual_odometry;
 
 ros::Publisher pub_message, pub_markers, pub_pose;
 image_transport::Publisher pub_image;

@@ -24,8 +24,8 @@
 
 #include <cudaHOG.h>
 
-#include "strands_perception_people_msgs/GroundHOGDetections.h"
-#include "strands_perception_people_msgs/GroundPlane.h"
+#include "strands_ground_hog/GroundHOGDetections.h"
+#include "strands_ground_plane/GroundPlane.h"
 
 #include "Matrix.h"
 #include "Vector.h"
@@ -33,7 +33,8 @@
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
-using namespace strands_perception_people_msgs;
+using namespace strands_ground_hog;
+using namespace strands_ground_plane;
 
 
 
@@ -374,7 +375,7 @@ int main(int argc, char **argv)
 
     // Create publishers
     private_node_handle_.param("detections", pub_topic, string("/groundHOG/detections"));
-    pub_message = n.advertise<strands_perception_people_msgs::GroundHOGDetections>(pub_topic.c_str(), 10, con_cb, con_cb);
+    pub_message = n.advertise<strands_ground_hog::GroundHOGDetections>(pub_topic.c_str(), 10, con_cb, con_cb);
 
     private_node_handle_.param("result_image", pub_image_topic, string("/groundHOG/image"));
     pub_result_image = it.advertise(pub_image_topic.c_str(), 1, image_cb, image_cb);

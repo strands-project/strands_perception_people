@@ -2,7 +2,10 @@
 
 import rospy
 from mongodb_store.message_store import MessageStoreProxy
-import strands_perception_people_msgs.msg
+from strands_people_tracker.msg import PeopleTracker
+from strands_pedestrian_tracking.msg import PedestrianTrackingArray, PedestrianTracking
+from strands_upper_body_detector.msg import UpperBodyDetector
+from strands_perception_people_utils.msg import Logging
 import geometry_msgs.msg
 import message_filters
 from camera_calibration.approxsync import ApproximateSynchronizer
@@ -18,15 +21,15 @@ class SaveLocations():
         self.msg_store = MessageStoreProxy(collection="people_perception")
         locations = message_filters.Subscriber(
             "/people_tracker/positions",
-            strands_perception_people_msgs.msg.PeopleTracker,
+            PeopleTracker,
         )
         pedestrian = message_filters.Subscriber(
             "/pedestrian_tracking/pedestrian_array",
-            strands_perception_people_msgs.msg.PedestrianTrackingArray,
+            PedestrianTrackingArray,
         )
         upper = message_filters.Subscriber(
             "/upper_body_detector/detections",
-            strands_perception_people_msgs.msg.UpperBodyDetector,
+            UpperBodyDetector,
         )
         rospy.Subscriber(
             "/robot_pose",
@@ -88,7 +91,7 @@ class SaveLocations():
             "Person detected. "
             "Logging to people_perception collection."
         )
-        insert = strands_perception_people_msgs.msg.Logging()
+        insert = Logging()
         insert.header = pl.header
         insert.uuids = pl.uuids
         insert.people = pl.poses

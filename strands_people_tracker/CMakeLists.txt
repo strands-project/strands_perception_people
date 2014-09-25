@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
     geometry_msgs
     roscpp
     std_msgs
-    strands_perception_people_msgs
+    message_generation
     tf
     visualization_msgs
 )
@@ -26,11 +26,10 @@ find_package(catkin REQUIRED COMPONENTS
 #######################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  PeopleTracker.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -40,12 +39,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   strands_perception_people_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
-###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
@@ -56,7 +55,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES strands_pedestrian_localisation
-  CATKIN_DEPENDS bayestracking geometry_msgs roscpp strands_perception_people_msgs tf
+  CATKIN_DEPENDS bayestracking geometry_msgs roscpp tf
 #  DEPENDS system_lib
 )
 
@@ -83,7 +82,7 @@ add_executable(strands_people_tracker
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(strands_people_tracker ${catkin_EXPORTED_TARGETS})
+add_dependencies(strands_people_tracker ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(strands_people_tracker

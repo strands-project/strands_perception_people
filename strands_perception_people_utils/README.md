@@ -15,7 +15,7 @@ Parameters:
 * `motion_parameters`: _Default: /visual_odometry/motion_matrix_ The topic on which the resulting motion matrix is published
 
 ### Logging
-This node uses the `strands_msgs/strands_perception_people_msgs/msg/Logging.msg` to save the detected people together with their realworld position, the robots pose, the upper body detector and pedestrian tracker results, and the tf transform used to create the real world coordinates in the message store.
+This node uses the `Logging.msg` to save the detected people together with their realworld position, the robots pose, the upper body detector and pedestrian tracker results, and the tf transform used to create the real world coordinates in the message store.
 
 Run with:
 
