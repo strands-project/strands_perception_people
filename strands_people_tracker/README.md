@@ -1,5 +1,5 @@
 ## People Tracker
-This package uses the bayestracking library developed by Nicola Bellotto (University of Lincoln). A catkinized version can be found [here](https://github.com/LCAS/bayestracking/tree/catkin-devel) and is also included as a submodule into this repository.
+This package uses the bayes_tracking library developed by Nicola Bellotto (University of Lincoln). A catkinized version can be found [here](https://github.com/LCAS/bayes_tracking/tree/catkin-devel) and from the STRANDS ppa.
 
 The people_tracker uses a single config file to add an arbitrary amount of detectors. The file `config/detectors.yaml` contains the necessary information for the upper_body_detector and the ROS leg_detector (see `to_pose_array` in strands_perception_people_utils/README.md):
 

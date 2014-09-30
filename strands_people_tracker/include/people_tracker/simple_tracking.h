@@ -24,9 +24,9 @@
 #include <ros/ros.h>
 #include <ros/time.h>
 #include <geometry_msgs/Point.h>
-#include <bayestracking/multitracker.h>
-#include <bayestracking/models.h>
-#include <bayestracking/ekfilter.h>
+#include <bayes_tracking/multitracker.h>
+#include <bayes_tracking/models.h>
+#include <bayes_tracking/ekfilter.h>
 #include <cstdio>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>

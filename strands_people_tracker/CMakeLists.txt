@@ -5,7 +5,7 @@ project(strands_people_tracker)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-    bayestracking
+    bayes_tracking
     geometry_msgs
     roscpp
     std_msgs
@@ -56,7 +56,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES strands_pedestrian_localisation
-  CATKIN_DEPENDS bayestracking geometry_msgs roscpp strands_perception_people_msgs tf
+  CATKIN_DEPENDS bayes_tracking geometry_msgs roscpp strands_perception_people_msgs tf
 #  DEPENDS system_lib
 )
 
