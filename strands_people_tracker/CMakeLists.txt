@@ -5,7 +5,7 @@ project(strands_people_tracker)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-    bayestracking
+    bayes_tracking
     geometry_msgs
     roscpp
     std_msgs
@@ -45,6 +45,7 @@ generate_messages(
   geometry_msgs
 )
 
+###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
@@ -55,7 +56,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES strands_pedestrian_localisation
-  CATKIN_DEPENDS bayestracking geometry_msgs roscpp tf
+  CATKIN_DEPENDS bayes_tracking geometry_msgs roscpp tf
 #  DEPENDS system_lib
 )
 
