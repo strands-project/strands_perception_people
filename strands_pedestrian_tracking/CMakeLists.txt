@@ -4,7 +4,22 @@ project(strands_pedestrian_tracking)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS cv_bridge message_filters roscpp sensor_msgs geometry_msgs visualization_msgs tf std_msgs strands_perception_people_msgs image_transport)
+find_package(catkin REQUIRED COMPONENTS 
+    cv_bridge 
+    message_filters 
+    roscpp 
+    sensor_msgs 
+    geometry_msgs 
+    visualization_msgs 
+    tf 
+    std_msgs 
+    message_generation
+    image_transport
+    strands_upper_body_detector
+    strands_ground_plane
+    strands_ground_hog
+    strands_visual_odometry
+    )
 
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
 include(${QT_USE_FILE})
@@ -29,11 +44,11 @@ endif()
 #######################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  PedestrianTracking.msg
+  PedestrianTrackingArray.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -43,12 +58,12 @@ endif()
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs#   strands_perception_people_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
-###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
@@ -60,7 +75,7 @@ endif()
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES tracking
-#  CATKIN_DEPENDS cv_bridge message_filters roscpp sensor_msgs std_msgs strands_perception_people_msgs
+#  CATKIN_DEPENDS cv_bridge message_filters roscpp sensor_msgs std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -99,7 +114,7 @@ add_executable(pedestrian_tracking
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(pedestrian_tracking ${catkin_EXPORTED_TARGETS})
+add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(pedestrian_tracking

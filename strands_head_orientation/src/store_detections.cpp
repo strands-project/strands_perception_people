@@ -14,18 +14,19 @@
 #include <opencv2/opencv.hpp>
 
 // For the node
-#include "strands_perception_people_msgs/UpperBodyDetector.h"
+#include "strands_upper_body_detector/UpperBodyDetector.h"
 
 // For the db
 #include "mongodb_store/message_store.h"
 
 // For the service
-#include "strands_perception_people_msgs/StartHeadAnalysis.h"
-#include "strands_perception_people_msgs/StopHeadAnalysis.h"
-#include "strands_perception_people_msgs/IsHeadAnalysisRunning.h"
+#include "strands_head_orientation/StartHeadAnalysis.h"
+#include "strands_head_orientation/StopHeadAnalysis.h"
+#include "strands_head_orientation/IsHeadAnalysisRunning.h"
 
 // For UpperBodyDetector
-using namespace strands_perception_people_msgs;
+using namespace strands_head_orientation;
+using namespace strands_upper_body_detector;
 
 // WHY CAN'T I HOLD ALL THESE GLOBALS?
 bool g_running = false;

@@ -60,7 +60,7 @@ The poses will be published in a given `target_frame` (see below) but the distan
 Parameters:
 
 * `target_frame`: _Default: /base_link_:the tf frame in which the tracked poses will be published. 
-* `position`: _Default: /people_tracker/positions_: The topic under which the results are published as strands_perception_people_msgs/PeopleTracker`
+* `position`: _Default: /people_tracker/positions_: The topic under which the results are published as strands_people_tracker/PeopleTracker`
 * `marker`: _Default /people_tracker/marker_array_: A visualisation marker array.
 
 You can run the node with:

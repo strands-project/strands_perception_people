@@ -23,9 +23,13 @@
   <build_depend>visualization_msgs</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>strands_perception_people_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
   <build_depend>libqt4-dev</build_depend>
   <build_depend>image_transport</build_depend>
+  <build_depend>strands_upper_body_detector</build_depend>
+  <build_depend>strands_ground_plane</build_depend>
+  <build_depend>strands_ground_hog</build_depend>
+  <build_depend>strands_visual_odometry</build_depend>
 
   <run_depend>message_filters</run_depend>
   <run_depend>cv_bridge</run_depend>
@@ -35,9 +39,13 @@
   <run_depend>visualization_msgs</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>strands_perception_people_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
   <run_depend>libqt4-dev</run_depend>
   <run_depend>image_transport</run_depend>
+  <run_depend>strands_upper_body_detector</run_depend>
+  <run_depend>strands_ground_plane</run_depend>
+  <run_depend>strands_ground_hog</run_depend>
+  <run_depend>strands_visual_odometry</run_depend>
 
   <export/>
 </package>

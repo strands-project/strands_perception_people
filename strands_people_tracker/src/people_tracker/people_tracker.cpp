@@ -30,7 +30,7 @@ PeopleTracker::PeopleTracker() :
     ros::SubscriberStatusCallback con_cb = boost::bind(&PeopleTracker::connectCallback, this, boost::ref(n));
 
     private_node_handle.param("positions", pub_topic, std::string("/people_tracker/positions"));
-    pub_detect = n.advertise<strands_perception_people_msgs::PeopleTracker>(pub_topic.c_str(), 10, con_cb, con_cb);
+    pub_detect = n.advertise<strands_people_tracker::PeopleTracker>(pub_topic.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("pose", pub_topic_pose, std::string("/people_tracker/pose"));
     pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("marker", pub_marker_topic, std::string("/people_tracker/marker_array"));
@@ -116,7 +116,7 @@ void PeopleTracker::publishDetections(
         std::vector<double> angles,
         double min_dist,
         double angle) {
-    strands_perception_people_msgs::PeopleTracker result;
+    strands_people_tracker::PeopleTracker result;
     result.header.stamp.fromSec(time_sec);
     result.header.frame_id = target_frame;
     result.header.seq = ++detect_seq;
@@ -153,7 +153,7 @@ void PeopleTracker::publishDetections(
     publishDetections(pose);
 }
 
-void PeopleTracker::publishDetections(strands_perception_people_msgs::PeopleTracker msg) {
+void PeopleTracker::publishDetections(strands_people_tracker::PeopleTracker msg) {
     pub_detect.publish(msg);
 }
 
@@ -197,7 +197,7 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
     if(pta->poses.size() == 0) {
-        strands_perception_people_msgs::PeopleTracker empty;
+        strands_people_tracker::PeopleTracker empty;
         empty.header.stamp = ros::Time::now();
         empty.header.frame_id = target_frame;
         empty.header.seq = ++detect_seq;

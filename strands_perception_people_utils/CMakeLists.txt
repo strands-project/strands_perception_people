@@ -14,9 +14,13 @@ find_package(catkin REQUIRED COMPONENTS
   mongodb_store
   sensor_msgs
   std_msgs
-  strands_perception_people_msgs
+  message_generation
   tf
   tf_conversions
+  strands_people_tracker
+  strands_pedestrian_tracking
+  strands_upper_body_detector
+  strands_visual_odometry
 )
 pkg_check_modules(EIGEN REQUIRED eigen3)
 
@@ -33,32 +37,11 @@ pkg_check_modules(EIGEN REQUIRED eigen3)
 ## Declare ROS messages, services and actions ##
 ################################################
 
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependencies might have been
-##     pulled in transitively but can be declared for certainty nonetheless:
-##     * add a build_depend tag for "message_generation"
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  Logging.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -75,12 +58,15 @@ pkg_check_modules(EIGEN REQUIRED eigen3)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   sensor_msgs#   std_msgs#   strands_perception_people_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+  strands_people_tracker
+  strands_pedestrian_tracking
+  strands_upper_body_detector
+)
 
-###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
@@ -92,7 +78,7 @@ pkg_check_modules(EIGEN REQUIRED eigen3)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES strands_perception_people_utils
-#  CATKIN_DEPENDS eigen roscpp sensor_msgs std_msgs strands_perception_people_msgs
+#  CATKIN_DEPENDS eigen roscpp sensor_msgs std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -118,7 +104,7 @@ add_executable(odom2visual src/odom2visual/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(odom2visual ${catkin_EXPORTED_TARGETS})
+add_dependencies(odom2visual ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(odom2visual

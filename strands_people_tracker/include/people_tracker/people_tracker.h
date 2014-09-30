@@ -24,10 +24,7 @@
 #include <vector>
 #include <math.h>
 
-#include "strands_perception_people_msgs/PedestrianTracking.h"
-#include "strands_perception_people_msgs/PedestrianTrackingArray.h"
-#include "strands_perception_people_msgs/UpperBodyDetector.h"
-#include "strands_perception_people_msgs/PeopleTracker.h"
+#include "strands_people_tracker/PeopleTracker.h"
 
 #include "people_tracker/simple_tracking.h"
 #include "people_tracker/asso_exception.h"
@@ -41,7 +38,7 @@ public:
 
 private:
     void trackingThread();
-    void publishDetections(strands_perception_people_msgs::PeopleTracker msg);
+    void publishDetections(strands_people_tracker::PeopleTracker msg);
     void publishDetections(geometry_msgs::PoseStamped msg);
     void publishDetections(double time_sec,
                            geometry_msgs::Point closest,

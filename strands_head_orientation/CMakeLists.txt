@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
     message_filters
     roscpp
     std_msgs
-    strands_perception_people_msgs
+    message_generation
     mongodb_store_cpp_client
     mongodb_store_msgs
     mongodb_store
@@ -32,24 +32,25 @@ find_package(catkin REQUIRED COMPONENTS
 #######################################
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  HeadOrientations.msg
+)
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+# Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  StartHeadAnalysis.srv
+  StopHeadAnalysis.srv
+  IsHeadAnalysisRunning.srv
+)
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   std_msgs#   strands_perception_people_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -62,7 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
    INCLUDE_DIRS include
 #  LIBRARIES strands_head_orientation
-#  CATKIN_DEPENDS geometry_msgs roscpp std_msgs strands_perception_people_msgs
+#  CATKIN_DEPENDS geometry_msgs roscpp std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -93,11 +94,11 @@ add_executable(status src/status.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(strands_head_orientation strands_perception_people_msgs_generate_messages_cpp)
-add_dependencies(store_detections strands_perception_people_msgs_generate_messages_cpp mongodb_store_generate_messages_cpp)
-add_dependencies(start strands_perception_people_msgs_generate_messages_cpp)
-add_dependencies(stop strands_perception_people_msgs_generate_messages_cpp)
-add_dependencies(status strands_perception_people_msgs_generate_messages_cpp)
+add_dependencies(strands_head_orientation ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(store_detections ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(start ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(stop ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(status ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(strands_head_orientation ${catkin_LIBRARIES})
