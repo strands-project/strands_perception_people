@@ -25,7 +25,7 @@
 #include <cudaHOG.h>
 
 #include "strands_ground_hog/GroundHOGDetections.h"
-#include "strands_ground_plane/GroundPlane.h"
+#include "ground_plane_estimation/GroundPlane.h"
 
 #include "Matrix.h"
 #include "Vector.h"
@@ -34,7 +34,7 @@ using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_ground_hog;
-using namespace strands_ground_plane;
+using namespace ground_plane_estimation;
 
 
 
