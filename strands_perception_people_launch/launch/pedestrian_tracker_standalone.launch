@@ -43,7 +43,7 @@
     </include>
 
     <!-- Upper Body Detector -->
-    <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch">
+    <include file="$(find upper_body_detector)/launch/upper_body_detector.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>

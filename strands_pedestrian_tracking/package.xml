@@ -26,7 +26,7 @@
   <build_depend>message_generation</build_depend>
   <build_depend>libqt4-dev</build_depend>
   <build_depend>image_transport</build_depend>
-  <build_depend>strands_upper_body_detector</build_depend>
+  <build_depend>upper_body_detector</build_depend>
   <build_depend>ground_plane_estimation</build_depend>
   <build_depend>strands_ground_hog</build_depend>
   <build_depend>strands_visual_odometry</build_depend>
@@ -42,7 +42,7 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>libqt4-dev</run_depend>
   <run_depend>image_transport</run_depend>
-  <run_depend>strands_upper_body_detector</run_depend>
+  <run_depend>upper_body_detector</run_depend>
   <run_depend>ground_plane_estimation</run_depend>
   <run_depend>strands_ground_hog</run_depend>
   <run_depend>strands_visual_odometry</run_depend>

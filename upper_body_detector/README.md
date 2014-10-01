@@ -4,8 +4,8 @@ This package detects the upper bodies of persons using the depth image.
 ### Run
 Parameters:
 * `load_params_from_file` _default = true_: `false` tries to read parameters from datacentre, `true` reads parameters from YAML file specified by `config_file`
-* `config_file` _default = $(find strands_upper_body_detector)/config/upper_body_detector.yaml_: The config file containing all the essential parameters. Only used if `load_params_from_file == true`.
-* `template_file` _default = $(find strands_upper_body_detector)/config/upper_body_template.yaml_: The upper body template file. Read from the database if `load_params_from_file == true`.
+* `config_file` _default = $(find upper_body_detector)/config/upper_body_detector.yaml_: The config file containing all the essential parameters. Only used if `load_params_from_file == true`.
+* `template_file` _default = $(find upper_body_detector)/config/upper_body_template.yaml_: The upper body template file. Read from the database if `load_params_from_file == true`.
 * `machine` _default = localhost_: Determines on which machine this node should run.
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `queue_size` _default = 20_: The synchronisation queue size
@@ -21,10 +21,10 @@ Parameters:
 
 rosrun:
 ```
-rosrun strands_upper_body_detector upper_body_detector [_parameter_name:=value]
+rosrun upper_body_detector upper_body_detector [_parameter_name:=value]
 ```
 
 roslaunch:
 ```
-roslaunch strands_upper_body_detector upper_body_detector.launch [parameter_name:=value]
+roslaunch upper_body_detector upper_body_detector.launch [parameter_name:=value]
 ```

@@ -28,7 +28,7 @@
 #include "Globals.h"
 #include "VisualisationMarkers.h"
 
-#include "strands_upper_body_detector/UpperBodyDetector.h"
+#include "upper_body_detector/UpperBodyDetector.h"
 #include "ground_plane_estimation/GroundPlane.h"
 
 #include <QImage>
@@ -39,7 +39,7 @@
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
-using namespace strands_upper_body_detector;
+using namespace upper_body_detector;
 using namespace ground_plane_estimation;
 
 ros::Publisher pub_message, pub_centres, pub_closest, pub_markers;

@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf_conversions
   bayes_people_tracker
   strands_pedestrian_tracking
-  strands_upper_body_detector
+  upper_body_detector
   strands_visual_odometry
 )
 pkg_check_modules(EIGEN REQUIRED eigen3)
@@ -64,7 +64,7 @@ generate_messages(
   geometry_msgs
   bayes_people_tracker
   strands_pedestrian_tracking
-  strands_upper_body_detector
+  upper_body_detector
 )
 
 ## catkin specific configuration ##

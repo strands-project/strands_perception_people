@@ -8,7 +8,7 @@
     <arg name="expected_runtime" default="1814400" />
 
     <include file="$(find ground_plane_estimation)/launch/ground_plane_fixed.launch"/>
-    <include file="$(find strands_upper_body_detector)/launch/upper_body_detector.launch"/>
+    <include file="$(find upper_body_detector)/launch/upper_body_detector.launch"/>
 
     <node pkg="strands_head_orientation" type="store_detections" name="store_detections" output="screen">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>

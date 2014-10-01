@@ -4,7 +4,7 @@ import rospy
 from mongodb_store.message_store import MessageStoreProxy
 from bayes_people_tracker.msg import PeopleTracker
 from strands_pedestrian_tracking.msg import PedestrianTrackingArray, PedestrianTracking
-from strands_upper_body_detector.msg import UpperBodyDetector
+from upper_body_detector.msg import UpperBodyDetector
 from strands_perception_people_utils.msg import Logging
 import geometry_msgs.msg
 import message_filters

@@ -14,7 +14,7 @@
 #include "warco.hpp"
 
 // For the node
-#include "strands_upper_body_detector/UpperBodyDetector.h"
+#include "upper_body_detector/UpperBodyDetector.h"
 #include "strands_head_orientation/HeadOrientations.h"
 
 // For the service
@@ -24,7 +24,7 @@
 
 // For UpperBodyDetector and HeadOrientations
 using namespace strands_head_orientation;
-using namespace strands_upper_body_detector;
+using namespace upper_body_detector;
 
 // WHY CAN'T I HOLD ALL THESE GLOBALS?
 bool g_running = false;

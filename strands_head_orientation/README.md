@@ -92,7 +92,7 @@ Run
 Dependencies
 ------------
 
-This node needs `strands_upper_body_detector/upper_body_detector.launch` to run,
+This node needs `upper_body_detector/upper_body_detector.launch` to run,
 which in turn needs `ground_plane_estimation/ground_plane_fixed.launch`.
 Or just run the people tracker which starts both of the above.
 
