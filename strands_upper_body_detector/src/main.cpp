@@ -29,7 +29,7 @@
 #include "VisualisationMarkers.h"
 
 #include "strands_upper_body_detector/UpperBodyDetector.h"
-#include "strands_ground_plane/GroundPlane.h"
+#include "ground_plane_estimation/GroundPlane.h"
 
 #include <QImage>
 #include <QPainter>
@@ -40,7 +40,7 @@ using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_upper_body_detector;
-using namespace strands_ground_plane;
+using namespace ground_plane_estimation;
 
 ros::Publisher pub_message, pub_centres, pub_closest, pub_markers;
 image_transport::Publisher pub_result_image;

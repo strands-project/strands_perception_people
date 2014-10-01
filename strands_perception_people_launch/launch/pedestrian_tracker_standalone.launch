@@ -33,7 +33,7 @@
     </include>
 
     <!-- Ground Plane -->
-    <include file="$(find strands_ground_plane)/launch/ground_plane_estimated.launch">
+    <include file="$(find ground_plane_estimation)/launch/ground_plane_estimated.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>

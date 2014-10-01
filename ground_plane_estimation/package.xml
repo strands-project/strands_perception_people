@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>strands_ground_plane</name>
+  <name>ground_plane_estimation</name>
   <version>0.0.0</version>
-  <description>The strands_ground_plane package</description>
+  <description>The ground_plane_estimation package</description>
 
   <maintainer email="mitzel@umic.rwth-aachen.de">Dennis Mitzel</maintainer>
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>

@@ -38,7 +38,7 @@
 #include "VisualisationMarkers.h"
 
 #include "strands_upper_body_detector/UpperBodyDetector.h"
-#include "strands_ground_plane/GroundPlane.h"
+#include "ground_plane_estimation/GroundPlane.h"
 #include "strands_ground_hog/GroundHOGDetections.h"
 #include "strands_visual_odometry/VisualOdometry.h"
 #include "strands_pedestrian_tracking/PedestrianTracking.h"
@@ -50,7 +50,7 @@ using namespace sensor_msgs;
 using namespace message_filters;
 using namespace strands_pedestrian_tracking;
 using namespace strands_upper_body_detector;
-using namespace strands_ground_plane;
+using namespace ground_plane_estimation;
 using namespace strands_ground_hog;
 using namespace strands_visual_odometry;
 

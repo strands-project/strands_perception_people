@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
     image_transport
     strands_upper_body_detector
-    strands_ground_plane
+    ground_plane_estimation
     strands_ground_hog
     strands_visual_odometry
     )

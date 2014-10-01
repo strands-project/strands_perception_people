@@ -4,10 +4,10 @@
 #include <sensor_msgs/JointState.h>
 #include <tf/transform_datatypes.h>
 
-#include "strands_ground_plane/GroundPlane.h"
+#include "ground_plane_estimation/GroundPlane.h"
 
 using namespace std;
-using namespace strands_ground_plane;
+using namespace ground_plane_estimation;
 
 ros::Publisher _pub_ground_plane;
 

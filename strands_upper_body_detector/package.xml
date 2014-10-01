@@ -24,7 +24,7 @@
   <build_depend>libqt4-dev</build_depend>
   <build_depend>image_transport</build_depend>
   <build_depend>visualization_msgs</build_depend>
-  <build_depend>strands_ground_plane</build_depend>
+  <build_depend>ground_plane_estimation</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>cv_bridge</run_depend>
@@ -35,7 +35,7 @@
   <run_depend>libqt4-dev</run_depend>
   <run_depend>image_transport</run_depend>
   <run_depend>visualization_msgs</run_depend>
-  <run_depend>strands_ground_plane</run_depend>
+  <run_depend>ground_plane_estimation</run_depend>
 
   <export/>
 </package>

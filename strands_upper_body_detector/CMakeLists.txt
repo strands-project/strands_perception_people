@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
     geometry_msgs 
     image_transport 
     visualization_msgs
-    strands_ground_plane
+    ground_plane_estimation
     )
 
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_ground_plane)
+project(ground_plane_estimation)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -64,7 +64,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES strands_ground_plane
+#  LIBRARIES ground_plane_estimation
 #  CATKIN_DEPENDS cv_bridge message_filters rosccp std_msgs 
 #  DEPENDS system_lib
 )
@@ -81,8 +81,8 @@ include_directories(include
 )
 
 ## Declare a cpp library
-# add_library(strands_ground_plane
-#   src/${PROJECT_NAME}/strands_ground_plane.cpp
+# add_library(ground_plane_estimation
+#   src/${PROJECT_NAME}/ground_plane_estimation.cpp
 # )
 
 ## Declare a cpp executable
@@ -117,7 +117,7 @@ target_link_libraries(ground_plane_fixed
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS strands_ground_plane strands_ground_plane_node
+# install(TARGETS ground_plane_estimation ground_plane_estimation_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -142,7 +142,7 @@ target_link_libraries(ground_plane_fixed
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_strands_ground_plane.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ground_plane_estimation.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
