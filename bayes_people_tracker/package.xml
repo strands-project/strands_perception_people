@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>strands_people_tracker</name>
+  <name>bayes_people_tracker</name>
   <version>0.0.0</version>
-  <description>The strands_people_tracker package</description>
+  <description>The bayes_people_tracker package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

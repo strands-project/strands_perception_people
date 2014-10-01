@@ -4,7 +4,7 @@ This package uses the bayes_tracking library developed by Nicola Bellotto (Unive
 The people_tracker uses a single config file to add an arbitrary amount of detectors. The file `config/detectors.yaml` contains the necessary information for the upper_body_detector and the ROS leg_detector (see `to_pose_array` in strands_perception_people_utils/README.md):
 
 ```
-strands_people_tracker:
+bayes_people_tracker:
     detectors:                                                 # Add detectors under this namespace
         upper_body_detector:                                   # Name of detector (used internally to identify them. Has to be unique.
             topic: "/upper_body_detector/bounding_box_centres" # The topic on which the geometry_msgs/PoseArray is published
@@ -28,7 +28,7 @@ strands_people_tracker:
             matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN + Joint Probability Data Association
 ```
 
-New detectors are added under the parameter namespace `strands_people_tracker/detectors`. Let's have a look at the upper body detector as an example:
+New detectors are added under the parameter namespace `bayes_people_tracker/detectors`. Let's have a look at the upper body detector as an example:
 
 * For every detector you have to create a new namespace where the name is used as an internal identifier for this detector. Therefore it has to be unique. In this case it is `upper_body_detector`
 * The `topic` parameter specifies the topic under which the detections are published. The type has to be `geometry_msgs/PoseArray`. See `to_pose_array` in strands_perception_people_utils/README.md if your detector does not publish a PoseArray.
@@ -60,13 +60,13 @@ The poses will be published in a given `target_frame` (see below) but the distan
 Parameters:
 
 * `target_frame`: _Default: /base_link_:the tf frame in which the tracked poses will be published. 
-* `position`: _Default: /people_tracker/positions_: The topic under which the results are published as strands_people_tracker/PeopleTracker`
+* `position`: _Default: /people_tracker/positions_: The topic under which the results are published as bayes_people_tracker/PeopleTracker`
 * `marker`: _Default /people_tracker/marker_array_: A visualisation marker array.
 
 You can run the node with:
 
 ```
-roslaunch strands_people_tracker people_tracker.launch
+roslaunch bayes_people_tracker people_tracker.launch
 ```
 
 This is the recommended way of launching it since this will also read the config file and set the right parameters for the detectors.

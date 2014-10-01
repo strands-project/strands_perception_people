@@ -51,7 +51,7 @@
   <build_depend>message_generation</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>tf_conversions</build_depend>
-  <build_depend>strands_people_tracker</build_depend>
+  <build_depend>bayes_people_tracker</build_depend>
   <build_depend>strands_pedestrian_tracking</build_depend>
   <build_depend>strands_upper_body_detector</build_depend>
   <build_depend>strands_visual_odometry</build_depend>
@@ -66,7 +66,7 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>tf_conversions</run_depend>
-  <run_depend>strands_people_tracker</run_depend>
+  <run_depend>bayes_people_tracker</run_depend>
   <run_depend>strands_pedestrian_tracking</run_depend>
   <run_depend>strands_upper_body_detector</run_depend>
   <run_depend>strands_visual_odometry</run_depend>

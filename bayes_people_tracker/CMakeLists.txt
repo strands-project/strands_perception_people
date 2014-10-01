@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_people_tracker)
+project(bayes_people_tracker)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -77,16 +77,16 @@ include_directories(
 # )
 
 ## Declare a cpp executable
-add_executable(strands_people_tracker
+add_executable(bayes_people_tracker
   src/people_tracker/people_tracker.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(strands_people_tracker ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(bayes_people_tracker ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(strands_people_tracker
+target_link_libraries(bayes_people_tracker
   ${catkin_LIBRARIES}
 )
 

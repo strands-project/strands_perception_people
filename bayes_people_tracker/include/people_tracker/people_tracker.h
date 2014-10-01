@@ -24,7 +24,7 @@
 #include <vector>
 #include <math.h>
 
-#include "strands_people_tracker/PeopleTracker.h"
+#include "bayes_people_tracker/PeopleTracker.h"
 
 #include "people_tracker/simple_tracking.h"
 #include "people_tracker/asso_exception.h"
@@ -38,7 +38,7 @@ public:
 
 private:
     void trackingThread();
-    void publishDetections(strands_people_tracker::PeopleTracker msg);
+    void publishDetections(bayes_people_tracker::PeopleTracker msg);
     void publishDetections(geometry_msgs::PoseStamped msg);
     void publishDetections(double time_sec,
                            geometry_msgs::Point closest,

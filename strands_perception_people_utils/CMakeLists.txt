@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   tf
   tf_conversions
-  strands_people_tracker
+  bayes_people_tracker
   strands_pedestrian_tracking
   strands_upper_body_detector
   strands_visual_odometry
@@ -62,7 +62,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
-  strands_people_tracker
+  bayes_people_tracker
   strands_pedestrian_tracking
   strands_upper_body_detector
 )

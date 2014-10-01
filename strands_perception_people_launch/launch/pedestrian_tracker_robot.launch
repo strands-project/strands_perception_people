@@ -87,7 +87,7 @@
     </include>
 
     <!-- People Tracker -->
-    <include file="$(find strands_people_tracker)/launch/people_tracker.launch">
+    <include file="$(find bayes_people_tracker)/launch/people_tracker.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>

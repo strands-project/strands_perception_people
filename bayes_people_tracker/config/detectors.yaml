@@ -1,4 +1,4 @@
-strands_people_tracker:
+bayes_people_tracker:
     detectors:                                                 # Add detectors under this namespace
         upper_body_detector:                                   # Name of detector (used internally to identify them. Has to be unique.
             topic: "/upper_body_detector/bounding_box_centres" # The topic on which the geometry_msgs/PoseArray is published
