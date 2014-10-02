@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>strands_perception_people_launch</name>
+  <name>perception_people_launch</name>
   <version>0.0.0</version>
-  <description>The strands_perception_people_launch package</description>
+  <description>The perception_people_launch package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
 

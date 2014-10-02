@@ -4,7 +4,7 @@ This convenience package contains launch files to start-up the whole pedestrian 
 ## General remarks
 All the the packages rely heavily on the synchronisation of rgb and depth images and the generated data of the other nodes. The synchronization is realised using a queue which saves a predefined number of messages on which the synchronisation is performed. _As a rule of thumb: the faster your machine the shorter the queue to prevent unnecessary use of memory._ You can set queue sizes using:
 ```
-roslaunch strands_perception_people_launch file.launch gh_queue_size:=11 vo_queue_size:=22 ubd_queue_size:=33 pt_queue_size:=44
+roslaunch perception_people_launch file.launch gh_queue_size:=11 vo_queue_size:=22 ubd_queue_size:=33 pt_queue_size:=44
 ```
 This will overwrite the default values.  _gh = ground_hog, vo = visual_odemetry, ubd = upper_body_detector, pt = pedestrian_tracking_
 
@@ -42,7 +42,7 @@ Parameters:
 
 Running:
 ```
-roslaunch strands_perception_people_launch pedestrian_tracker_robot.launch [parameter_name:=value]
+roslaunch perception_people_launch pedestrian_tracker_robot.launch [parameter_name:=value]
 ```
 
 ### pedestrian_tracker_robot_with_HOG.launch
@@ -75,7 +75,7 @@ Parameters:
 
 Running:
 ```
-roslaunch strands_perception_people_launch pedestrian_tracker_robot_with_HOG.launch [parameter_name:=value]
+roslaunch perception_people_launch pedestrian_tracker_robot_with_HOG.launch [parameter_name:=value]
 ```
 
 ### pedestrian_tracker_standalone.launch
@@ -107,7 +107,7 @@ Parameters:
 
 Running:
 ```
-roslaunch strands_perception_people_launch pedestrian_tracker_standalone.launch [parameter_name:=value]
+roslaunch perception_people_launch pedestrian_tracker_standalone.launch [parameter_name:=value]
 ```
 
 ### pedestrian_tracker_standalone_with_HOG.launch
@@ -139,6 +139,6 @@ Parameters:
 
 Running:
 ```
-roslaunch strands_perception_people_launch pedestrian_tracker_standalone_with_HOG.launch [parameter_name:=value]
+roslaunch perception_people_launch pedestrian_tracker_standalone_with_HOG.launch [parameter_name:=value]
 ```
 

@@ -1,7 +1,7 @@
 ## People perception utils package
 This packge contains useful utils for the people perception like the conversion of the robots odometry to a motion matrix to substitude the visual odometry and a logging node to save the detections to the message_store.
 
-All the information given on how to run the nodes should only be used if you need to run them seperately. In normal cases please refer to the `strands_perception_people_launch` package to start the whole perception pipeline.
+All the information given on how to run the nodes should only be used if you need to run them seperately. In normal cases please refer to the `perception_people_launch` package to start the whole perception pipeline.
 
 ### odom2visual
 This node creates a motion matrix from the robots odometry using the Eigen library to substitude the visual odometry.
