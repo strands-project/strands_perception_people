@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
     upper_body_detector
     ground_plane_estimation
     strands_ground_hog
-    strands_visual_odometry
+    visual_odometry
     )
 
 find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)

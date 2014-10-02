@@ -13,7 +13,7 @@
 #include <fstream>
 #include <math.h>
 
-#include "strands_visual_odometry/VisualOdometry.h"
+#include "visual_odometry/VisualOdometry.h"
 
 ros::Publisher pub_message;
 
@@ -22,7 +22,7 @@ void callback(const nav_msgs::OdometryConstPtr& odom) {
     tf::poseMsgToEigen(odom->pose.pose, eigenTr);
     Eigen::Matrix4d m = eigenTr.matrix().inverse();
 
-    strands_visual_odometry::VisualOdometry fovis_info_msg;
+    visual_odometry::VisualOdometry fovis_info_msg;
     fovis_info_msg.header = odom->header;
     fovis_info_msg.motion_estimate_valid = true;
     fovis_info_msg.transformation_matrix.resize(4*4);
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
                                                        odom_topic);
 
     private_node_handle_.param("motion_parameters", pub_topic, std::string("/visual_odometry/motion_matrix"));
-    pub_message = n.advertise<strands_visual_odometry::VisualOdometry>(pub_topic.c_str(), 10, con_cb, con_cb);
+    pub_message = n.advertise<visual_odometry::VisualOdometry>(pub_topic.c_str(), 10, con_cb, con_cb);
 
     ros::spin();
 

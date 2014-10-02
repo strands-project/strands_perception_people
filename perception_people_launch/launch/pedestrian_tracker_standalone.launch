@@ -24,7 +24,7 @@
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
     <!-- Visual Odometry -->
-    <include file="$(find strands_visual_odometry)/launch/visual_odometry.launch">
+    <include file="$(find visual_odometry)/launch/visual_odometry.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="queue_size" value="$(arg vo_queue_size)"/>

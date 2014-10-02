@@ -20,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   bayes_people_tracker
   strands_pedestrian_tracking
   upper_body_detector
-  strands_visual_odometry
+  visual_odometry
 )
 pkg_check_modules(EIGEN REQUIRED eigen3)
 

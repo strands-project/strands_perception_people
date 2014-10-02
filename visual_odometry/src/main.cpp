@@ -18,14 +18,14 @@
 
 #include "fovis.hpp"
 
-#include "strands_visual_odometry/VisualOdometry.h"
+#include "visual_odometry/VisualOdometry.h"
 
 
 
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
-using namespace strands_visual_odometry;
+using namespace visual_odometry;
 
 ros::Publisher pub_message;
 fovis::VisualOdometry* odom = NULL;

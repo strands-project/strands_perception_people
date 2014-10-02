@@ -40,7 +40,7 @@
 #include "upper_body_detector/UpperBodyDetector.h"
 #include "ground_plane_estimation/GroundPlane.h"
 #include "strands_ground_hog/GroundHOGDetections.h"
-#include "strands_visual_odometry/VisualOdometry.h"
+#include "visual_odometry/VisualOdometry.h"
 #include "strands_pedestrian_tracking/PedestrianTracking.h"
 #include "strands_pedestrian_tracking/PedestrianTrackingArray.h"
 
@@ -52,7 +52,7 @@ using namespace strands_pedestrian_tracking;
 using namespace upper_body_detector;
 using namespace ground_plane_estimation;
 using namespace strands_ground_hog;
-using namespace strands_visual_odometry;
+using namespace visual_odometry;
 
 ros::Publisher pub_message, pub_markers, pub_pose;
 image_transport::Publisher pub_image;

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>strands_visual_odometry</name>
+  <name>visual_odometry</name>
   <version>0.0.0</version>
   <description>The visual_odometry package</description>
 
