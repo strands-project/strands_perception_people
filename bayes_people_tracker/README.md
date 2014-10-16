@@ -1,7 +1,7 @@
 ## People Tracker
 This package uses the bayes_tracking library developed by Nicola Bellotto (University of Lincoln). A catkinized version can be found [here](https://github.com/LCAS/bayes_tracking/tree/catkin-devel) and from the STRANDS ppa.
 
-The people_tracker uses a single config file to add an arbitrary amount of detectors. The file `config/detectors.yaml` contains the necessary information for the upper_body_detector and the ROS leg_detector (see `to_pose_array` in strands_perception_people_utils/README.md):
+The people_tracker uses a single config file to add an arbitrary amount of detectors. The file `config/detectors.yaml` contains the necessary information for the upper_body_detector and the ROS leg_detector (see `to_pose_array` in detector_msg_to_pose_array/README.md):
 
 ```
 bayes_people_tracker:
@@ -31,7 +31,7 @@ bayes_people_tracker:
 New detectors are added under the parameter namespace `bayes_people_tracker/detectors`. Let's have a look at the upper body detector as an example:
 
 * For every detector you have to create a new namespace where the name is used as an internal identifier for this detector. Therefore it has to be unique. In this case it is `upper_body_detector`
-* The `topic` parameter specifies the topic under which the detections are published. The type has to be `geometry_msgs/PoseArray`. See `to_pose_array` in strands_perception_people_utils/README.md if your detector does not publish a PoseArray.
+* The `topic` parameter specifies the topic under which the detections are published. The type has to be `geometry_msgs/PoseArray`. See `to_pose_array` in detector_msg_to_pose_array/README.md if your detector does not publish a PoseArray.
 * The `noise_model` parameter is used for the Kalman Filter (currently: Extended Kalman Filter).
  * `velocity` specifies the standard deviation in x and y direction of the constant velocity model in meters per second.
  * `position` specifies the standard deviation of x and y in the cartesian model in meters.

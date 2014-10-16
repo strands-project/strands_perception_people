@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_perception_people_utils)
+project(odometry_to_motion_matrix)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -8,21 +8,21 @@ find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   eigen
   eigen_conversions
-  geometry_msgs
+  #geometry_msgs
   nav_msgs
   roscpp
-  mongodb_store
-  sensor_msgs
+  #mongodb_store
+  #sensor_msgs
   std_msgs
-  message_generation
+  #message_generation
   tf
   tf_conversions
-  bayes_people_tracker
-  strands_pedestrian_tracking
-  upper_body_detector
+  #bayes_people_tracker
+  #strands_pedestrian_tracking
+  #upper_body_detector
   visual_odometry
 )
-pkg_check_modules(EIGEN REQUIRED eigen3)
+#pkg_check_modules(EIGEN REQUIRED eigen3)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -38,10 +38,10 @@ pkg_check_modules(EIGEN REQUIRED eigen3)
 ################################################
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  Logging.msg
-)
+#add_message_files(
+  #FILES
+  #Logging.msg
+#)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -58,14 +58,14 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
-  bayes_people_tracker
-  strands_pedestrian_tracking
-  upper_body_detector
-)
+#generate_messages(
+  #DEPENDENCIES
+  #std_msgs
+  #geometry_msgs
+  #bayes_people_tracker
+  #strands_pedestrian_tracking
+  #upper_body_detector
+#)
 
 ## catkin specific configuration ##
 ###################################
@@ -77,7 +77,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES strands_perception_people_utils
+#  LIBRARIES odometry_to_motion_matrix
 #  CATKIN_DEPENDS eigen roscpp sensor_msgs std_msgs 
 #  DEPENDS system_lib
 )
@@ -91,12 +91,12 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
+  #${EIGEN_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
-# add_library(strands_perception_people_utils
-#   src/${PROJECT_NAME}/strands_perception_people_utils.cpp
+# add_library(odometry_to_motion_matrix
+#   src/${PROJECT_NAME}/odometry_to_motion_matrix.cpp
 # )
 
 ## Declare a cpp executable
@@ -104,7 +104,7 @@ add_executable(odom2visual src/odom2visual/main.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(odom2visual ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(odom2visual ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(odom2visual
@@ -126,7 +126,7 @@ target_link_libraries(odom2visual
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS strands_perception_people_utils strands_perception_people_utils_node
+# install(TARGETS odometry_to_motion_matrix odometry_to_motion_matrix_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -151,7 +151,7 @@ target_link_libraries(odom2visual
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_strands_perception_people_utils.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_odometry_to_motion_matrix.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -1,28 +1,7 @@
-## People perception utils package
-This packge contains useful utils for the people perception like the conversion of the robots odometry to a motion matrix to substitude the visual odometry and a logging node to save the detections to the message_store.
+## Message conversion package
+This package contains a node to convert messages of people detectors to a pose_array which is naturally understood by the bayes_people_tracker. Some detectors use custom message types which makes it hard to use them otherwise.
 
 All the information given on how to run the nodes should only be used if you need to run them seperately. In normal cases please refer to the `perception_people_launch` package to start the whole perception pipeline.
-
-### odom2visual
-This node creates a motion matrix from the robots odometry using the Eigen library to substitude the visual odometry.
-
-Run with:
-
-`roslaunch strands_perception_people_utils odom2visual.launch`
-
-Parameters:
-* `odom`: _Default: /odom_ The topic on which the robots odometry is published
-* `motion_parameters`: _Default: /visual_odometry/motion_matrix_ The topic on which the resulting motion matrix is published
-
-### Logging
-This node uses the `Logging.msg` to save the detected people together with their realworld position, the robots pose, the upper body detector and pedestrian tracker results, and the tf transform used to create the real world coordinates in the message store.
-
-Run with:
-
-`roslaunch strands_perception_people_utils logging.launch`
-
-Parameters:
-* `log`: _Default: true_ This convenience parameter allows to start the whole system without logging the data
 
 ### to_pose_array
 Small node that takes in an arbitrary message from a topic and extracts a pose according to a given identifier. The found poses are published as a geometry_msgs/PoseArray. The node is used to transform the output of any people detector to a pose array for the people_tracker. The node is configured using the detectors.yaml in the config directory:
@@ -48,5 +27,5 @@ The message is parsed for all occurences of the `pos` identifier and the result 
 
 Run with
 ```
-roslaunch strands_perception_people_utils to_pose_array.launch
+roslaunch detector_msg_to_pose_array to_pose_array.launch
 ```

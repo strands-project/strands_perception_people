@@ -54,7 +54,7 @@
     </include> -->
 
     <!-- Odometry -->
-    <include file="$(find strands_perception_people_utils)/launch/odom2visual.launch">
+    <include file="$(find odometry_to_motion_matrix)/launch/odom2visual.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="odom" value="$(arg odom)"/>
@@ -113,7 +113,7 @@
     </include>
 
     <!-- To PoseArray -->
-    <include file="$(find strands_perception_people_utils)/launch/to_pose_array.launch">
+    <include file="$(find detector_msg_to_pose_array)/launch/to_pose_array.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
     </include>
@@ -126,7 +126,7 @@
     </include>
     
     <!-- Logging -->
-    <include file="$(find strands_perception_people_utils)/launch/logging.launch">
+    <include file="$(find bayes_people_tracker_logging)/launch/logging.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="log" value="$(arg log)"/>
