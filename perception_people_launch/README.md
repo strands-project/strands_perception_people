@@ -13,7 +13,7 @@ The whole pipeline is desinged to unsuscribe from everything if there is no subs
 ## Running on robot
 These launch files will make use of the fixed ground plane which is just rotated according to the PTU tilt and the robot odometry instead of the visual odometry. Additionally, the necessary parameters are assumed to be provided by the parameter server (see mongodb_store confog_manager on default parameters) therefore the `load_params_from_file` parameter is set to `false` and the nodes will querry the config parameters from the parameter server. The standalone version on the other hand uses the provided config files. If parameters are not present in the paremeter server on the robot but you want to launch the ppl perception, run with `load_params_from_file:=true`.
 
-### pedestrian_tracker_robot.launch
+### people_tracker_robot.launch
 This version of the tracking does not rely on the ground_hog feature extraction and is therefore usable on PCs with no NVIDIA graphics card (like the embedded robot PC). However, this has the drawback that the system only relies on depth data to detect people which limits the distance at which persons can be detected to approx. 5 meters. Where possible the ground_hog detection should be used to enhance tracking results. It also uses the fixed ground plane assumption because it is ment to be executed on the robots head xtion camera.
 
 Parameters:
@@ -42,10 +42,10 @@ Parameters:
 
 Running:
 ```
-roslaunch perception_people_launch pedestrian_tracker_robot.launch [parameter_name:=value]
+roslaunch perception_people_launch people_tracker_robot.launch [parameter_name:=value]
 ```
 
-### pedestrian_tracker_robot_with_HOG.launch
+### people_tracker_robot_with_HOG.launch
 This version of the tracking does rely on the ground_hog feature extraction and is therefore only usable on PCs with an NVIDIA graphics card. It also relys on the fixed ground plane assumption made for the robot. To use this you have to run it remotely on a machine talking to the rosmaster on the robot, e.g. a laptop inside the robot.
 
 Parameters:
@@ -75,10 +75,10 @@ Parameters:
 
 Running:
 ```
-roslaunch perception_people_launch pedestrian_tracker_robot_with_HOG.launch [parameter_name:=value]
+roslaunch perception_people_launch people_tracker_robot_with_HOG.launch [parameter_name:=value]
 ```
 
-### pedestrian_tracker_standalone.launch
+### people_tracker_standalone.launch
 This version of the tracking does not rely on the ground_hog feature extraction and is therefore usable on PCs with no NVIDIA graphics card. However, this has the drawback that the system only relies on depth data to detect people which limits the distance at which persons can be detected to approx. 5 meters. Where possible the ground_hog detection should be used to enhance tracking results. 
 
 It also uses the `/camera` namespace as a default and estimates the groundplane because it is not supposed to be run on the robot but on an external PC with a different set-up.
@@ -107,10 +107,10 @@ Parameters:
 
 Running:
 ```
-roslaunch perception_people_launch pedestrian_tracker_standalone.launch [parameter_name:=value]
+roslaunch perception_people_launch people_tracker_standalone.launch [parameter_name:=value]
 ```
 
-### pedestrian_tracker_standalone_with_HOG.launch
+### people_tracker_standalone_with_HOG.launch
 This depends on the strands_ground_hog package which has to be built with the libcudaHOG. See README file of 3rd_party directory. It also uses the `/camera` namespace as a default and estimates the groundplane because it is not supposed to be run on the robot but on an external PC with a different set-up.
 
 Parameters:
@@ -139,6 +139,6 @@ Parameters:
 
 Running:
 ```
-roslaunch perception_people_launch pedestrian_tracker_standalone_with_HOG.launch [parameter_name:=value]
+roslaunch perception_people_launch people_tracker_standalone_with_HOG.launch [parameter_name:=value]
 ```
 
