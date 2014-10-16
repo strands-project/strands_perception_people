@@ -119,11 +119,7 @@
     </include>
     
     <!-- Leg Detector -->
-    <include file="$(find leg_detector)/launch/leg_detector.launch">
-        <arg name="machine" value="$(arg machine)"/>
-        <arg name="user" value="$(arg user)"/>
-        <arg name="scan" value="$(arg scan)"/>
-    </include>
+    <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" output="screen"/>
     
     <!-- Logging -->
     <include file="$(find bayes_people_tracker_logging)/launch/logging.launch">
