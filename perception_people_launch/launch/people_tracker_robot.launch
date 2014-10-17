@@ -102,7 +102,9 @@
     </include>
     
     <!-- Leg Detector -->
-    <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" output="screen"/>
+    <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" output="screen">
+        <param name="fixed_frame" type="string" value="odom" />
+    </node>
     
     <!-- Logging -->
     <include file="$(find bayes_people_tracker_logging)/launch/logging.launch">
