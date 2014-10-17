@@ -1,12 +1,12 @@
 # Launch package
-This convenience package contains launch files to start-up the whole pedestrian tracker system.
+This convenience package contains launch files to start-up the whole people tracker system.
 
 ## General remarks
 All the the packages rely heavily on the synchronisation of rgb and depth images and the generated data of the other nodes. The synchronization is realised using a queue which saves a predefined number of messages on which the synchronisation is performed. _As a rule of thumb: the faster your machine the shorter the queue to prevent unnecessary use of memory._ You can set queue sizes using:
 ```
 roslaunch perception_people_launch file.launch gh_queue_size:=11 vo_queue_size:=22 ubd_queue_size:=33 pt_queue_size:=44
 ```
-This will overwrite the default values.  _gh = ground_hog, vo = visual_odemetry, ubd = upper_body_detector, pt = pedestrian_tracking_
+This will overwrite the default values.  _gh = ground_hog, vo = visual_odemetry, ubd = upper_body_detector, pt = mdl_people_tracker_
 
 The whole pipeline is desinged to unsuscribe from everything if there is no subscriber to the published topics. This causes the nodes to not use any CPU when there is no one listening on the published topics. This might result in a 1-2 second dealy after subscribing to one of the topics before the first data is published. Also, setting `log` to true when starting the perception pipeline will cause it to always run and log data.
 
@@ -22,7 +22,7 @@ Parameters:
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
-* `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
+* `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `ptu_state` _default = /ptu/state_: The ptu state topic
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
 * `ground_plane` _default = /ground_plane_: The fixed ground plane
@@ -31,9 +31,9 @@ Parameters:
 * `upper_body_markers default = /upper_body_detector/marker_array_: A visualisation array for rviz
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
-* `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
-* `pedestrian_markers" default="/pedestrian_tracking/marker_array_: A visualisation array for rviz
-* `pedestrian_poses" default = /pedestrian_tracking/pose_array_: A PoseArray of the detected pedestrians
+* `pedestrain_array` _default = /mdl_people_tracker/people_array_: The detected and tracked people
+* `people_markers" default="/mdl_people_tracker/marker_array_: A visualisation array for rviz
+* `people_poses" default = /mdl_people_tracker/pose_array_: A PoseArray of the detected people
 * `tf_target_frame` _default = /map: The coordinate system into which the localisations should be transformed
 * `pd_positions` _default = /people_tracker/positions_: The poses of the tracked people
 * `pd_marker` _default = /people_tracker/marker_array_: A marker arry to visualise found people in rviz
@@ -55,7 +55,7 @@ Parameters:
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
 * `gh_queue_size` _default = 20_: The ground plane sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
-* `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
+* `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `ptu_state` _default = /ptu/state_: The ptu state topic
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
 * `ground_plane` _default = /ground_plane_: The fixed ground plane
@@ -64,9 +64,9 @@ Parameters:
 * `upper_body_markers default = /upper_body_detector/marker_array_: A visualisation array for rviz
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
-* `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
-* `pedestrian_markers" default="/pedestrian_tracking/marker_array_: A visualisation array for rviz
-* `pedestrian_poses" default = /pedestrian_tracking/pose_array_: A PoseArray of the detected pedestrians
+* `pedestrain_array` _default = /mdl_people_tracker/people_array_: The detected and tracked people
+* `people_markers" default="/mdl_people_tracker/marker_array_: A visualisation array for rviz
+* `people_poses" default = /mdl_people_tracker/pose_array_: A PoseArray of the detected people
 * `tf_target_frame` _default = /map: The coordinate system into which the localisations should be transformed
 * `pd_positions` _default = /people_tracker/positions_: The poses of the tracked people
 * `pd_marker` _default = /people_tracker/marker_array_: A marker arry to visualise found people in rviz
@@ -91,7 +91,7 @@ Parameters:
 * `gh_queue_size` _default = 20_: The ground plane sync queue size
 * `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
-* `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
+* `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `camera_namespace` _default = /camera_: The camera namespace.
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
@@ -99,9 +99,9 @@ Parameters:
 * `upper_body_markers default = /upper_body_detector/marker_array_: A visualisation array for rviz
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
-* `pedestrain_array` _default = /pedestrian_tracking/pedestrian_array_: The detected and tracked pedestrians
-* `pedestrian_markers" default="/pedestrian_tracking/marker_array_: A visualisation array for rviz
-* `pedestrian_poses" default = /pedestrian_tracking/pose_array_: A PoseArray of the detected pedestrians
+* `pedestrain_array` _default = /mdl_people_tracker/people_array_: The detected and tracked people
+* `people_markers" default="/mdl_people_tracker/marker_array_: A visualisation array for rviz
+* `people_poses" default = /mdl_people_tracker/pose_array_: A PoseArray of the detected people
 * `tf_target_frame` _default = ""_: The coordinate system into which the localisations should be transformed. As this might not run on a robot and therefore no tf is available this is an empty string.
 
 
@@ -121,7 +121,7 @@ Parameters:
 * `gp_queue_size` _default = 5_: The ground plane sync queue size
 * `vo_queue_size` _default = 5_: The visual odometry sync queue size
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
-* `pt_queue_size` _default = 10_: The pedestrian tracking sync queue size
+* `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `camera_namespace` _default = /camera_: The camera namespace.
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `ground_hog_detections` _default = /groundHOG/detections_: The ground HOG detections
@@ -131,9 +131,9 @@ Parameters:
 * `ground_hog_image` _default = /groundHOG/image_: The ground HOG image
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The visual odometry
-* `pedestrian_markers" default="/pedestrian_tracking/marker_array_: A visualisation array for rviz
-* `pedestrian_poses" default = /pedestrian_tracking/pose_array_: A PoseArray of the detected pedestrians
-* `pedestrian_markers" default="/pedestrian_tracking/marker_array`: A visualisation array for rviz
+* `people_markers" default="/mdl_people_tracker/marker_array_: A visualisation array for rviz
+* `people_poses" default = /mdl_people_tracker/pose_array_: A PoseArray of the detected people
+* `people_markers" default="/mdl_people_tracker/marker_array`: A visualisation array for rviz
 * `tf_target_frame` _default = ""_: The coordinate system into which the localisations should be transformed. As this might not run on a robot and therefore no tf is available this is an empty string.
 
 

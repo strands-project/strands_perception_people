@@ -41,14 +41,14 @@
 #include "ground_plane_estimation/GroundPlane.h"
 #include "strands_ground_hog/GroundHOGDetections.h"
 #include "visual_odometry/VisualOdometry.h"
-#include "strands_pedestrian_tracking/PedestrianTracking.h"
-#include "strands_pedestrian_tracking/PedestrianTrackingArray.h"
+#include "mdl_people_tracker/MdlPeopleTracker.h"
+#include "mdl_people_tracker/MdlPeopleTrackerArray.h"
 
 
 using namespace std;
 using namespace sensor_msgs;
 using namespace message_filters;
-using namespace strands_pedestrian_tracking;
+using namespace mdl_people_tracker;
 using namespace upper_body_detector;
 using namespace ground_plane_estimation;
 using namespace strands_ground_hog;
@@ -400,10 +400,10 @@ visualization_msgs::MarkerArray createVisualisation(geometry_msgs::PoseArray pos
     return marker_array;
 }
 
-geometry_msgs::PoseArray transform(PedestrianTrackingArray pta) {
+geometry_msgs::PoseArray transform(MdlPeopleTrackerArray pta) {
     geometry_msgs::PoseArray result;
-    for(int i = 0; i < pta.pedestrians.size(); i++) {
-        PedestrianTracking pt = pta.pedestrians[i];
+    for(int i = 0; i < pta.people.size(); i++) {
+        MdlPeopleTracker pt = pta.people[i];
 
         //Create stamped pose for tf
         geometry_msgs::PoseStamped poseInCamCoords;
@@ -413,7 +413,7 @@ geometry_msgs::PoseArray transform(PedestrianTrackingArray pta) {
         poseInCamCoords.pose.position.y = pt.traj_y_camera[0];
         poseInCamCoords.pose.position.z = pt.traj_z_camera[0];
 
-        //Counteracting rotation in tf because it is already done in the pedestrian tracking.
+        //Counteracting rotation in tf because it is already done in the people tracking.
         poseInCamCoords.pose.orientation.x = -0.5;
         poseInCamCoords.pose.orientation.y =  0.5;
         poseInCamCoords.pose.orientation.z =  0.5;
@@ -477,13 +477,13 @@ void callbackWithoutHOG(const ImageConstPtr &color,
     Vector<Hypo> hyposMDL = tracker.getHyposMDL();
 
 
-    PedestrianTrackingArray allHypoMsg;
+    MdlPeopleTrackerArray allHypoMsg;
     allHypoMsg.header = upper->header;
     Vector<Vector<double> > trajPts;
     Vector<double> dir;
     for(int i = 0; i < hyposMDL.getSize(); i++)
     {
-        PedestrianTracking oneHypoMsg;
+        MdlPeopleTracker oneHypoMsg;
         oneHypoMsg.header = upper->header;
         hyposMDL(i).getTrajPts(trajPts);
         for(int j = 0; j < trajPts.getSize(); j++)
@@ -508,7 +508,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         oneHypoMsg.dir.push_back(dir(0));
         oneHypoMsg.dir.push_back(dir(1));
         oneHypoMsg.dir.push_back(dir(2));
-        allHypoMsg.pedestrians.push_back(oneHypoMsg);
+        allHypoMsg.people.push_back(oneHypoMsg);
     }
 
     if(pub_image.getNumSubscribers()) {
@@ -597,13 +597,13 @@ void callbackWithHOG(const ImageConstPtr &color,
     Vector<Hypo> hyposMDL = tracker.getHyposMDL();
 
 
-    PedestrianTrackingArray allHypoMsg;
+    MdlPeopleTrackerArray allHypoMsg;
     allHypoMsg.header = upper->header;
     Vector<Vector<double> > trajPts;
     Vector<double> dir;
     for(int i = 0; i < hyposMDL.getSize(); i++)
     {
-        PedestrianTracking oneHypoMsg;
+        MdlPeopleTracker oneHypoMsg;
         oneHypoMsg.header = upper->header;
         hyposMDL(i).getTrajPts(trajPts);
         for(int j = 0; j < trajPts.getSize(); j++)
@@ -629,7 +629,7 @@ void callbackWithHOG(const ImageConstPtr &color,
         oneHypoMsg.dir.push_back(dir(0));
         oneHypoMsg.dir.push_back(dir(1));
         oneHypoMsg.dir.push_back(dir(2));
-        allHypoMsg.pedestrians.push_back(oneHypoMsg);
+        allHypoMsg.people.push_back(oneHypoMsg);
     }
 
     if(pub_image.getNumSubscribers()) {
@@ -694,7 +694,7 @@ int main(int argc, char **argv)
     Globals::render_tracking_numbers = false;
 
     // Set up ROS.
-    ros::init(argc, argv, "pedestrian_tracking");
+    ros::init(argc, argv, "mdl_people_tracker");
     ros::NodeHandle n;
 
     listener = new tf::TransformListener();
@@ -739,7 +739,7 @@ int main(int argc, char **argv)
 
 
 
-    ROS_DEBUG("pedestrian_tracker: Queue size for synchronisation is set to: %i", queue_size);
+    ROS_DEBUG("mdl_people_tracker: Queue size for synchronisation is set to: %i", queue_size);
 
     // Image transport handle
     image_transport::ImageTransport it(private_node_handle_);
@@ -807,16 +807,16 @@ int main(int argc, char **argv)
     ///////////////////////////////////////////////////////////////////////////////////
 
     // Create a topic publisher
-    private_node_handle_.param("pedestrian_array", pub_topic, string("/pedestrian_tracking/pedestrian_array"));
-    pub_message = n.advertise<PedestrianTrackingArray>(pub_topic.c_str(), 10, con_cb, con_cb);
+    private_node_handle_.param("people_array", pub_topic, string("/mdl_people_tracker/people_array"));
+    pub_message = n.advertise<MdlPeopleTrackerArray>(pub_topic.c_str(), 10, con_cb, con_cb);
 
-    private_node_handle_.param("pedestrian_image", pub_image_topic, string("/pedestrian_tracking/image"));
+    private_node_handle_.param("people_image", pub_image_topic, string("/mdl_people_tracker/image"));
     pub_image = it.advertise(pub_image_topic.c_str(), 1, image_cb, image_cb);
 
-    private_node_handle_.param("pedestrian_markers", pub_marker_topic, string("/pedestrian_tracking/marker_array"));
+    private_node_handle_.param("people_markers", pub_marker_topic, string("/mdl_people_tracker/marker_array"));
     pub_markers = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
 
-    private_node_handle_.param("pedestrian_poses", pub_pose_topic, string("/pedestrian_tracking/pose_array"));
+    private_node_handle_.param("people_poses", pub_pose_topic, string("/mdl_people_tracker/pose_array"));
     pub_pose = n.advertise<geometry_msgs::PoseArray>(pub_pose_topic.c_str(), 10, con_cb, con_cb);
 
     ros::spin();

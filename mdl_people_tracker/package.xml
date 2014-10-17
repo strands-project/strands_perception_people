@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>strands_pedestrian_tracking</name>
+  <name>mdl_people_tracker</name>
   <version>0.0.0</version>
-  <description>The strands_pedestrian_tracking package</description>
+  <description>The mdl_people_tracker package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
 

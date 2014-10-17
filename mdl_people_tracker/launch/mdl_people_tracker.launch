@@ -1,17 +1,18 @@
 <launch>
     <arg name="load_params_from_file" default="true" />
-    <arg name="config_file" default="$(find strands_pedestrian_tracking)/config/pedestrian_tracking.yaml" />
+    <arg name="config_file" default="$(find mdl_people_tracker)/config/mdl_people_tracker.yaml" />
     <rosparam command="load" file="$(arg config_file)" if="$(arg load_params_from_file)"/>
     
     <arg name="queue_size" default="10" />
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="ground_plane" default="/ground_plane" />
+    <arg name="ground_hog" default="/groundHOG/detections" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
-    <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
-    <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
-    <arg name="pedestrian_markers" default="/pedestrian_tracking/marker_array" />
-    <arg name="pedestrian_poses" default="/pedestrian_tracking/pose_array" />
+    <arg name="people_array" default="/mdl_people_tracker/people_array" />
+    <arg name="people_image" default="/mdl_people_tracker/image" />
+    <arg name="people_markers" default="/mdl_people_tracker/marker_array" />
+    <arg name="people_poses" default="/mdl_people_tracker/pose_array" />
     <arg name="target_frame" default="/map" />
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -19,17 +20,17 @@
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
 
 
-    <node pkg="strands_pedestrian_tracking" type="pedestrian_tracking" name="pedestrian_tracking" output="log">
+    <node pkg="mdl_people_tracker" type="mdl_people_tracker" name="mdl_people_tracker" output="log">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
-        <param name="ground_hog" value="" type="string"/> <!-- Important to start without groundHOG -->
+        <param name="ground_hog" value="$(arg ground_hog)" type="string"/>
         <param name="visual_odometry" value="$(arg visual_odometry)" type="string"/>
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
-        <param name="pedestrian_array" value="$(arg pedestrian_array)" type="string"/>
-        <param name="pedestrian_image" value="$(arg pedestrian_image)" type="string"/>
-        <param name="pedestrian_markers" value="$(arg pedestrian_markers)" type="string"/>
-        <param name="pedestrian_poses" value="$(arg pedestrian_poses)" type="string"/>
+        <param name="people_array" value="$(arg people_array)" type="string"/>
+        <param name="people_image" value="$(arg people_image)" type="string"/>
+        <param name="people_markers" value="$(arg people_markers)" type="string"/>
+        <param name="people_poses" value="$(arg people_poses)" type="string"/>
         <param name="target_frame" value="$(arg target_frame)" type="string"/>
     </node>
 

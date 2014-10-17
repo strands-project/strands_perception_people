@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   mongodb_store
   rospy
-  strands_pedestrian_tracking
+  mdl_people_tracker
   tf
   upper_body_detector
 )
@@ -32,7 +32,7 @@ generate_messages(
     geometry_msgs
     upper_body_detector
     std_msgs
-    strands_pedestrian_tracking
+    mdl_people_tracker
 )
 
 ###################################
@@ -45,7 +45,7 @@ catkin_package(
     geometry_msgs
     message_filters
     mongodb_store
-    strands_pedestrian_tracking
+    mdl_people_tracker
     tf
     upper_body_detector
 )

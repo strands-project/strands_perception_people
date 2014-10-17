@@ -32,7 +32,7 @@ Vector<double> EKalman::non_lin_state_equation(Vector<double> x, double dt)
     int size = x.getSize();
     Vector<double> res(size, 0.0);
 
-    // Constant velocity model for pedestrians
+    // Constant velocity model for people
     res(0) = x(0) + x(3)*cos(x(2))*dt;
     res(1) = x(1) + x(3)*sin(x(2))*dt;
     res(2) = x(2);

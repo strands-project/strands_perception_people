@@ -17,10 +17,10 @@
     <arg name="ground_hog_image" default="/groundHOG/image" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
-    <arg name="pedestrian_array" default="/pedestrian_tracking/pedestrian_array" />
-    <arg name="pedestrian_markers" default="/pedestrian_tracking/marker_array" />
-    <arg name="pedestrian_poses" default="/pedestrian_tracking/pose_array" />
-    <arg name="pedestrian_image" default="/pedestrian_tracking/image" />
+    <arg name="people_array" default="/mdl_people_tracker/people_array" />
+    <arg name="people_markers" default="/mdl_people_tracker/marker_array" />
+    <arg name="people_poses" default="/mdl_people_tracker/pose_array" />
+    <arg name="people_image" default="/mdl_people_tracker/image" />
     <arg name="tf_target_frame" default="/map" />
     <arg name="pd_positions" default="/people_tracker/positions" />
     <arg name="pd_marker" default="/people_tracker/marker_array" />
@@ -86,7 +86,7 @@
     </include>
 
     <!-- Pedestrian Tracking -->
-    <include file="$(find strands_pedestrian_tracking)/launch/pedestrian_tracking.launch">
+    <include file="$(find mdl_people_tracker)/launch/mdl_people_tracker.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
@@ -96,10 +96,10 @@
         <arg name="ground_hog" value="$(arg ground_hog_detections)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="visual_odometry" value="$(arg visual_odometry)"/>
-        <arg name="pedestrian_array" value="$(arg pedestrian_array)"/>
-        <arg name="pedestrian_image" value="$(arg pedestrian_image)"/>
-        <arg name="pedestrian_markers" value="$(arg pedestrian_markers)"/>
-        <arg name="pedestrian_poses" value="$(arg pedestrian_poses)"/>
+        <arg name="people_array" value="$(arg people_array)"/>
+        <arg name="people_image" value="$(arg people_image)"/>
+        <arg name="people_markers" value="$(arg people_markers)"/>
+        <arg name="people_poses" value="$(arg people_poses)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
     </include>
 
