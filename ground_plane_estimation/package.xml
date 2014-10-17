@@ -4,35 +4,37 @@
   <version>0.0.0</version>
   <description>The ground_plane_estimation package</description>
 
-  <maintainer email="mitzel@umic.rwth-aachen.de">Dennis Mitzel</maintainer>
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
+  <maintainer email="mitzel@umic.rwth-aachen.de">Dennis Mitzel</maintainer>
 
-  <license>TODO</license>
+  <license>BSD</license>
 
-  <url type="website">http://www.vision.rwth-aachen.de/</url>
+  <url type="website">https://github.com/strands-project/strands_perception_people</url>
 
-  <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author>
   <author email="mitzel@umic.rwth-aachen.de">Dennis Mitzel</author>
+  <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author>
   
   <buildtool_depend>catkin</buildtool_depend>
   
+  <build_depend>boost</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
   <build_depend>message_filters</build_depend>
   <build_depend>message_generation</build_depend>
-  <build_depend>cv_bridge</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>tf</build_depend>
-  <build_depend>image_transport</build_depend>
-  <build_depend>sensor_msgs</build_depend>
 
+  <run_depend>boost</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>image_transport</run_depend>
   <run_depend>message_filters</run_depend>
   <run_depend>message_runtime</run_depend>
-  <run_depend>cv_bridge</run_depend>
   <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>tf</run_depend>
-  <run_depend>image_transport</run_depend>
-  <run_depend>sensor_msgs</run_depend>
 
   <export/>
 </package>
