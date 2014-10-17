@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_pedestrian_tracking)
+project(mdl_people_tracker)
 
 find_package(catkin REQUIRED COMPONENTS 
     cv_bridge 
@@ -34,8 +34,8 @@ endif()
 
 add_message_files(
   FILES
-  PedestrianTracking.msg
-  PedestrianTrackingArray.msg
+  MdlPeopleTracker.msg
+  MdlPeopleTrackerArray.msg
 )
 
 generate_messages(
@@ -74,7 +74,7 @@ include_directories(include
   ${Boost_INCLUDE_DIRS}
 )
 
-add_executable(pedestrian_tracking 
+add_executable(mdl_people_tracker 
     src/main.cpp 
     src/Camera.cpp 
     src/Globals.cpp 
@@ -90,9 +90,9 @@ add_executable(pedestrian_tracking
     src/Visualization.cpp
 )
 
-add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(mdl_people_tracker ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
-target_link_libraries(pedestrian_tracking
+target_link_libraries(mdl_people_tracker
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
   ${QT_LIBRARIES}
@@ -105,7 +105,7 @@ target_link_libraries(pedestrian_tracking
 ## Install ##
 #############
 
-install(TARGETS pedestrian_tracking
+install(TARGETS mdl_people_tracker
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

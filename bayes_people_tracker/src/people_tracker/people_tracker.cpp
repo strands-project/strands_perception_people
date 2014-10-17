@@ -23,7 +23,7 @@ PeopleTracker::PeopleTracker() :
     // while using different parameters.
     ros::NodeHandle private_node_handle("~");
     private_node_handle.param("target_frame", target_frame, std::string("/base_link"));
-    private_node_handle.param("pedestrian_array", pta_topic, std::string("/upper_body_detector/bounding_box_centres"));
+    private_node_handle.param("people_array", pta_topic, std::string("/upper_body_detector/bounding_box_centres"));
     parseParams(private_node_handle);
 
     // Create a status callback.

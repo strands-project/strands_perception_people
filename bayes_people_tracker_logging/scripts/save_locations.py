@@ -3,7 +3,7 @@
 import rospy
 from mongodb_store.message_store import MessageStoreProxy
 from bayes_people_tracker.msg import PeopleTracker
-from strands_pedestrian_tracking.msg import PedestrianTrackingArray, PedestrianTracking
+from mdl_people_tracker.msg import MdlPeopleTrackerArray, MdlPeopleTracker
 from upper_body_detector.msg import UpperBodyDetector
 from bayes_people_tracker_logging.msg import Logging
 import geometry_msgs.msg
@@ -23,9 +23,9 @@ class SaveLocations():
             "/people_tracker/positions",
             PeopleTracker,
         )
-        pedestrian = message_filters.Subscriber(
-            "/pedestrian_tracking/pedestrian_array",
-            PedestrianTrackingArray,
+        people = message_filters.Subscriber(
+            "/mdl_people_tracker/people_array",
+            MdlPeopleTrackerArray,
         )
         upper = message_filters.Subscriber(
             "/upper_body_detector/detections",
@@ -40,7 +40,7 @@ class SaveLocations():
         )
         ts = ApproximateSynchronizer(
             0.5,
-            [locations, pedestrian, upper],
+            [locations, people, upper],
             10
         )
         ts.registerCallback(self.people_callback)
@@ -97,7 +97,7 @@ class SaveLocations():
         insert.people = pl.poses
         insert.robot = self.robot_pose
         insert.people_tracker = pl
-        insert.pedestrian_tracking = pt.pedestrians
+        insert.mdl_people_tracker = pt.people
         insert.upper_body_detections = up
         insert.target_frame = self.transform(
             pt.header.frame_id,
