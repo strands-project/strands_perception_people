@@ -1,0 +1,30 @@
+<launch>
+    <arg name="load_params_from_file" default="true" />
+    <arg name="config_file" default="$(find upper_body_detector)/config/upper_body_detector.yaml" />
+    <rosparam command="load" file="$(arg config_file)" if="$(arg load_params_from_file)"/>
+    <arg name="template_file" default="$(find upper_body_detector)/config/upper_body_template.yaml" />
+    <rosparam command="load" file="$(arg template_file)" if="$(arg load_params_from_file)"/>
+    
+    <arg name="queue_size" default="5" />
+    <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="upper_body_detections" default="/upper_body_detector/detections" />
+    <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
+    <arg name="upper_body_image" default="/upper_body_detector/image" />
+    <arg name="upper_body_markers" default="/upper_body_detector/marker_array" />
+    <arg name="ground_plane" default="/ground_plane" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    
+    <node pkg="upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="log">
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+        <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
+        <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
+        <param name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)" type="string"/>
+        <param name="upper_body_image" value="$(arg upper_body_image)" type="string"/>
+        <param name="upper_body_markers" value="$(arg upper_body_markers)" type="string"/>
+        <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
+    </node>
+
+</launch> 

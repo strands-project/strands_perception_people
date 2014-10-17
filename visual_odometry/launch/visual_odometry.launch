@@ -1,0 +1,15 @@
+<launch>
+    <arg name="queue_size" default="5" />
+    <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="motion_parameters" default="/visual_odometry/motion_matrix" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+
+    <node pkg="visual_odometry" type="visual_odometry" name="visual_odometry" output="log">
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+        <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
+        <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>
+    </node>
+</launch> 

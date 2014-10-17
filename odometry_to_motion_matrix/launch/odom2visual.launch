@@ -1,0 +1,13 @@
+<launch>
+    <arg name="odom" default="/odom" />
+    <arg name="motion_parameters" default="/visual_odometry/motion_matrix" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+
+    <node pkg="odometry_to_motion_matrix" type="odom2visual" name="odom2visual" output="log">
+        <param name="odom" value="$(arg odom)" type="string"/>
+        <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>
+    </node>
+</launch> 

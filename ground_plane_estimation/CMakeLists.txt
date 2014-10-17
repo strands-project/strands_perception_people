@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_pedestrian_tracking)
+project(ground_plane_estimation)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -8,31 +8,21 @@ find_package(catkin REQUIRED COMPONENTS
     cv_bridge 
     message_filters 
     roscpp 
-    sensor_msgs 
-    geometry_msgs 
-    visualization_msgs 
-    tf 
     std_msgs 
-    message_generation
+    message_generation 
+    tf 
+    sensor_msgs 
     image_transport
-    upper_body_detector
-    ground_plane_estimation
-    strands_ground_hog
-    visual_odometry
     )
 
-find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
-include(${QT_USE_FILE})
+## System dependencies are found with CMake's conventions
+# find_package(Boost REQUIRED COMPONENTS system)
 
 set(CMAKE_BUILD_TYPE Release)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-O3")        ## Optimize
 endif()
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -46,8 +36,7 @@ endif()
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  PedestrianTracking.msg
-  PedestrianTrackingArray.msg
+  GroundPlane.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -64,6 +53,7 @@ generate_messages(
   geometry_msgs
 )
 
+###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
@@ -74,8 +64,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES tracking
-#  CATKIN_DEPENDS cv_bridge message_filters roscpp sensor_msgs std_msgs 
+#  LIBRARIES ground_plane_estimation
+#  CATKIN_DEPENDS cv_bridge message_filters rosccp std_msgs 
 #  DEPENDS system_lib
 )
 
@@ -91,39 +81,26 @@ include_directories(include
 )
 
 ## Declare a cpp library
-# add_library(tracking
-#   src/${PROJECT_NAME}/tracking.cpp
+# add_library(ground_plane_estimation
+#   src/${PROJECT_NAME}/ground_plane_estimation.cpp
 # )
 
 ## Declare a cpp executable
-add_executable(pedestrian_tracking 
-    src/main.cpp 
-    src/Camera.cpp 
-    src/Globals.cpp 
-    src/AncillaryMethods.cpp 
-    src/Hypo.cpp 
-    src/FrameInlier.cpp 
-    src/Detections.cpp 
-    src/EKalman.cpp 
-    src/Kalman.cpp 
-    src/Math.cpp 
-    src/MDL.cpp 
-    src/Tracker.cpp 
-    src/Visualization.cpp
-)
+add_executable(ground_plane_estimated src/estimated_gp.cpp src/Camera.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
+add_executable(ground_plane_fixed src/fixed_gp.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(ground_plane_estimated ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(ground_plane_fixed ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(pedestrian_tracking
+target_link_libraries(ground_plane_estimated
    ${catkin_LIBRARIES}
-   ${QT_LIBRARIES}
-   ${QT_QTCORE_LIBRARY}
-   ${QT_QTGUI_LIBRARY}
-   X11
- )
+)
+target_link_libraries(ground_plane_fixed
+   ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -140,7 +117,7 @@ add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${cat
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS tracking tracking_node
+# install(TARGETS ground_plane_estimation ground_plane_estimation_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -165,7 +142,7 @@ add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${cat
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tracking.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ground_plane_estimation.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

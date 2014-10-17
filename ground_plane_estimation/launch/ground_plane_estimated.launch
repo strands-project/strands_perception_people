@@ -1,0 +1,20 @@
+<launch>
+    <arg name="load_params_from_file" default="true" />
+    <arg name="param_file" default="$(find ground_plane_estimation)/config/estimated_gp.yaml" />
+    <rosparam command="load" file="$(arg param_file)" if="$(arg load_params_from_file)"/>
+
+    <arg name="queue_size" default="5" />
+    <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="ground_plane" default="/ground_plane" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+
+    <node pkg="ground_plane_estimation" type="ground_plane_estimated" name="ground_plane" output="log">
+        <param name="queue_size" value="$(arg queue_size)" type="int"/>
+        <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
+        <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
+    </node>
+
+</launch> 

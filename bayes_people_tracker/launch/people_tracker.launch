@@ -1,0 +1,19 @@
+<launch>
+    <arg name="param_file" default="$(find bayes_people_tracker)/config/detectors.yaml" />
+    <rosparam command="load" file="$(arg param_file)"/>
+
+    <arg name="target_frame" default="/base_link" />
+    <arg name="positions" default="/people_tracker/positions" />
+    <arg name="marker" default="/people_tracker/marker_array" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    
+    <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen">
+        <param name="target_frame" value="$(arg target_frame)" type="string"/>
+        <param name="positions" value="$(arg positions)" type="string"/>
+        <param name="marker" value="$(arg marker)" type="string"/>
+    </node>
+
+</launch> 

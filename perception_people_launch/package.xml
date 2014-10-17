@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>perception_people_launch</name>
+  <version>0.0.0</version>
+  <description>The perception_people_launch package</description>
+
+  <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
+
+  <license>TODO</license>
+
+  <url type="website">http://www.vision.rwth-aachen.de/</url>
+
+  <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author>
+  <author email="mitzel@umic.rwth-aachen.de">Dennis Mitzel</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export/>
+</package>

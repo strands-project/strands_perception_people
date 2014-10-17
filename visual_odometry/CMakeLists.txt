@@ -1,28 +1,20 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(strands_pedestrian_tracking)
+project(visual_odometry)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS 
-    cv_bridge 
-    message_filters 
     roscpp 
     sensor_msgs 
-    geometry_msgs 
-    visualization_msgs 
-    tf 
     std_msgs 
-    message_generation
+    message_filters 
+    message_generation 
+    cv_bridge 
     image_transport
-    upper_body_detector
-    ground_plane_estimation
-    strands_ground_hog
-    visual_odometry
     )
-
-find_package(Qt4 REQUIRED COMPONENTS QtCore QtGui)
-include(${QT_USE_FILE})
+pkg_check_modules(EIGEN REQUIRED eigen3)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -46,16 +38,8 @@ endif()
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  PedestrianTracking.msg
-  PedestrianTrackingArray.msg
+  VisualOdometry.msg
 )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -64,6 +48,7 @@ generate_messages(
   geometry_msgs
 )
 
+###################################
 ## catkin specific configuration ##
 ###################################
 ## The catkin_package macro generates cmake config files for your package
@@ -73,9 +58,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-#  LIBRARIES tracking
-#  CATKIN_DEPENDS cv_bridge message_filters roscpp sensor_msgs std_msgs 
+#  INCLUDE_DIRS include
+#  LIBRARIES visual_odometry
+#  CATKIN_DEPENDS libeigen3-dev message_generation roscpp sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
@@ -86,43 +71,30 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(include
+include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis
 )
 
+FILE(GLOB FOVIS_CPP ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis/*.cpp)
+FILE(GLOB FOVIS_C ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis/*.c)
+
 ## Declare a cpp library
-# add_library(tracking
-#   src/${PROJECT_NAME}/tracking.cpp
+# add_library(visual_odometry
+#   src/${PROJECT_NAME}/visual_odometry.cpp
 # )
 
 ## Declare a cpp executable
-add_executable(pedestrian_tracking 
-    src/main.cpp 
-    src/Camera.cpp 
-    src/Globals.cpp 
-    src/AncillaryMethods.cpp 
-    src/Hypo.cpp 
-    src/FrameInlier.cpp 
-    src/Detections.cpp 
-    src/EKalman.cpp 
-    src/Kalman.cpp 
-    src/Math.cpp 
-    src/MDL.cpp 
-    src/Tracker.cpp 
-    src/Visualization.cpp
-)
+add_executable(visual_odometry src/main.cpp ${FOVIS_CPP} ${FOVIS_C})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(visual_odometry ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(pedestrian_tracking
+ target_link_libraries(visual_odometry
    ${catkin_LIBRARIES}
-   ${QT_LIBRARIES}
-   ${QT_QTCORE_LIBRARY}
-   ${QT_QTGUI_LIBRARY}
-   X11
  )
 
 #############
@@ -140,7 +112,7 @@ add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${cat
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS tracking tracking_node
+# install(TARGETS visual_odometry visual_odometry_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -165,7 +137,7 @@ add_dependencies(pedestrian_tracking ${PROJECT_NAME}_generate_messages_cpp ${cat
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_tracking.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_visual_odometry.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
