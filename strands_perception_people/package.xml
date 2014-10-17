@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <name>strands_perception_people</name>
+  <version>0.0.0</version>
+  <description>The strands_perception_people metapackage</description>
+
+  <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://github.com/strands-project/strands_perception_people</url> 
+
+  <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author> 
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>bayes_people_tracker</run_depend>
+  <run_depend>bayes_people_tracker_logging</run_depend>
+  <run_depend>ground_plane_estimation</run_depend>
+  <run_depend>mdl_people_tracker</run_depend>
+  <run_depend>odometry_to_motion_matrix</run_depend>
+  <run_depend>perception_people_launch</run_depend>
+  <run_depend>upper_body_detector</run_depend>
+  <run_depend>visual_odometry</run_depend>
+
+  <export>
+    <metapackage/> 
+  </export>
+</package>
