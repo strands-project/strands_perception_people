@@ -6,28 +6,35 @@
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
 
-  <license>TODO</license>
+  <!--Due to fovis-->
+  <license>GPL-3</license>
 
-  <url type="website">http://www.vision.rwth-aachen.de/</url>
+  <url type="website">https://github.com/strands-project/strands_perception_people</url>
 
   <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author>
   <author email="mitzel@umic.rwth-aachen.de">Dennis Mitzel</author>
   
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>boost</build_depend>
+  <build_depend>cv_bridge</build_depend>
   <build_depend>eigen</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>message_filters</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
-  <build_depend>image_transport</build_depend>
 
+  <run_depend>boost</run_depend>
+  <run_depend>cv_bridge</run_depend>
   <run_depend>eigen</run_depend>
+  <run_depend>image_transport</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>message_filters</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>message_runtime</run_depend>
-  <run_depend>image_transport</run_depend>
 
   <export/>
 </package>
