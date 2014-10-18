@@ -2,8 +2,8 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2014-10-18)
+------------------
 * Prepared upper_body_detector for release.
 * Renamed strands_upper_body_detector to upper_body_detector
 * Addressing issue `#15 <https://github.com/strands-project/strands_perception_people/issues/15>`_
