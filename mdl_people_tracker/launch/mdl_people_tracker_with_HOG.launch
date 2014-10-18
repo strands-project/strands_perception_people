@@ -6,6 +6,7 @@
     <arg name="queue_size" default="10" />
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="ground_plane" default="/ground_plane" />
+    <arg name="ground_hog" default="/groundHOG/detections" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
     <arg name="people_array" default="/mdl_people_tracker/people_array" />
@@ -23,7 +24,7 @@
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
-        <param name="ground_hog" value="" type="string"/> <!-- Important to start without groundHOG -->
+        <param name="ground_hog" value="$(arg ground_hog)" type="string"/>
         <param name="visual_odometry" value="$(arg visual_odometry)" type="string"/>
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
         <param name="people_array" value="$(arg people_array)" type="string"/>

@@ -57,7 +57,7 @@
     </include>
 
     <!-- Pedestrian Tracking -->
-    <include file="$(find mdl_people_tracker)/launch/mdl_people_tracker_no_HOG.launch">
+    <include file="$(find mdl_people_tracker)/launch/mdl_people_tracker.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
