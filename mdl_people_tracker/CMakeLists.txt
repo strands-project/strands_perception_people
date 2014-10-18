@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp 
     sensor_msgs 
     std_msgs 
-    strands_ground_hog
     tf 
     upper_body_detector
     visualization_msgs 
@@ -58,7 +57,6 @@ catkin_package(
     roscpp 
     sensor_msgs 
     std_msgs 
-    strands_ground_hog
     tf 
     upper_body_detector
     visualization_msgs 
