@@ -24,7 +24,7 @@ rosrun mdl_people_tracker mdl_people_tracker [_parameter_name:=value]
 
 roslaunch:
 ```
-roslaunch mdl_people_tracker mdl_people_tracker.launch [parameter_name:=value]
+roslaunch mdl_people_tracker mdl_people_tracker_with_HOG.launch [parameter_name:=value]
 ```
 
 To run the tracker without the groundHOG feture extraction running use:
@@ -34,5 +34,5 @@ rosrun mdl_people_tracker mdl_people_tracker _ground_hog:=""
 or
 
 ```
-roslaunch mdl_people_tracker mdl_people_tracker_no_HOG.launch [parameter_name:=value]
+roslaunch mdl_people_tracker mdl_people_tracker.launch [parameter_name:=value]
 ```
