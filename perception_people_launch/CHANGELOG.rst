@@ -2,8 +2,8 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2014-10-18)
+------------------
 * Removed ground_hog from run_deps
 * Contributors: Christian Dondrup
 
