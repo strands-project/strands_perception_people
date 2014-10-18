@@ -1,0 +1,19 @@
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package perception_people_launch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Forthcoming
+-----------
+* removed groundHOG references from code.
+* renaming mdl-People_tracker launch files
+  to comply with the rest of the structure and to make releasing easier.
+* Renamed strands_pedestrian_tracking to mdl_people_tracker
+  This also includes renaming the messages and most of the parameters.
+* Some bug fixes
+* Prepared launch package for release.
+* Renamed pedestrian_tracker launch files
+* Calling the leg_detector directly to not need a private fork anymore.
+* Splitting utils package into seperate packages.
+* strands_visual_odometry is now visual_odometry
+* strands_perception_people_launch is now perception_people_launch
+* Contributors: Christian Dondrup
