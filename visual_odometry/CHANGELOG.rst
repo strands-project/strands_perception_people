@@ -2,8 +2,8 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2014-10-18)
+------------------
 * Some bug fixes
 * Prepared visual_odometry for release.
 * strands_visual_odometry is now visual_odometry

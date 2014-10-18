@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2014-10-18)
+------------------
 * Renamed strands_pedestrian_tracking to mdl_people_tracker
   This also includes renaming the messages and most of the parameters.
 * Forgot to install the config dir.

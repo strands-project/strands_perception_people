@@ -2,8 +2,8 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.1 (2014-10-18)
+------------------
 * removed groundHOG references from code.
 * renaming mdl-People_tracker launch files
   to comply with the rest of the structure and to make releasing easier.
