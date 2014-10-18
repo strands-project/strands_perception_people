@@ -39,7 +39,7 @@
 
 #include "upper_body_detector/UpperBodyDetector.h"
 #include "ground_plane_estimation/GroundPlane.h"
-#include "strands_ground_hog/GroundHOGDetections.h"
+//#include "strands_ground_hog/GroundHOGDetections.h"
 #include "visual_odometry/VisualOdometry.h"
 #include "mdl_people_tracker/MdlPeopleTracker.h"
 #include "mdl_people_tracker/MdlPeopleTrackerArray.h"
@@ -51,7 +51,7 @@ using namespace message_filters;
 using namespace mdl_people_tracker;
 using namespace upper_body_detector;
 using namespace ground_plane_estimation;
-using namespace strands_ground_hog;
+//using namespace strands_ground_hog;
 using namespace visual_odometry;
 
 ros::Publisher pub_message, pub_markers, pub_pose;
@@ -540,131 +540,131 @@ void callbackWithoutHOG(const ImageConstPtr &color,
     }
 }
 
-void callbackWithHOG(const ImageConstPtr &color,
-                     const CameraInfoConstPtr &info,
-                     const GroundPlane::ConstPtr &gp,
-                     const GroundHOGDetections::ConstPtr& groundHOGDet,
-                     const UpperBodyDetector::ConstPtr &upper,
-                     const VisualOdometry::ConstPtr &vo)
-{
-    ROS_DEBUG("Entered callback with groundHOG data");
-    Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
+//void callbackWithHOG(const ImageConstPtr &color,
+                     //const CameraInfoConstPtr &info,
+                     //const GroundPlane::ConstPtr &gp,
+                     //const GroundHOGDetections::ConstPtr& groundHOGDet,
+                     //const UpperBodyDetector::ConstPtr &upper,
+                     //const VisualOdometry::ConstPtr &vo)
+//{
+    //ROS_DEBUG("Entered callback with groundHOG data");
+    //Globals::render_bbox3D = pub_image.getNumSubscribers() > 0 ? true : false;
 
-    // Get camera from VO and GP
-    Vector<double> GP(3, (double*) &gp->n[0]);
-    GP.pushBack((double) gp->d);
+     //Get camera from VO and GP
+    //Vector<double> GP(3, (double*) &gp->n[0]);
+    //GP.pushBack((double) gp->d);
 
-    Camera camera = createCamera(GP, vo, info);
+    //Camera camera = createCamera(GP, vo, info);
 
-    // Get detections from HOG and upper body
-    Vector<double> single_detection(9);
-    Vector<Vector< double > > detected_bounding_boxes;
+     //Get detections from HOG and upper body
+    //Vector<double> single_detection(9);
+    //Vector<Vector< double > > detected_bounding_boxes;
 
-    for(int i = 0; i < groundHOGDet->pos_x.size(); i++)
-    {
-        single_detection(0) = cnt;
-        single_detection(1) = i;
-        single_detection(2) = 1;
-        single_detection(3) = groundHOGDet->score[i];
-        single_detection(4) = groundHOGDet->pos_x[i];
-        single_detection(5) = groundHOGDet->pos_y[i];
-        single_detection(6) = groundHOGDet->width[i];
-        single_detection(7) = groundHOGDet->height[i];
-        Vector<double> bbox(single_detection(3), single_detection(4), single_detection(5), single_detection(6));
-        single_detection(8) = computeDepth(bbox, camera);
-        detected_bounding_boxes.pushBack(single_detection);
-    }
+    //for(int i = 0; i < groundHOGDet->pos_x.size(); i++)
+    //{
+        //single_detection(0) = cnt;
+        //single_detection(1) = i;
+        //single_detection(2) = 1;
+        //single_detection(3) = groundHOGDet->score[i];
+        //single_detection(4) = groundHOGDet->pos_x[i];
+        //single_detection(5) = groundHOGDet->pos_y[i];
+        //single_detection(6) = groundHOGDet->width[i];
+        //single_detection(7) = groundHOGDet->height[i];
+        //Vector<double> bbox(single_detection(3), single_detection(4), single_detection(5), single_detection(6));
+        //single_detection(8) = computeDepth(bbox, camera);
+        //detected_bounding_boxes.pushBack(single_detection);
+    //}
 
-    for(int i = 0; i < upper->pos_x.size(); i++)
-    {
-        single_detection(0) = cnt;
-        single_detection(1) = groundHOGDet->pos_x.size()+i;
-        single_detection(2) = 1;
-        single_detection(3) = 1 - upper->dist[i]; // make sure that the score is always positive
-        single_detection(4) = upper->pos_x[i];
-        single_detection(5) = upper->pos_y[i];
-        single_detection(6) = upper->width[i];
-        single_detection(7) = upper->height[i] * 3;
-        single_detection(8) = upper->median_depth[i];
-        detected_bounding_boxes.pushBack(single_detection);
-    }
-
-
-    get_image((unsigned char*)(&color->data[0]),info->width,info->height,cim);
-    ///////////////////////////////////////////TRACKING///////////////////////////
-
-    tracker.process_tracking_oneFrame(HyposAll, *det_comb, cnt, detected_bounding_boxes, cim, camera);
-    Vector<Hypo> hyposMDL = tracker.getHyposMDL();
+    //for(int i = 0; i < upper->pos_x.size(); i++)
+    //{
+        //single_detection(0) = cnt;
+        //single_detection(1) = groundHOGDet->pos_x.size()+i;
+        //single_detection(2) = 1;
+        //single_detection(3) = 1 - upper->dist[i]; // make sure that the score is always positive
+        //single_detection(4) = upper->pos_x[i];
+        //single_detection(5) = upper->pos_y[i];
+        //single_detection(6) = upper->width[i];
+        //single_detection(7) = upper->height[i] * 3;
+        //single_detection(8) = upper->median_depth[i];
+        //detected_bounding_boxes.pushBack(single_detection);
+    //}
 
 
-    MdlPeopleTrackerArray allHypoMsg;
-    allHypoMsg.header = upper->header;
-    Vector<Vector<double> > trajPts;
-    Vector<double> dir;
-    for(int i = 0; i < hyposMDL.getSize(); i++)
-    {
-        MdlPeopleTracker oneHypoMsg;
-        oneHypoMsg.header = upper->header;
-        hyposMDL(i).getTrajPts(trajPts);
-        for(int j = 0; j < trajPts.getSize(); j++)
-        {
-            oneHypoMsg.traj_x.push_back(trajPts(j)(0));
-            oneHypoMsg.traj_y.push_back(trajPts(j)(1));
-            oneHypoMsg.traj_z.push_back(trajPts(j)(2));
+    //get_image((unsigned char*)(&color->data[0]),info->width,info->height,cim);
+    /////////////////////////////////////////TRACKING///////////////////////////
+
+    //tracker.process_tracking_oneFrame(HyposAll, *det_comb, cnt, detected_bounding_boxes, cim, camera);
+    //Vector<Hypo> hyposMDL = tracker.getHyposMDL();
+
+
+    //MdlPeopleTrackerArray allHypoMsg;
+    //allHypoMsg.header = upper->header;
+    //Vector<Vector<double> > trajPts;
+    //Vector<double> dir;
+    //for(int i = 0; i < hyposMDL.getSize(); i++)
+    //{
+        //MdlPeopleTracker oneHypoMsg;
+        //oneHypoMsg.header = upper->header;
+        //hyposMDL(i).getTrajPts(trajPts);
+        //for(int j = 0; j < trajPts.getSize(); j++)
+        //{
+            //oneHypoMsg.traj_x.push_back(trajPts(j)(0));
+            //oneHypoMsg.traj_y.push_back(trajPts(j)(1));
+            //oneHypoMsg.traj_z.push_back(trajPts(j)(2));
             
-            Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(j), camera);
+            //Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(j), camera);
             
-            oneHypoMsg.traj_x_camera.push_back(posInCamera(0));
-            oneHypoMsg.traj_y_camera.push_back(posInCamera(1));
-            oneHypoMsg.traj_z_camera.push_back(posInCamera(2));
+            //oneHypoMsg.traj_x_camera.push_back(posInCamera(0));
+            //oneHypoMsg.traj_y_camera.push_back(posInCamera(1));
+            //oneHypoMsg.traj_z_camera.push_back(posInCamera(2));
             
-        }
+        //}
 
-        oneHypoMsg.id = hyposMDL(i).getHypoID();
-        oneHypoMsg.uuid = generateUUID(startup_time_str, oneHypoMsg.id);
-        oneHypoMsg.score = hyposMDL(i).getScoreMDL();
-        oneHypoMsg.speed = hyposMDL(i).getSpeed();
-        hyposMDL(i).getDir(dir);
+        //oneHypoMsg.id = hyposMDL(i).getHypoID();
+        //oneHypoMsg.uuid = generateUUID(startup_time_str, oneHypoMsg.id);
+        //oneHypoMsg.score = hyposMDL(i).getScoreMDL();
+        //oneHypoMsg.speed = hyposMDL(i).getSpeed();
+        //hyposMDL(i).getDir(dir);
 
-        oneHypoMsg.dir.push_back(dir(0));
-        oneHypoMsg.dir.push_back(dir(1));
-        oneHypoMsg.dir.push_back(dir(2));
-        allHypoMsg.people.push_back(oneHypoMsg);
-    }
+        //oneHypoMsg.dir.push_back(dir(0));
+        //oneHypoMsg.dir.push_back(dir(1));
+        //oneHypoMsg.dir.push_back(dir(2));
+        //allHypoMsg.people.push_back(oneHypoMsg);
+    //}
 
-    if(pub_image.getNumSubscribers()) {
-        ROS_DEBUG("Publishing image");
-        Image res_img;
-        res_img.header = color->header;
-        res_img.height = cim._height;
-        res_img.step   = color->step;
-        res_img.width = cim._width;
-        for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
-            res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
-            res_img.data.push_back(cim.data()[i+1*cim._height*cim._width]);
-            res_img.data.push_back(cim.data()[i+2*cim._height*cim._width]);
-        }
-        res_img.encoding = color->encoding;
+    //if(pub_image.getNumSubscribers()) {
+        //ROS_DEBUG("Publishing image");
+        //Image res_img;
+        //res_img.header = color->header;
+        //res_img.height = cim._height;
+        //res_img.step   = color->step;
+        //res_img.width = cim._width;
+        //for (std::size_t i = 0; i != cim._height*cim._width; ++i) {
+            //res_img.data.push_back(cim.data()[i+0*cim._height*cim._width]);
+            //res_img.data.push_back(cim.data()[i+1*cim._height*cim._width]);
+            //res_img.data.push_back(cim.data()[i+2*cim._height*cim._width]);
+        //}
+        //res_img.encoding = color->encoding;
 
-        pub_image.publish(res_img);
-    }
+        //pub_image.publish(res_img);
+    //}
 
-    pub_message.publish(allHypoMsg);
-    cnt++;
+    //pub_message.publish(allHypoMsg);
+    //cnt++;
 
-    if(strcmp(target_frame.c_str(), "") && (pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers())){
-        geometry_msgs::PoseArray p = transform(allHypoMsg);
-        if(pub_pose.getNumSubscribers())
-            pub_pose.publish(p);
-        if(pub_markers.getNumSubscribers())
-            pub_markers.publish(createVisualisation(p, target_frame));
-    }
-}
+    //if(strcmp(target_frame.c_str(), "") && (pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers())){
+        //geometry_msgs::PoseArray p = transform(allHypoMsg);
+        //if(pub_pose.getNumSubscribers())
+            //pub_pose.publish(p);
+        //if(pub_markers.getNumSubscribers())
+            //pub_markers.publish(createVisualisation(p, target_frame));
+    //}
+//}
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
 void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      message_filters::Subscriber<GroundPlane> &sub_gp,
-                     message_filters::Subscriber<GroundHOGDetections> &sub_hog,
+                     //message_filters::Subscriber<GroundHOGDetections> &sub_hog,
                      message_filters::Subscriber<UpperBodyDetector> &sub_ubd,
                      message_filters::Subscriber<VisualOdometry> &sub_vo,
                      image_transport::SubscriberFilter &sub_col,
@@ -673,7 +673,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
         ROS_DEBUG("Tracker: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
-        sub_hog.unsubscribe();
+        //sub_hog.unsubscribe();
         sub_ubd.unsubscribe();
         sub_vo.unsubscribe();
         sub_col.unsubscribe();
@@ -681,7 +681,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
         ROS_DEBUG("Tracker: New subscribers. Subscribing.");
         sub_cam.subscribe();
         sub_gp.subscribe();
-        sub_hog.subscribe();
+        //sub_hog.subscribe();
         sub_ubd.subscribe();
         sub_vo.subscribe();
         sub_col.subscribe(it,sub_col.getTopic().c_str(),1);
@@ -708,7 +708,7 @@ int main(int argc, char **argv)
     string config_file;
     string cam_ns;
     string topic_gp;
-    string topic_groundHOG;
+    //string topic_groundHOG;
     string topic_upperbody;
     string topic_vo;
 
@@ -727,7 +727,7 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
     private_node_handle_.param("ground_plane", topic_gp, string("/ground_plane"));
-    private_node_handle_.param("ground_hog", topic_groundHOG, string("/groundHOG/detections"));
+    //private_node_handle_.param("ground_hog", topic_groundHOG, string("/groundHOG/detections"));
     private_node_handle_.param("upper_body_detections", topic_upperbody, string("/upper_body_detector/detections"));
     private_node_handle_.param("visual_odometry", topic_vo, string("/visual_odometry/motion_matrix"));
 
@@ -755,14 +755,14 @@ int main(int argc, char **argv)
     subscriber_color.subscribe(it, topic_color_image.c_str(), 1); subscriber_color.unsubscribe(); //This subscribe and unsubscribe is just to set the topic name.
     message_filters::Subscriber<CameraInfo> subscriber_camera_info(n, topic_camera_info.c_str(), 1); subscriber_camera_info.unsubscribe();
     message_filters::Subscriber<GroundPlane> subscriber_gp(n, topic_gp.c_str(), 1); subscriber_gp.unsubscribe();
-    message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1); subscriber_groundHOG.unsubscribe();
+    //message_filters::Subscriber<GroundHOGDetections> subscriber_groundHOG(n, topic_groundHOG.c_str(), 1); subscriber_groundHOG.unsubscribe();
     message_filters::Subscriber<UpperBodyDetector> subscriber_upperbody(n, topic_upperbody.c_str(), 1); subscriber_upperbody.unsubscribe();
     message_filters::Subscriber<VisualOdometry> subscriber_vo(n, topic_vo.c_str(), 1); subscriber_vo.unsubscribe();
 
     ros::SubscriberStatusCallback con_cb = boost::bind(&connectCallback,
                                                        boost::ref(subscriber_camera_info),
                                                        boost::ref(subscriber_gp),
-                                                       boost::ref(subscriber_groundHOG),
+                                                       //boost::ref(subscriber_groundHOG),
                                                        boost::ref(subscriber_upperbody),
                                                        boost::ref(subscriber_vo),
                                                        boost::ref(subscriber_color),
@@ -770,7 +770,7 @@ int main(int argc, char **argv)
     image_transport::SubscriberStatusCallback image_cb = boost::bind(&connectCallback,
                                                                      boost::ref(subscriber_camera_info),
                                                                      boost::ref(subscriber_gp),
-                                                                     boost::ref(subscriber_groundHOG),
+                                                                     //boost::ref(subscriber_groundHOG),
                                                                      boost::ref(subscriber_upperbody),
                                                                      boost::ref(subscriber_vo),
                                                                      boost::ref(subscriber_color),
@@ -780,19 +780,19 @@ int main(int argc, char **argv)
     //Registering callback
     ///////////////////////////////////////////////////////////////////////////////////
     // With groundHOG
-    sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
-            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicyHOG(queue_size); //The real queue size for synchronisation is set here.
-    MySyncPolicyHOG.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
+    //sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
+            //GroundHOGDetections, UpperBodyDetector, VisualOdometry> MySyncPolicyHOG(queue_size); //The real queue size for synchronisation is set here.
+    //MySyncPolicyHOG.setAgePenalty(1000); //set high age penalty to publish older data faster even if it might not be correctly synchronized.
 
-    const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
-            GroundHOGDetections, UpperBodyDetector, VisualOdometry> MyConstSyncPolicyHOG = MySyncPolicyHOG;
+    //const sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
+            //GroundHOGDetections, UpperBodyDetector, VisualOdometry> MyConstSyncPolicyHOG = MySyncPolicyHOG;
 
-    Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
-            GroundHOGDetections, UpperBodyDetector, VisualOdometry> >
-            syncHOG(MyConstSyncPolicyHOG, subscriber_color, subscriber_camera_info, subscriber_gp,
-                    subscriber_groundHOG, subscriber_upperbody, subscriber_vo);
-    if(strcmp(topic_groundHOG.c_str(),"") != 0)
-        syncHOG.registerCallback(boost::bind(&callbackWithHOG, _1, _2, _3, _4, _5, _6));
+    //Synchronizer< sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
+            //GroundHOGDetections, UpperBodyDetector, VisualOdometry> >
+            //syncHOG(MyConstSyncPolicyHOG, subscriber_color, subscriber_camera_info, subscriber_gp,
+                    //subscriber_groundHOG, subscriber_upperbody, subscriber_vo);
+    //if(strcmp(topic_groundHOG.c_str(),"") != 0)
+        //syncHOG.registerCallback(boost::bind(&callbackWithHOG, _1, _2, _3, _4, _5, _6));
     ///////////////////////////////////////////////////////////////////////////////////
     // Without groundHOG
     sync_policies::ApproximateTime<Image, CameraInfo, GroundPlane,
@@ -806,7 +806,7 @@ int main(int argc, char **argv)
             UpperBodyDetector, VisualOdometry> >
             sync(MyConstSyncPolicy, subscriber_color, subscriber_camera_info, subscriber_gp,
                  subscriber_upperbody, subscriber_vo);
-    if(strcmp(topic_groundHOG.c_str(),"") == 0)
+    //if(strcmp(topic_groundHOG.c_str(),"") == 0)
         sync.registerCallback(boost::bind(&callbackWithoutHOG, _1, _2, _3, _4, _5));
     ///////////////////////////////////////////////////////////////////////////////////
 
