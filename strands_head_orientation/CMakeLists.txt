@@ -12,7 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     std_msgs
     message_generation
-    mongodb_store_cpp_client
     mongodb_store_msgs
     mongodb_store
     opencv_warco
