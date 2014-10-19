@@ -12,7 +12,6 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     std_msgs
     message_generation
-    mongodb_store_cpp_client
     mongodb_store_msgs
     mongodb_store
     opencv_warco
@@ -102,7 +101,7 @@ add_dependencies(status ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(strands_head_orientation ${catkin_LIBRARIES})
-target_link_libraries(store_detections mongoclient ${catkin_LIBRARIES})
+target_link_libraries(store_detections ${catkin_LIBRARIES})
 target_link_libraries(start ${catkin_LIBRARIES})
 target_link_libraries(stop ${catkin_LIBRARIES})
 target_link_libraries(status ${catkin_LIBRARIES})
