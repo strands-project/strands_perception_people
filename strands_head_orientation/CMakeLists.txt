@@ -5,6 +5,7 @@ project(strands_head_orientation)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+    mongodb_store   # NEEDS to come early, else the linker will insult you.
     cv_bridge
     geometry_msgs
     image_transport
@@ -12,8 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp
     std_msgs
     message_generation
-    mongodb_store_msgs
-    mongodb_store
     opencv_warco
 )
 
