@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     message_generation
     opencv_warco
+    upper_body_detector
 )
 
 ## System dependencies are found with CMake's conventions
