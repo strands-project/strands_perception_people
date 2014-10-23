@@ -2,6 +2,16 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'hydro-devel' into hydro-release
+  Conflicts:
+  opencv_warco/package.xml
+  strands_head_orientation/CMakeLists.txt
+  strands_head_orientation/package.xml
+* Added LICENSE files. Fixes `#101 <https://github.com/strands-project/strands_perception_people/issues/101>`_
+* Contributors: Christian Dondrup, Lucas Beyer
+
 0.0.2 (2014-10-18)
 ------------------
 
