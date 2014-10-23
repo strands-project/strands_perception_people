@@ -2,8 +2,8 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2014-10-23)
+------------------
 * Merge branch 'hydro-devel' into hydro-release
   Conflicts:
   opencv_warco/package.xml
