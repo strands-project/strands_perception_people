@@ -8,7 +8,6 @@
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
-  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>MIT</license>
 
   <url type="website">https://github.com/lucasb-eyer/opencv-warco</url>
