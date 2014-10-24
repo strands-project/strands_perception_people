@@ -10,6 +10,7 @@ namespace cv {
 
 namespace warco {
 
+    std::vector<double> eigvals(const cv::Mat& m);
     cv::Mat eig_fn(const cv::Mat& m, std::function<double (double)> fn);
     cv::Mat mkspd(cv::Mat m);
     cv::Mat randspd(unsigned rows, unsigned cols);
@@ -21,6 +22,7 @@ namespace warco {
         return ref == 0.0 ? 0.0 : std::abs(a - b) / ref;
     }
 
+    void test_cv_utils();
 
 } // namespace warco
 

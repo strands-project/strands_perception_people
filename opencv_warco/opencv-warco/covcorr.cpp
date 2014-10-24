@@ -4,6 +4,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <stdexcept>
+
 #include "cvutils.hpp"
 #include "features.hpp"
 
@@ -13,7 +15,7 @@
 //
 // Of course, I might be mistaken.
 
-static cv::Mat extract_cov(const warco::Features& feats, unsigned x, unsigned y, unsigned w, unsigned h)
+static cv::Mat extract_raw_cov(const warco::Features& feats, unsigned x, unsigned y, unsigned w, unsigned h)
 {
     auto nfeats = feats.size();
     std::vector<float> means(nfeats, 0.0f);
@@ -76,19 +78,19 @@ static void test_cov()
     // With a unittest framework, I'd check for this throwing.
     //cv::Mat cov = extract_cov(fts, 0, 0, 1, 1);
 
-    cv::Mat cov = extract_cov(fts, 0, 1, 2, 2);
+    cv::Mat cov = extract_raw_cov(fts, 0, 1, 2, 2);
     warco::assert_mat_almost_eq(cov, (cv::Mat_<float>(2,2) <<
         10./3., 1./3.,
          1./3., .1/3.
     ));
 
-    cov = extract_cov(fts, 2, 1, 1, 2);
+    cov = extract_raw_cov(fts, 2, 1, 1, 2);
     warco::assert_mat_almost_eq(cov, (cv::Mat_<float>(2,2) <<
         4.5, .45,
         .45, .045
     ));
 
-    cov = extract_cov(fts, 0, 0, 3, 3);
+    cov = extract_raw_cov(fts, 0, 0, 3, 3);
     warco::assert_mat_almost_eq(cov, (cv::Mat_<float>(2,2) <<
         7.5, .75,
         .75, .075
@@ -97,34 +99,43 @@ static void test_cov()
     std::cout << "SUCCESS" << std::endl;
 }
 
-static cv::Mat cov2corr(const cv::Mat& cov)
+static cv::Mat rectify_cov(const cv::Mat& cov)
 {
-    // "make invertible" ->
-    //     Clamp |eigenvalues| to 1e-4
+    // "make invertible", "enforce SPDness" ->
+    //     Clamp eigenvalues to 1e-4
     //
     //  This is to work around patches where all pixels have the same value
     //  for a certain feature, in which case there'd be a division by 0 in the
     //  correlation computation.
-    cv::Mat nrvo = warco::eig_fn(cov, [](double l) {
-        return std::copysign(std::max(1e-4, std::abs(l)), l);
+    return warco::eig_fn(cov, [](double l) {
+        return std::max(1e-4, l);
     });
+}
 
-    // now, make a corr out of this.
+cv::Mat warco::extract_cov(const Features& feats, unsigned x, unsigned y, unsigned w, unsigned h)
+{
+    return rectify_cov(extract_raw_cov(feats, x, y, w, h));
+}
 
-    std::vector<float> stddev(nrvo.cols);
+static cv::Mat cov2corr(const cv::Mat& cov)
+{
+    std::vector<float> stddev(cov.cols);
     // TODO: Doesn't work. Why?
     //sqrt(nrvo.diag(), stddev);
-    auto diag = nrvo.diag();
+    auto diag = cov.diag();
     for(unsigned i = 0 ; i < stddev.size() ; ++i)
-        stddev[i] = sqrt(diag.at<float>(i));
+        stddev[i] = sqrt(std::max(diag.at<float>(i), 1e-4f));
 
-    for(auto y = 0 ; y < nrvo.rows ; ++y) {
-        float* line = nrvo.ptr<float>(y);
-        for(auto x = 0 ; x < nrvo.cols ; ++x)
-            *line++ /= stddev[x]*stddev[y];
-    }
+    cv::Mat corr = cov.clone();
+    warco::normalize_cov(corr, stddev);
+    return corr;
+}
 
-    return nrvo;
+void warco::normalize_cov(cv::Mat& cov, const std::vector<float>& max_stddevs)
+{
+    for(auto y = 0 ; y < cov.rows ; ++y)
+        for(auto x = 0 ; x < cov.cols ; ++x)
+            cov.at<float>(y,x) /= max_stddevs[x]*max_stddevs[y];
 }
 
 static void test_cov2corr()

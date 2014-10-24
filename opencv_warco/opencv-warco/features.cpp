@@ -81,13 +81,13 @@ warco::Features warco::mkfeats(const cv::Mat& m, const cv::FilterBank& fb)
 
 void warco::showfeats(const Features& feats)
 {
-    /*
+/*
     for(auto& feat : feats) {
         cv::Mat normalized;
         normalize(feat, normalized, 0.0, 1.0, CV_MINMAX);
         imshow("Feature", normalized);
         cv::waitKey(0);
     }
-    */
+*/
 }
 

@@ -31,6 +31,9 @@ if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+# For compiling libsvm in dense mode.
+add_definitions(-D_DENSE_REP)
+
 set(LIB_SRC
     cvutils.cpp
     cvutils.hpp
@@ -66,7 +69,11 @@ add_executable(warco-train train.cpp ${COMMON_SRC})
 add_executable(warco-pred pred.cpp ${COMMON_SRC})
 add_executable(warco-traintest traintest.cpp ${COMMON_SRC})
 add_executable(warco-utest utest.cpp ${COMMON_SRC})
+add_executable(warco-dists save_dists.cpp ${COMMON_SRC})
+add_executable(warco-covs save_covs.cpp ${COMMON_SRC})
 target_link_libraries(warco-train warco ${OpenCV_LIBS})
 target_link_libraries(warco-pred warco ${OpenCV_LIBS})
 target_link_libraries(warco-traintest warco ${OpenCV_LIBS})
 target_link_libraries(warco-utest warco ${OpenCV_LIBS})
+target_link_libraries(warco-dists warco ${OpenCV_LIBS})
+target_link_libraries(warco-covs warco ${OpenCV_LIBS})
