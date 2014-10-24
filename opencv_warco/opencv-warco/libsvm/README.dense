@@ -1,0 +1,51 @@
+This code uses dense vectors to store data instances. If most feature
+values are non-zeros, the training/testing time is faster than the
+standard libsvm, which implement sparse vectors.
+
+
+Experimental Setting:
+
+We select four concepts, animal, people, sky, and weather, from
+MediaMill Challenge Problem for this experiment. All instances are
+120-dimension dense vectors. We compare the standard libsvm and this
+modification.
+
+The experimental procedure performs parameter selection (30 parameter
+sets), model training (best parameters), test data predictions. There
+are 30,993 and 12,914 records in training (used in parameter selection
+and model training stages) and testing (used in prediction stage)
+sets, respectively. The following table shows the results.
+
+(1) parameter-selection execution time (sec.):
+          original    dense        change 
+          libsvm      repr.        ratio
+animal     2483.23     1483.02     -40.3%
+people    22844.26    13893.21     -39.2%
+sky       13765.39     8460.06     -38.5%
+weather    2240.01     1325.32     -40.1%
+AVERAGE   10083.17     6540.46     -39.1%
+
+(2) model-training execution time (sec.):
+          original    dense        change 
+          libsvm      repr.        ratio
+animal     113.238      70.085     -38.1% 
+people     725.995     451.244     -37.8%
+sky       1234.881     784.071     -36.5%
+weather    123.179      76.532     -37.9%
+AVERAGE    549.323     345.483     -37.1%
+
+(3) prediction execution time (sec.):
+          original    dense       change
+          libsvm      repr..      ratio
+animal      12.226        6.895    -43.6%
+people      99.268       54.855    -44.7%
+sky         78.069       42.417    -45.7%
+weather     10.843        6.495    -44.9%
+AVERAGE     50.102       27.666    -44.8% 
+
+Overall, dense-representation libsvm saves on average 39.1%, 37.1%,
+and 44.8% of the execution time in parameter selection, model training
+and prediction stages, respectively. This modification is thus useful
+for dense data sets.
+
+

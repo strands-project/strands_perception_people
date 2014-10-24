@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "covcorr.hpp"
+#include "cvutils.hpp"
 #include "dists.hpp"
 #include "model.hpp"
 
@@ -17,6 +18,7 @@ int main(int argc, char** argv)
     cv::theRNG().state = seed;
     srand(seed);
 
+    warco::test_cv_utils();
     warco::test_covcorr();
     warco::test_dists();
     warco::test_model();

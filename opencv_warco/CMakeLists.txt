@@ -77,6 +77,9 @@ include_directories(opencv-warco ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 # We know that for STRANDS it's g++4.6 anyways.
 add_definitions(-std=c++0x)
 
+# For the dense libsvm
+add_definitions(-D_DENSE_REP)
+
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
   opencv-warco/cvutils.cpp
@@ -113,11 +116,15 @@ add_executable(opencv-warco-train opencv-warco/train.cpp ${COMMON_SRC})
 add_executable(opencv-warco-pred opencv-warco/pred.cpp ${COMMON_SRC})
 add_executable(opencv-warco-traintest opencv-warco/traintest.cpp ${COMMON_SRC})
 add_executable(opencv-warco-utest opencv-warco/utest.cpp ${COMMON_SRC})
+add_executable(opencv-warco-dists opencv-warco/save_dists.cpp ${COMMON_SRC})
+add_executable(opencv-warco-covs opencv-warco/save_covs.cpp ${COMMON_SRC})
 
 target_link_libraries(opencv-warco-train ${PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(opencv-warco-pred ${PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(opencv-warco-traintest ${PROJECT_NAME} ${OpenCV_LIBS})
 target_link_libraries(opencv-warco-utest ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-dists ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes

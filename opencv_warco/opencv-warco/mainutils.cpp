@@ -10,12 +10,14 @@
 
 void warco::foreach_img(const Json::Value& dataset, const char* traintest, std::function<void (unsigned, const cv::Mat&, std::string)> fn)
 {
+    auto files = getFilelist(dataset, traintest);
     auto lbls = dataset["classes"];
+
     for(auto ilbl = lbls.begin() ; ilbl != lbls.end() ; ++ilbl) {
         auto lbl = ilbl.index();
         auto lblname = (*ilbl).asString();
 
-        for(Json::Value fname : dataset[traintest][lblname]) {
+        for(Json::Value fname : files[lblname]) {
             cv::Mat image = cv::imread(fname.asString());
             if(! image.data) {
                 std::cerr << "Skipping unreadable image " << fname << std::endl;
@@ -27,7 +29,7 @@ void warco::foreach_img(const Json::Value& dataset, const char* traintest, std::
     }
 }
 
-Json::Value warco::readDataset(const char* fname)
+Json::Value warco::readJson(const char* fname)
 {
     Json::Value nrvo;
 
@@ -45,24 +47,26 @@ Json::Value warco::readDataset(const char* fname)
     return nrvo;
 }
 
+Json::Value warco::getFilelist(const Json::Value& conf, const char* traintest)
+{
+    if(conf.isMember(traintest)) {
+        return conf[traintest];
+    } else {
+        return readJson(conf["files"].asCString())[traintest];
+    }
+}
+
 std::vector<warco::Patch> warco::readPatches(const Json::Value& conf)
 {
     // Read in the patch definitions from the config file
     // or default if none is defined.
     std::vector<warco::Patch> nrvo;
 
-    if(conf.isMember("patches")) {
-        for(const Json::Value& p : conf["patches"]) {
-            if(p.size() != 4)
-                throw std::runtime_error("One of the patches is uncorrectly specified as it doesn't have four entries.");
+    for(const Json::Value& p : getOrLoadArray(conf, "patches")) {
+        if(p.size() != 4)
+            throw std::runtime_error("One of the patches is uncorrectly specified as it doesn't have four entries.");
 
-            nrvo.push_back(warco::Patch{p[0].asDouble(), p[1].asDouble(), p[2].asDouble(), p[3].asDouble()});
-        }
-    } else {
-        // Default from warco for 50x50
-        for(auto y = 0 ; y < 5 ; ++y)
-            for(auto x = 0 ; x < 5 ; ++x)
-                nrvo.push_back(warco::Patch{(1+8*x)/50., (1+8*y)/50., 16/50., 16/50.});
+        nrvo.push_back(warco::Patch{p[0].asDouble(), p[1].asDouble(), p[2].asDouble(), p[3].asDouble()});
     }
 
     return nrvo;
@@ -72,12 +76,35 @@ std::vector<double> warco::readCrossvalCs(const Json::Value& conf)
 {
     std::vector<double> C;
 
-    if(conf.isMember("crossval_C"))
-        for(Json::Value c : conf["crossval_C"])
-            C.push_back(c.asDouble());
-    else
-        C = {0.1, 1.0, 10.0};
+    for(Json::Value c : getOrLoadArray(conf, "crossval_C"))
+        C.push_back(c.asDouble());
 
     return C;
+}
+
+Json::Value warco::getOrLoadArray(const Json::Value& conf, std::string name)
+{
+    if(!conf.isMember(name))
+        throw std::runtime_error("Value " + name + " not in config!");
+
+    if(conf[name].isArray())
+        return conf[name];
+    else if(conf[name].isString())
+        return readJson(conf[name].asCString());
+    else
+        throw std::runtime_error("Value " + name + " in config, but it's not an array!");
+}
+
+Json::Value warco::getOrLoadObject(const Json::Value& conf, std::string name)
+{
+    if(!conf.isMember(name))
+        throw std::runtime_error("Value " + name + " not in config!");
+
+    if(conf[name].isObject())
+        return conf[name];
+    else if(conf[name].isString())
+        return readJson(conf[name].asCString());
+    else
+        throw std::runtime_error("Value " + name + " in config, but it's not an array!");
 }
 

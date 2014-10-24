@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     }
 
     std::cout << "Hey there again! Loading the model... " << std::flush;
-    Json::Value dataset = warco::readDataset(argv[1]);
+    Json::Value dataset = warco::readJson(argv[1]);
     warco::Warco model(argv[2]);
     std::cout << "Done." << std::endl;
 
