@@ -2,6 +2,9 @@
 Changelog for package detector_msg_to_pose_array
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.0.6 (2014-10-29)
 ------------------
 
