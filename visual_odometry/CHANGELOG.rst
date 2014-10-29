@@ -2,8 +2,8 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.6 (2014-10-29)
+------------------
 * Eigen is now part of cmake_modules
 * Contributors: Christian Dondrup
 
