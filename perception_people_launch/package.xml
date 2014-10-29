@@ -22,7 +22,7 @@
   <run_depend>bayes_people_tracker</run_depend>
   <run_depend>detector_msg_to_pose_array</run_depend>
   <!--<run_depend>leg_detector</run_depend>-->
-  <run_depend>people_msgs</run_depend>
+  <!--<run_depend>people_msgs</run_depend>-->
   <run_depend>bayes_people_tracker_logging</run_depend>
 
   <export/>
