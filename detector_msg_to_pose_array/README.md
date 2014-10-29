@@ -6,6 +6,8 @@ All the information given on how to run the nodes should only be used if you nee
 ### to_pose_array
 Small node that takes in an arbitrary message from a topic and extracts a pose according to a given identifier. The found poses are published as a geometry_msgs/PoseArray. The node is used to transform the output of any people detector to a pose array for the people_tracker. The node is configured using the detectors.yaml in the config directory:
 
+**The following example shows the usage for the leg_detector which is not released for indigo yet and therefore only serves as an example**
+
 ```
 to_pose_array:
     detectors:                                  # Add detectors under this namespace

@@ -1,7 +1,7 @@
 ## People Tracker
 This package uses the bayes_tracking library developed by Nicola Bellotto (University of Lincoln): [10.5281/zenodo.10318](http://dx.doi.org/10.5281/zenodo.10318)
 
-The people_tracker uses a single config file to add an arbitrary amount of detectors. The file `config/detectors.yaml` contains the necessary information for the upper_body_detector and the ROS leg_detector (see `to_pose_array` in detector_msg_to_pose_array/README.md):
+The people_tracker uses a single config file to add an arbitrary amount of detectors. The file `config/detectors.yaml` contains the necessary information for the upper_body_detector and the ROS leg_detector (**the leg_detector has not been released for indigo yet and just remains in there as an example**):
 
 ```
 bayes_people_tracker:
