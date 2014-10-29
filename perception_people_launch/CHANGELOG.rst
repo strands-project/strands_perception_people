@@ -2,6 +2,11 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* The people_msgs package does not exist in indigo yet
+* Contributors: Christian Dondrup
+
 0.0.4 (2014-10-29)
 ------------------
 * Removing the leg_detector from the run_dependencies of the launch package for indigo release.
