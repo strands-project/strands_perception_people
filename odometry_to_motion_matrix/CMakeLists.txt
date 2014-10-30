@@ -3,15 +3,19 @@ project(odometry_to_motion_matrix)
 
 find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  cmake_modules
-  eigen_conversions
-  nav_msgs
-  roscpp
-  tf
-  tf_conversions
-  visual_odometry
-)
-find_package(Eigen REQUIRED)
+      eigen_conversions
+      nav_msgs
+      roscpp
+      tf
+      tf_conversions
+      visual_odometry
+    )
+
+# Include Eigen
+find_package(catkin REQUIRED cmake_modules)  
+find_package(Eigen REQUIRED) 
+include_directories(${EIGEN_INCLUDE_DIRS}) 
+add_definitions(${EIGEN_DEFINITIONS})
 
 ###################################
 ## catkin specific configuration ##
@@ -32,7 +36,6 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
 )
 
 add_executable(odom2visual src/odom2visual/main.cpp)
