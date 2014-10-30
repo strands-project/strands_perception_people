@@ -2,6 +2,12 @@
 Changelog for package odometry_to_motion_matrix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Damn you Copy&Paste
+  Trying to hide my stupidity.
+* Contributors: Christian Dondrup
+
 0.0.10 (2014-10-30)
 -------------------
 

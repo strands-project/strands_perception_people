@@ -2,6 +2,12 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Damn you Copy&Paste
+  Trying to hide my stupidity.
+* Contributors: Christian Dondrup
+
 0.0.10 (2014-10-30)
 -------------------
 * Adding tf following a suggestion on ros answers to solve the linker error.
