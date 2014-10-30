@@ -3,7 +3,7 @@ project(odometry_to_motion_matrix)
 
 find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
-  eigen
+  cmake_modules
   eigen_conversions
   nav_msgs
   roscpp
@@ -11,6 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf_conversions
   visual_odometry
 )
+
+# Include Eigen
+find_package(Eigen REQUIRED) 
+include_directories(${EIGEN_INCLUDE_DIRS}) 
+add_definitions(${EIGEN_DEFINITIONS})
 
 ###################################
 ## catkin specific configuration ##
