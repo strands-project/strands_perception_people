@@ -9,7 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation 
     roscpp 
     sensor_msgs 
-    std_msgs 
+    std_msgs
+    tf 
     )
 
 # Include Eigen
