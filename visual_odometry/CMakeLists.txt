@@ -3,7 +3,6 @@ project(visual_odometry)
 
 find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS 
-    cmake_modules
     cv_bridge 
     image_transport
     message_filters 
@@ -12,8 +11,14 @@ find_package(catkin REQUIRED COMPONENTS
     sensor_msgs 
     std_msgs 
     )
+
+# Include Eigen
+find_package(catkin REQUIRED cmake_modules)  
+find_package(Eigen REQUIRED) 
+include_directories(${EIGEN_INCLUDE_DIRS}) 
+add_definitions(${EIGEN_DEFINITIONS})
+
 find_package(Boost REQUIRED COMPONENTS thread)
-find_package(Eigen REQUIRED)
 
 set(CMAKE_BUILD_TYPE Release)
 
@@ -41,6 +46,7 @@ generate_messages(
 ###################################
 catkin_package(
   CATKIN_DEPENDS
+    cmake_modules
     cv_bridge 
     image_transport
     message_filters 
@@ -56,7 +62,6 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis
 )
 
