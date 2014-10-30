@@ -2,6 +2,11 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding tf following a suggestion on ros answers to solve the linker error.
+* Contributors: Christian Dondrup
+
 0.0.9 (2014-10-30)
 ------------------
 * Stupid mistake including cmake_modules in catkin_depends
