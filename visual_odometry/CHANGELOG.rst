@@ -2,6 +2,11 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* eigen still has to be in the package.xml as a build_dependency even though the migration instructions don't suggest that.
+* Contributors: Christian Dondrup
+
 0.0.7 (2014-10-29)
 ------------------
 
