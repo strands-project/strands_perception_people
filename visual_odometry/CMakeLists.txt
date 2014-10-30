@@ -3,6 +3,7 @@ project(visual_odometry)
 
 find_package(PkgConfig REQUIRED)
 find_package(catkin REQUIRED COMPONENTS 
+    cmake_modules
     cv_bridge 
     image_transport
     message_filters 
@@ -10,15 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
     roscpp 
     sensor_msgs 
     std_msgs
-    tf 
-    )
-
-# Include Eigen
-find_package(catkin REQUIRED cmake_modules)  
+)
 find_package(Eigen REQUIRED) 
-include_directories(${EIGEN_INCLUDE_DIRS}) 
-add_definitions(${EIGEN_DEFINITIONS})
-
 find_package(Boost REQUIRED COMPONENTS thread)
 
 set(CMAKE_BUILD_TYPE Release)
@@ -61,9 +55,12 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS} 
   ${Boost_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis
 )
+
+add_definitions(${EIGEN_DEFINITIONS})
 
 FILE(GLOB FOVIS_CPP ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis/*.cpp)
 FILE(GLOB FOVIS_C ${CMAKE_CURRENT_SOURCE_DIR}/3rd_party/fovis/libfovis/*.c)
@@ -72,10 +69,10 @@ add_executable(visual_odometry src/main.cpp ${FOVIS_CPP} ${FOVIS_C})
 
 add_dependencies(visual_odometry ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
- target_link_libraries(visual_odometry
-   ${catkin_LIBRARIES}
+target_link_libraries(visual_odometry
+  ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
- )
+)
 
 #############
 ## Install ##
