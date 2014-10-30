@@ -2,8 +2,8 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.9 (2014-10-30)
+------------------
 * Stupid mistake including cmake_modules in catkin_depends
 * Contributors: Christian Dondrup
 
