@@ -46,7 +46,6 @@ generate_messages(
 ###################################
 catkin_package(
   CATKIN_DEPENDS
-    cmake_modules
     cv_bridge 
     image_transport
     message_filters 
