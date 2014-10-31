@@ -1,6 +1,9 @@
 <launch>
     <arg name="queue_size" default="5" />
     <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="depth_image" default="/depth/image_rect_meters" />
+    <arg name="mono_image" default="/rgb/image_mono" />
+    <arg name="camera_info_depth" default="/depth/camera_info" />
     <arg name="motion_parameters" default="/visual_odometry/motion_matrix" />
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -10,6 +13,9 @@
     <node pkg="visual_odometry" type="visual_odometry" name="visual_odometry" output="log">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
+        <param name="depth_image" value="$(arg depth_image)" type="string"/>
+        <param name="mono_image" value="$(arg mono_image)" type="string"/>
+        <param name="camera_info_depth" value="$(arg camera_info_depth)" type="string"/>
         <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>
     </node>
 </launch> 
