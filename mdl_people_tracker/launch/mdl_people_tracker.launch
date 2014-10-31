@@ -5,6 +5,8 @@
     
     <arg name="queue_size" default="10" />
     <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="rgb_image" default="/rgb/image_rect_color" />
+    <arg name="camera_info_rgb" default="/rgb/camera_info" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
@@ -22,6 +24,8 @@
     <node pkg="mdl_people_tracker" type="mdl_people_tracker" name="mdl_people_tracker" output="log">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
+        <param name="rgb_image" value="$(arg rgb_image)" type="string"/>
+        <param name="camera_info_rgb" value="$(arg camera_info_rgb)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
         <param name="ground_hog" value="" type="string"/> <!-- Important to start without groundHOG -->
         <param name="visual_odometry" value="$(arg visual_odometry)" type="string"/>

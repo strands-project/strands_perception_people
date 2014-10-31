@@ -731,8 +731,12 @@ int main(int argc, char **argv)
     private_node_handle_.param("upper_body_detections", topic_upperbody, string("/upper_body_detector/detections"));
     private_node_handle_.param("visual_odometry", topic_vo, string("/visual_odometry/motion_matrix"));
 
-    string topic_color_image = cam_ns + "/rgb/image_rect_color";
-    string topic_camera_info = cam_ns + "/rgb/camera_info";
+    string topic_color_image;
+    private_node_handle_.param("rgb_image", topic_color_image, string("/rgb/image_rect_color"));
+    topic_color_image = cam_ns + topic_color_image;
+    string topic_camera_info;
+    private_node_handle_.param("camera_info_rgb", topic_camera_info, string("/rgb/camera_info"));
+    topic_camera_info = cam_ns + topic_camera_info;
 
     if(!ReadConfigParams(boost::ref(n))) return 1;
     det_comb = new Detections(23, 0);

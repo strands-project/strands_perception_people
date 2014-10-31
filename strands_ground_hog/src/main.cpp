@@ -286,8 +286,12 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_namespace", camera_ns, string("/head_xtion"));
     private_node_handle_.param("ground_plane", ground_plane, string(""));
 
-    string image_color = camera_ns + "/rgb/image_rect_color";
-    string camera_info = camera_ns + "/depth/camera_info";
+    string image_color;
+    private_node_handle_.param("rgb_image", image_color, string("/rgb/image_rect_color"));
+    image_color = camera_ns + image_color;
+    string camera_info;
+    private_node_handle_.param("camera_info_depth", camera_info, string("/depth/camera_info"));
+    camera_info = camera_ns + camera_info;
 
     int hog_descriptor_height, hog_descritpor_width, hog_window_height, hog_window_width;
     string model_name;

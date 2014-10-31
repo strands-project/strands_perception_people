@@ -122,6 +122,8 @@ int main(int argc, char **argv)
     int queue_size;
     string cam_ns;
     string pub_topic_gp;
+    string topic_depth_image;
+    string topic_camera_info;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
@@ -130,8 +132,10 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(5));
 
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
-    string topic_depth_image = cam_ns + "/depth/image_rect_meters";
-    string topic_camera_info = cam_ns + "/rgb/camera_info";
+    private_node_handle_.param("depth_image", topic_depth_image, string("/depth/image_rect_meters"));
+    topic_depth_image = cam_ns + topic_depth_image;
+    private_node_handle_.param("camera_info_rgb", topic_camera_info, string("/rgb/camera_info"));
+    topic_camera_info = cam_ns + topic_camera_info;
 
     ROS_DEBUG("ground_plane: Queue size for synchronisation is set to: %i", queue_size);
 
