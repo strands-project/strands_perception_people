@@ -11,9 +11,9 @@ Parameters:
 * `param_file` _default = $(find strands_ground_hog)/config/ground_hog.yaml_: The config file containing all the essential parameters. Only used if `load_params_from_file == true`.
 * `machine` _default = localhost_: Determines on which machine this node should run.
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
-* `queue_size` _default = 20_: The synchronisation queue size
-* `image_color` _default = /camera/rgb/image_color_: The Kincet colour image
-* `camera_info` _default = /camera/rgb/camera_info_: The Kinect camera info
+* `camera_namespace` _default = /head_xtion_: The camera namespace.
+* `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
+* `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `ground_plane` _default = ""_: The ground plane. Published by upper_body_detector. Will only be used if set. Is used to track speed up detections.
 * `detections` _default = /groundHOG/detections_: The generated data output topic
 * `result_image` _default = /groundHOG/image_: The generated image output topic showing the detections as boundingboxes.
