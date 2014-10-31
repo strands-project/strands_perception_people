@@ -25,6 +25,11 @@ Parameters:
 * `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `ptu_state` _default = /ptu/state_: The ptu state topic
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
+* `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
+* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
+* `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
+* `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `ground_plane` _default = /ground_plane_: The fixed ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
 * `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
@@ -58,6 +63,11 @@ Parameters:
 * `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `ptu_state` _default = /ptu/state_: The ptu state topic
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
+* `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
+* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
+* `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
+* `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `ground_plane` _default = /ground_plane_: The fixed ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
 * `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
@@ -93,6 +103,11 @@ Parameters:
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
 * `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `camera_namespace` _default = /camera_: The camera namespace.
+* `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
+* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
+* `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
+* `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body
 * `upper_body_bb_centres` _default = /upper_body_detector/bounding_box_centres_: Publishing a pose array of the centres of the bounding boxes
@@ -123,6 +138,11 @@ Parameters:
 * `ubd_queue_size` _default = 5_: The upper body detector sync queue size
 * `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `camera_namespace` _default = /camera_: The camera namespace.
+* `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
+* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
+* `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
+* `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 * `ground_hog_detections` _default = /groundHOG/detections_: The ground HOG detections
 * `upper_body_detections` _default = /upper_body_detector/detections_: The detected upper body

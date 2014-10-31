@@ -7,6 +7,11 @@
     <arg name="pt_queue_size" default="10" />
     <arg name="ptu_state" default="/ptu/state" />
     <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="rgb_image" default="/rgb/image_rect_color" />
+    <arg name="depth_image" default="/depth/image_rect_meters" />
+    <arg name="mono_image" default="/rgb/image_mono" />
+    <arg name="camera_info_rgb" default="/rgb/camera_info" />
+    <arg name="camera_info_depth" default="/depth/camera_info" />
     /*<arg name="odom" default="/odom" />*/
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
@@ -62,6 +67,9 @@
         <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg ubd_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
+        <arg name="rgb_image" value="$(arg rgb_image)"/>
+        <arg name="depth_image" value="$(arg depth_image)"/>
+        <arg name="camera_info_depth" value="$(arg camera_info_depth)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="upper_body_bb_centres" value="$(arg upper_body_bb_centres)"/>
         <arg name="upper_body_markers" value="$(arg upper_body_markers)"/>
@@ -76,6 +84,8 @@
         <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
         <arg name="queue_size" value="$(arg pt_queue_size)"/>
         <arg name="camera_namespace" value="$(arg camera_namespace)"/>
+        <arg name="rgb_image" value="$(arg rgb_image)"/>
+        <arg name="camera_info_rgb" value="$(arg camera_info_rgb)"/>
         <arg name="ground_plane" value="$(arg ground_plane)"/>
         <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
         <arg name="visual_odometry" value="$(arg visual_odometry)"/>

@@ -9,6 +9,8 @@ Parameters:
 * `user` _default = ""_: The user used for the ssh connection if machine is not localhost.
 * `queue_size` _default = 20_: The synchronisation queue size
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
+* `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
+* `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
 * `ground_plane` _default = /ground_plane_: The ground plane published by the upper_body_detector
 * `ground_hog` _default = /groundHOG/detections_: The ground_hog detections
 * `upper_body_detections` _default = /upper_body_detector/detections_: The upper_body_detector_detections
