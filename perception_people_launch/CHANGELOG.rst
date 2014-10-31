@@ -2,8 +2,8 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.12 (2014-10-31)
+-------------------
 * Making camera topic reconfigurable
   So far only the camera namespace was configurable but that introduced an implicit dependency on the openni_wrapper.
   With these changes the whole topic is reconfigurable via a parameter, e.g.:
