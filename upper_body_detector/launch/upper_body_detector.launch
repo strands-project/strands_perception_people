@@ -18,7 +18,7 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
-    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
     <node pkg="upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="log">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>

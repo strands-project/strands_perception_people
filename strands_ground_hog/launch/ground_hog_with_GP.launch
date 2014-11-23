@@ -13,7 +13,7 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
-    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
     <node pkg="strands_ground_hog" type="groundHOG" name="ground_hog" output="log">
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>

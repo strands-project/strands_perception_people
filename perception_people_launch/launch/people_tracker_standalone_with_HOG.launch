@@ -29,7 +29,7 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
-    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
     <!-- Ground HOG -->
     <include file="$(find strands_ground_hog)/launch/ground_hog_with_GP.launch">
