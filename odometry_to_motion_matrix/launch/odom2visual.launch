@@ -4,7 +4,7 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
-    <machine name="$(arg machine)" address="$(arg machine)" env-loader="/opt/strands/strands_catkin_ws/devel/env.sh" user="$(arg user)" default="true"/>
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
     <node pkg="odometry_to_motion_matrix" type="odom2visual" name="odom2visual" output="log">
         <param name="odom" value="$(arg odom)" type="string"/>
