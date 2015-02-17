@@ -15,23 +15,23 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>bayes_people_tracker</build_depend>
   <build_depend>geometry_msgs</build_depend>
-  <!--<build_depend>message_filters</build_depend>-->
+  <build_depend>message_filters</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>mongodb_store</build_depend>
   <build_depend>rospy</build_depend>
-  <!--<build_depend>mdl_people_tracker</build_depend>-->
+  <build_depend>mdl_people_tracker</build_depend>
   <build_depend>tf</build_depend>
-  <!--<build_depend>upper_body_detector</build_depend>-->
+  <build_depend>upper_body_detector</build_depend>
   
   <run_depend>bayes_people_tracker</run_depend>
   <run_depend>geometry_msgs</run_depend>
-  <!--<run_depend>message_filters</run_depend>-->
+  <run_depend>message_filters</run_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>mongodb_store</run_depend>
   <run_depend>rospy</run_depend>
-  <!--<run_depend>mdl_people_tracker</run_depend>-->
+  <run_depend>mdl_people_tracker</run_depend>
   <run_depend>tf</run_depend>
-  <!--<run_depend>upper_body_detector</run_depend>-->
+  <run_depend>upper_body_detector</run_depend>
 
   <export/>
 </package>
