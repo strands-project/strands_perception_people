@@ -3,12 +3,11 @@
 import rospy
 from mongodb_store.message_store import MessageStoreProxy
 from bayes_people_tracker.msg import PeopleTracker
-from mdl_people_tracker.msg import MdlPeopleTrackerArray, MdlPeopleTracker
-from upper_body_detector.msg import UpperBodyDetector
+#from mdl_people_tracker.msg import MdlPeopleTrackerArray, MdlPeopleTracker
+#from upper_body_detector.msg import UpperBodyDetector
 from bayes_people_tracker_logging.msg import Logging
 import geometry_msgs.msg
-import message_filters
-from camera_calibration.approxsync import ApproximateSynchronizer
+#import message_filters
 import tf
 
 
@@ -19,18 +18,23 @@ class SaveLocations():
         self.tfl = tf.TransformListener()
         self.dataset_name = "locations"
         self.msg_store = MessageStoreProxy(collection="people_perception")
-        locations = message_filters.Subscriber(
+        rospy.Subscriber(
             "/people_tracker/positions",
             PeopleTracker,
+            self.people_callback
         )
-        people = message_filters.Subscriber(
-            "/mdl_people_tracker/people_array",
-            MdlPeopleTrackerArray,
-        )
-        upper = message_filters.Subscriber(
-            "/upper_body_detector/detections",
-            UpperBodyDetector,
-        )
+#        locations = message_filters.Subscriber(
+#            "/people_tracker/positions",
+#            PeopleTracker,
+#        )
+#        people = message_filters.Subscriber(
+#            "/mdl_people_tracker/people_array",
+#            MdlPeopleTrackerArray,
+#        )
+#        upper = message_filters.Subscriber(
+#            "/upper_body_detector/detections",
+#            UpperBodyDetector,
+#        )
         rospy.Subscriber(
             "/robot_pose",
             geometry_msgs.msg.Pose,
@@ -38,12 +42,12 @@ class SaveLocations():
             None,
             10
         )
-        ts = ApproximateSynchronizer(
-            0.5,
-            [locations, people, upper],
-            10
-        )
-        ts.registerCallback(self.people_callback)
+#        ts = message_filters.ApproximateTimeSynchronizer(
+#            0.5,
+#            [locations, people, upper],
+#            10
+#        )
+#        ts.registerCallback(self.people_callback)
 
     def transform(self, source_frame, target_frame, time):
         rospy.logdebug(
@@ -82,7 +86,8 @@ class SaveLocations():
                 rospy.logwarn(e)
         return transform
 
-    def people_callback(self, pl, pt, up):
+#    def people_callback(self, pl, pt, up):
+    def people_callback(self, pl):
         if len(pl.distances) == 0:
             return
         meta = {}
@@ -97,21 +102,21 @@ class SaveLocations():
         insert.people = pl.poses
         insert.robot = self.robot_pose
         insert.people_tracker = pl
-        insert.mdl_people_tracker = pt.people
-        insert.upper_body_detections = up
-        insert.target_frame = self.transform(
-            pt.header.frame_id,
-            pl.header.frame_id,
-            pt.header.stamp
-        )
-        if pl.header.frame_id == '/base_link':
-            insert.base_link = insert.target_frame
-        else:
-            insert.base_link = self.transform(
-                pt.header.frame_id,
-                '/base_link',
-                pt.header.stamp
-            )
+#        insert.mdl_people_tracker = pt.people
+#        insert.upper_body_detections = up
+#        insert.target_frame = self.transform(
+#            pt.header.frame_id,
+#            pl.header.frame_id,
+#            pt.header.stamp
+#        )
+#        if pl.header.frame_id == '/base_link':
+#            insert.base_link = insert.target_frame
+#        else:
+#            insert.base_link = self.transform(
+#                pt.header.frame_id,
+#                '/base_link',
+#                pt.header.stamp
+#            )
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):
