@@ -18,7 +18,9 @@
   <run_depend>ground_plane_estimation</run_depend>
   <run_depend>mdl_people_tracker</run_depend>
   <run_depend>odometry_to_motion_matrix</run_depend>
+  <run_depend>opencv_warco</run_depend>
   <run_depend>perception_people_launch</run_depend>
+  <run_depend>strands_head_orientation</run_depend>
   <run_depend>upper_body_detector</run_depend>
   <run_depend>visual_odometry</run_depend>
 
