@@ -24,7 +24,7 @@
   <run_depend>leg_detector</run_depend>
   <run_depend>people_msgs</run_depend>
   <run_depend>bayes_people_tracker_logging</run_depend>
-  <run_depend>strands_ground_hog</run_depend>
+  <!--<run_depend>strands_ground_hog</run_depend>-->
 
   <export/>
 </package>
