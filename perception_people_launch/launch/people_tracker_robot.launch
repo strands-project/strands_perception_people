@@ -1,6 +1,6 @@
 <launch>
     <!-- Global paramters -->
-    <arg name="load_params_from_file" default="false" />
+    <arg name="load_params_from_file" default="true" />
     <arg name="gp_queue_size" default="5" />
     <arg name="vo_queue_size" default="5" />
     <arg name="ubd_queue_size" default="5" />

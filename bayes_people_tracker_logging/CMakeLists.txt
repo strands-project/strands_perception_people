@@ -6,7 +6,6 @@ project(bayes_people_tracker_logging)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   bayes_people_tracker
-  camera_calibration
   geometry_msgs
   message_filters
   message_generation
@@ -41,9 +40,7 @@ generate_messages(
 catkin_package(
   CATKIN_DEPENDS 
     bayes_people_tracker
-    camera_calibration
     geometry_msgs
-    message_filters
     mongodb_store
     mdl_people_tracker
     tf

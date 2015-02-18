@@ -112,7 +112,7 @@ public:
         }
 
         for (int i = 0; i < mtrk.size(); i++) {
-            ROS_DEBUG("trk_%ld: Position: (%f, %f), Orientation: %f, Std Deviation: %f",
+            ROS_DEBUG("trk_%ld: Position: (%f, %f), Orientation: %f, Std Deviation: %f, %f",
                     mtrk[i].id,
                     mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
                     atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]), //orientation

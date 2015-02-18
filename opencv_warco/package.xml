@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>opencv_warco</name>
-  <version>0.0.0</version>
+  <version>0.0.14</version>
   <description>Library to perform head-pose classification using the WARCO method.</description>
 
   <maintainer email="beyer@vision.rwth-aachen.de">Lucas Beyer</maintainer>
@@ -26,5 +26,9 @@
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>cv_bridge</build_depend>
 
+  <run_depend>cv_bridge</run_depend>
+
+  <export/>
 </package>

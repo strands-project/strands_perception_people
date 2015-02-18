@@ -24,7 +24,7 @@ class ToPoseArray():
             )
             type = rostopic.get_topic_type(topic, True)[0]
             rospy.loginfo("Got topic type: %s.", type)
-            pub = rospy.Publisher("~"+elem, geometry_msgs.msg.PoseArray)
+            pub = rospy.Publisher("~"+elem, geometry_msgs.msg.PoseArray, queue_size=0)
             subscribers.append(
                 rospy.Subscriber(
                     topic,
