@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2015-02-18)
+------------------
 * Setting correct version number. The changelogs will be regenerated because the ones from the release branch would not be consistent with the changes made in the devel branch.
 * Fixing logger cmake and package files.
 * The logging node now only loggs the output of the bayes people tracker. Waiting for the mdl tracker, reduces the capabilities of the bayestrackeer significantly.
