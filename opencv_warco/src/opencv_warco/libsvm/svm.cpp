@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <locale.h>
-#include "svm.h"
+#include "opencv_warco/libsvm/svm.h"
 int libsvm_version = LIBSVM_VERSION;
 typedef float Qfloat;
 typedef signed char schar;

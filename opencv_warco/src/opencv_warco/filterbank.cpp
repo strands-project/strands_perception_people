@@ -1,4 +1,4 @@
-#include "filterbank.hpp"
+#include "opencv_warco/filterbank.hpp"
 
 #include <fstream>
 #include <sstream>

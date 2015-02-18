@@ -7,7 +7,7 @@
 
 // For FilterBank.
 // TODO: Maybe keep a unique pointer so fwd decl is enough?
-#include "filterbank.hpp"
+#include "opencv_warco/filterbank.hpp"
 
 namespace cv {
     class Mat;

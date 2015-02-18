@@ -1,14 +1,14 @@
-#include "features.hpp"
+#include "opencv_warco/features.hpp"
 
 #include <opencv2/opencv.hpp>
 // For CV_BGR2Lab, at least in opencv trunk.
 #include <opencv2/imgproc/types_c.h>
 
-#include "filterbank.hpp"
+#include "opencv_warco/filterbank.hpp"
 
 #ifndef NDEBUG
 #  include <iostream>
-#  include "to_s.hpp"
+#  include "opencv_warco/to_s.hpp"
 #endif
 
 warco::Features warco::mkfeats(const cv::Mat& m, const cv::FilterBank& fb)

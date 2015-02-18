@@ -3,7 +3,7 @@
 #include <vector>
 
 // Cannot forward-declare Features as class :/
-#include "features.hpp"
+#include "opencv_warco/features.hpp"
 
 namespace cv {
     class Mat;

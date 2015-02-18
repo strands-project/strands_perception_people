@@ -1,9 +1,9 @@
-#include "dists.hpp"
+#include "opencv_warco/dists.hpp"
 
 #include <stdexcept>
 #include <opencv2/opencv.hpp>
 
-#include "cvutils.hpp"
+#include "opencv_warco/cvutils.hpp"
 
 // Randomly generated, but computed using original matlab implementation.
 static const cv::Mat g_wA = (cv::Mat_<double>(4,4) <<

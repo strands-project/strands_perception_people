@@ -1,12 +1,12 @@
 #include <iostream>
 #include <string>
 
-#include "json/json.h"
+#include "opencv_warco/json/json.h"
 
-#include "dists.hpp"
-#include "filterbank.hpp"
-#include "mainutils.hpp"
-#include "warco.hpp"
+#include "opencv_warco/dists.hpp"
+#include "opencv_warco/filterbank.hpp"
+#include "opencv_warco/mainutils.hpp"
+#include "opencv_warco/warco.hpp"
 
 int main(int argc, char** argv)
 {

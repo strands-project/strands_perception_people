@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "json/json.h"
+#include "opencv_warco/json/json.h"
 
-#include "mainutils.hpp"
-#include "warco.hpp"
+#include "opencv_warco/mainutils.hpp"
+#include "opencv_warco/warco.hpp"
 
 int main(int argc, char** argv)
 {
