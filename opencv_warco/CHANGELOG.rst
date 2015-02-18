@@ -2,8 +2,8 @@
 Changelog for package opencv_warco
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2015-02-18)
+------------------
 * Merge pull request `#132 <https://github.com/strands-project/strands_perception_people/issues/132>`_ from cdondrup/opencv_warco
   Refactoring opencv_warco to enable build from install and devel
 * Refactoring opencv_warco to be able to build strands_head_orientation from install and devel.

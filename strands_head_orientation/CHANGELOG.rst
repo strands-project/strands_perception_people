@@ -2,8 +2,8 @@
 Changelog for package strands_head_orientation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2015-02-18)
+------------------
 * Refactoring opencv_warco to be able to build strands_head_orientation from install and devel.
 * Contributors: Christian Dondrup
 
