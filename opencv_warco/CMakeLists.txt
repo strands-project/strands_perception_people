@@ -48,7 +48,7 @@ find_package(catkin REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS opencv-warco
+  INCLUDE_DIRS include 
   LIBRARIES ${PROJECT_NAME}
   #CATKIN_DEPENDS other_catkin_pkg
   DEPENDS opencv
@@ -72,7 +72,7 @@ endif()
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(opencv-warco ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
 # We know that for STRANDS it's g++4.6 anyways.
 add_definitions(-std=c++0x)
@@ -82,49 +82,35 @@ add_definitions(-D_DENSE_REP)
 
 ## Declare a cpp library
 add_library(${PROJECT_NAME}
-  opencv-warco/cvutils.cpp
-  opencv-warco/cvutils.hpp
-
-  opencv-warco/covcorr.cpp
-  opencv-warco/covcorr.hpp
-  opencv-warco/dists.cpp
-  opencv-warco/dists.hpp
-  opencv-warco/features.cpp
-  opencv-warco/features.hpp
-  opencv-warco/filterbank.cpp
-  opencv-warco/filterbank.hpp
-  opencv-warco/model.cpp
-  opencv-warco/model.hpp
-  opencv-warco/warco.cpp
-  opencv-warco/warco.hpp
-
-  opencv-warco/libsvm/svm.cpp
-  opencv-warco/libsvm/svm.h
+  src/opencv_warco/cvutils.cpp
+  src/opencv_warco/covcorr.cpp
+  src/opencv_warco/dists.cpp
+  src/opencv_warco/features.cpp
+  src/opencv_warco/filterbank.cpp
+  src/opencv_warco/model.cpp
+  src/opencv_warco/warco.cpp
+  src/opencv_warco/libsvm/svm.cpp
 )
 
 set(COMMON_SRC
-    opencv-warco/mainutils.cpp
-    opencv-warco/mainutils.hpp
-
-    opencv-warco/jsoncpp.cpp
-    opencv-warco/json/json.h
-    opencv-warco/json/json-forwards.h
+    src/opencv_warco/mainutils.cpp
+    src/opencv_warco/jsoncpp.cpp
 )
 
 ## Declare a cpp executable
-add_executable(opencv-warco-train opencv-warco/train.cpp ${COMMON_SRC})
-add_executable(opencv-warco-pred opencv-warco/pred.cpp ${COMMON_SRC})
-add_executable(opencv-warco-traintest opencv-warco/traintest.cpp ${COMMON_SRC})
-add_executable(opencv-warco-utest opencv-warco/utest.cpp ${COMMON_SRC})
-add_executable(opencv-warco-dists opencv-warco/save_dists.cpp ${COMMON_SRC})
-add_executable(opencv-warco-covs opencv-warco/save_covs.cpp ${COMMON_SRC})
+add_executable(opencv_warco-train src/opencv_warco/train.cpp ${COMMON_SRC})
+add_executable(opencv_warco-pred src/opencv_warco/pred.cpp ${COMMON_SRC})
+add_executable(opencv_warco-traintest src/opencv_warco/traintest.cpp ${COMMON_SRC})
+add_executable(opencv_warco-utest src/opencv_warco/utest.cpp ${COMMON_SRC})
+add_executable(opencv_warco-dists src/opencv_warco/save_dists.cpp ${COMMON_SRC})
+add_executable(opencv_warco-covs src/opencv_warco/save_covs.cpp ${COMMON_SRC})
 
-target_link_libraries(opencv-warco-train ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv-warco-pred ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv-warco-traintest ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv-warco-utest ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv-warco-dists ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv-warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv_warco-train ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv_warco-pred ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv_warco-traintest ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv_warco-utest ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv_warco-dists ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv_warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -147,19 +133,19 @@ target_link_libraries(opencv-warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
 ## Mark executables and/or libraries for installation
 install(TARGETS 
     ${PROJECT_NAME} 
-    opencv-warco-train 
-    opencv-warco-pred
-    opencv-warco-traintest
-    opencv-warco-utest
-    opencv-warco-dists
-    opencv-warco-covs
+    opencv_warco-train 
+    opencv_warco-pred
+    opencv_warco-traintest
+    opencv_warco-utest
+    opencv_warco-dists
+    opencv_warco-covs
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark cpp header files for installation
-install(DIRECTORY opencv-warco/
+install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h*"
 )

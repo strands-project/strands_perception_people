@@ -1,4 +1,4 @@
-#include "warco.hpp"
+#include "opencv_warco/warco.hpp"
 
 #include <fstream>
 #include <stdexcept>
@@ -6,10 +6,10 @@
 // Only for resize.
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "covcorr.hpp"
-#include "features.hpp"
-#include "model.hpp"
-#include "to_s.hpp"
+#include "opencv_warco/covcorr.hpp"
+#include "opencv_warco/features.hpp"
+#include "opencv_warco/model.hpp"
+#include "opencv_warco/to_s.hpp"
 
 #ifndef NDEBUG
 #  include <iostream>

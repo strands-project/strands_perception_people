@@ -1,4 +1,4 @@
-#include "model.hpp"
+#include "opencv_warco/model.hpp"
 
 #include <cmath>
 #include <fstream>
@@ -10,9 +10,9 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "covcorr.hpp"
-#include "libsvm/svm.h"
-#include "to_s.hpp"
+#include "opencv_warco/covcorr.hpp"
+#include "opencv_warco/libsvm/svm.h"
+#include "opencv_warco/to_s.hpp"
 
 void warco::test_model()
 {

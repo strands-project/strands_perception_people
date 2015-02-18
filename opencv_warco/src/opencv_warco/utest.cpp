@@ -6,10 +6,10 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "covcorr.hpp"
-#include "cvutils.hpp"
-#include "dists.hpp"
-#include "model.hpp"
+#include "opencv_warco/covcorr.hpp"
+#include "opencv_warco/cvutils.hpp"
+#include "opencv_warco/dists.hpp"
+#include "opencv_warco/model.hpp"
 
 int main(int argc, char** argv)
 {

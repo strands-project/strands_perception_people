@@ -1,4 +1,4 @@
-#include "covcorr.hpp"
+#include "opencv_warco/covcorr.hpp"
 
 #include <stdexcept>
 
@@ -6,8 +6,8 @@
 
 #include <stdexcept>
 
-#include "cvutils.hpp"
-#include "features.hpp"
+#include "opencv_warco/cvutils.hpp"
+#include "opencv_warco/features.hpp"
 
 // First, let me try the rude, non-integral-image approach.
 // Iv'e got the feeling it will either be as-fast-as or not-

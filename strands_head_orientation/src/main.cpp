@@ -11,7 +11,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 
-#include "warco.hpp"
+#include <opencv_warco/warco.hpp>
 
 // For the node
 #include "upper_body_detector/UpperBodyDetector.h"

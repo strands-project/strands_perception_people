@@ -1,12 +1,12 @@
-#include "mainutils.hpp"
+#include "opencv_warco/mainutils.hpp"
 
 #include <fstream>
 #include <stdexcept>
 
 #include <opencv2/opencv.hpp>
-#include "json/json.h"
+#include "opencv_warco/json/json.h"
 
-#include "warco.hpp"
+#include "opencv_warco/warco.hpp"
 
 void warco::foreach_img(const Json::Value& dataset, const char* traintest, std::function<void (unsigned, const cv::Mat&, std::string)> fn)
 {
