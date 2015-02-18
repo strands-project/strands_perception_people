@@ -6,6 +6,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
+  strands_navigation_msgs
+  mongodb_store
 )
 
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -75,7 +77,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES human_trajectory
-  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime
+  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs
 #  DEPENDS system_lib
 )
 

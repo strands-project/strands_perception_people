@@ -198,7 +198,7 @@ class Trajectories(object):
         rospy.loginfo("Connecting to mongodb...")
         self._client = pymongo.MongoClient(rospy.get_param("datacentre_host"),
                                            rospy.get_param("datacentre_port"))
-        self.msg_store = MessageStoreProxy(collection="people_trajectory")
+        self._store_client = MessageStoreProxy(collection="people_trajectory")
         rospy.loginfo("Connecting to topological_map...")
         self.sub = rospy.Subscriber("/topological_map", TopologicalMap,
                                     self.map_callback, None, 10)
@@ -300,7 +300,7 @@ class Trajectories(object):
             if save_to_db:
                 meta = dict()
                 meta["map"] = self.map_info
-                self.msg_store.insert(trajs, meta)
+                self._store_client.insert(trajs, meta)
                 rospy.sleep(1)
             else:
                 self.pub.publish(trajs)
