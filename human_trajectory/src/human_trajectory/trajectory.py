@@ -1,13 +1,9 @@
 #!/usr/bin/env python
 
 import rospy
-import pymongo
 import human_trajectory.msg
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
-from mongodb_store.message_store import MessageStoreProxy
-from strands_navigation_msgs.msg import TopologicalMap
 
-import sys
 import json
 import math
 
@@ -70,13 +66,70 @@ class Trajectory(object):
         self.robot_pose.append(robot_pose)
 
     def sort_pose(self):
-        self.pose, self.secs, self.nsecs = self.__quick_sort(self.pose,
-                                                             self.secs,
-                                                             self.nsecs)
+        # sorting secs
+        self.pose, self.secs, self.nsecs, self.robot_pose = self.__insert_sort(
+            self.pose, self.secs, self.nsecs, self.robot_pose)
+
+        # sorting and validating nsecs
+        i = 0
+        pose = secs = nsecs = robot_pose = []
+        while i < len(self.secs):
+            start_sec = self.secs[i]
+            j = i
+            while j < len(self.secs):
+                if self.secs[j] != start_sec:
+                    tpose, tnsecs, tsecs, trobot = self.__insert_sort(
+                        self.pose[i:j],
+                        self.nsecs[i:j],
+                        self.secs[i:j],
+                        self.robot_pose[i:j]
+                    )
+                    tpose, tsecs, tnsecs, trobot = self.__validate_poses(
+                        tpose, tsecs, tnsecs, trobot
+                    )
+                    pose = pose + tpose
+                    secs = secs + tsecs
+                    nsecs = nsecs + tnsecs
+                    robot_pose = robot_pose + trobot
+                    i = j
+                    break
+                j += 1
+            if j == len(self.secs):
+                tpose, tnsecs, tsecs, trobot = self.__insert_sort(
+                    self.pose[i:j],
+                    self.nsecs[i:j],
+                    self.secs[i:j],
+                    self.robot_pose[i:j]
+                )
+                tpose, tsecs, tnsecs, trobot = self.__validate_poses(
+                    tpose, tsecs, tnsecs, trobot
+                )
+                pose = pose + tpose
+                secs = secs + tsecs
+                nsecs = nsecs + tnsecs
+                robot_pose = robot_pose + trobot
+                i = j
+
+        self.pose = pose
+        self.nsecs = nsecs
+        self.secs = secs
+        self.robot_pose = robot_pose
+
+    def __insert_sort(self, pose, secs, nsecs, robot_pose):
+        for i in range(1, len(secs)):
+            j = i
+            while j > 0 and secs[j - 1] > secs[j]:
+                secs[j - 1], secs[j] = secs[j], secs[j - 1]
+                nsecs[j - 1], nsecs[j] = nsecs[j], nsecs[j - 1]
+                pose[j - 1], pose[j] = pose[j], pose[j - 1]
+                robot_pose[j - 1], robot_pose[j] = \
+                    robot_pose[j], robot_pose[j - 1]
+                j -= 1
+        return pose, secs, nsecs, robot_pose
 
     # this function assumes that all objects have the same length
     # and the secs are the same
-    def __validate_poses(self, pose, secs, nsecs):
+    def __validate_poses(self, pose, secs, nsecs, robot_pose):
         i = 0
         while i < len(nsecs):
             reduced_nsecs = nsecs[(i + 1):]
@@ -101,73 +154,37 @@ class Trajectory(object):
                     pose = [pose[i]]
                     secs = [secs[i]]
                     nsecs = [nsecs[i]]
+                    robot_pose = [robot_pose[i]]
                     break
 
-                delta_i = abs(pose[i] - prev_pose) + abs(pose[i] - next_pose)
-                delta_index = abs(pose_index - prev_pose) + \
-                    abs(pose_index - next_pose)
-                if delta_i < delta_index:
+                delta_i_x = abs(pose[i]['position']['x'] -
+                                prev_pose['position']['x']) \
+                    + abs(pose[i]['position']['x'] - next_pose['position']['x'])
+                delta_i_y = abs(pose[i]['position']['y'] -
+                                prev_pose['position']['y']) \
+                    + abs(pose[i]['position']['y'] - next_pose['position']['y'])
+                delta_index_x = abs(pose_index['position']['x'] -
+                                    prev_pose['position']['x']) \
+                    + abs(pose_index['position']['x'] -
+                          next_pose['position']['x'])
+                delta_index_y = abs(pose_index['position']['y'] -
+                                    prev_pose['position']['y']) \
+                    + abs(pose_index['position']['y'] -
+                          next_pose['position']['y'])
+                if (delta_i_x + delta_i_y) < (delta_index_x + delta_index_y):
                     del nsecs[i + 1 + index]
                     del pose[i + 1 + index]
                     del secs[i + 1 + index]
+                    del robot_pose[i + 1 + index]
                     i -= 1
                 else:
                     del nsecs[i]
                     del pose[i]
                     del secs[i]
+                    del robot_pose[i]
                     i -= 1
             i += 1
-        return pose, secs, nsecs
-
-    def __quick_sort(self, pose, secs, nsecs, secs_sorted=False):
-        less_pose = []
-        equal_pose = []
-        greater_pose = []
-        less_secs = []
-        equal_secs = []
-        greater_secs = []
-        less_nsecs = []
-        equal_nsecs = []
-        greater_nsecs = []
-
-        if len(secs) > 1:
-            pivot = secs[0]
-            for i, sec in enumerate(secs):
-                if sec < pivot:
-                    less_secs.append(sec)
-                    less_pose.append(pose[i])
-                    less_nsecs.append(nsecs[i])
-                elif sec == pivot:
-                    equal_secs.append(sec)
-                    equal_pose.append(pose[i])
-                    equal_nsecs.append(nsecs[i])
-                else:
-                    greater_secs.append(sec)
-                    greater_pose.append(pose[i])
-                    greater_nsecs.append(nsecs[i])
-
-            less_pose, less_secs, less_nsecs = \
-                self.__quick_sort(less_pose, less_secs, less_nsecs,
-                                  secs_sorted)
-            greater_pose, greater_secs, greater_nsecs = \
-                self.__quick_sort(greater_pose, greater_secs, greater_nsecs,
-                                  secs_sorted)
-            if not secs_sorted:
-                equal_pose, equal_secs, equal_nsecs = \
-                    self.__validate_poses(equal_pose, equal_secs, equal_nsecs)
-                equal_pose, equal_nsecs, equal_secs = \
-                    self.__quick_sort(equal_pose, equal_nsecs, equal_secs,
-                                      not secs_sorted)
-
-            return less_pose + equal_pose + greater_pose, less_secs + \
-                equal_secs + greater_secs, less_nsecs + equal_nsecs + \
-                greater_nsecs
-
-            pose = less_pose + equal_pose + greater_pose
-            secs = less_secs + equal_secs + greater_secs
-            nsecs = less_nsecs + equal_nsecs + greater_nsecs
-
-        return pose, secs, nsecs
+        return pose, secs, nsecs, robot_pose
 
     def calc_length(self):
         length = 0.0
@@ -184,137 +201,3 @@ class Trajectory(object):
     def to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
-
-
-class Trajectories(object):
-
-    def __init__(self, name, interval):
-        self._traj = dict()
-        self.map_info = ''
-        self.start_secs = -1
-        self.publish_rate = rospy.Rate(1 / float(interval))
-        self.publish_interval = interval
-
-        rospy.loginfo("Connecting to mongodb...")
-        self._client = pymongo.MongoClient(rospy.get_param("datacentre_host"),
-                                           rospy.get_param("datacentre_port"))
-        self._store_client = MessageStoreProxy(collection="people_trajectory")
-        rospy.loginfo("Connecting to topological_map...")
-        self.sub = rospy.Subscriber("/topological_map", TopologicalMap,
-                                    self.map_callback, None, 10)
-        rospy.loginfo("Creating human_trajectory/trajectories topic...")
-        self.pub = rospy.Publisher(name+'/trajectories',
-                                   human_trajectory.msg.Trajectories,
-                                   queue_size=10)
-
-        self._retrieve_logs()
-        self._validating_trajectory()
-        rospy.loginfo("Data is ready...")
-
-    def map_callback(self, msg):
-        self.map_info = msg.map
-        self.sub.unregister()
-
-    def get_poses_persecond(self):
-        average_poses = 0
-        for uuid in self._traj:
-            traj = self._traj[uuid]
-            inner_counter = 1
-            outer_counter = 1
-            prev_sec = traj.secs[0]
-            for i, sec in enumerate(traj.secs[1:]):
-                if prev_sec == sec:
-                    inner_counter += 1
-                else:
-                    prev_sec = sec
-                    outer_counter += 1
-            average_poses += round(inner_counter/outer_counter)
-        return round(average_poses/len(self._traj))
-
-    def _validating_trajectory(self):
-        rospy.loginfo("Sorting data...")
-        untraj = []
-        mframe = self.get_poses_persecond() * 5
-        for uuid in self._traj:
-            self._traj[uuid].sort_pose()
-            self._traj[uuid].calc_length()
-
-            if self._traj[uuid].length < 0.1 and uuid not in untraj:
-                untraj.append(uuid)
-            if len(self._traj[uuid].pose) < mframe and uuid not in untraj:
-                untraj.append(uuid)
-
-        rospy.loginfo("Validating data...")
-        for i, uuid in enumerate(untraj):
-            del self._traj[uuid]
-
-    def _retrieve_logs(self):
-        rospy.loginfo("Retrieving data from mongodb...")
-        logs = self._client.message_store.people_perception.find()
-
-        for log in logs:
-            for i, uuid in enumerate(log['uuids']):
-                if uuid not in self._traj:
-                    t = Trajectory(uuid)
-                    t.append_pose(log['people'][i],
-                                  log['header']['stamp']['secs'],
-                                  log['header']['stamp']['nsecs'],
-                                  log['robot'])
-                    self._traj[uuid] = t
-                else:
-                    t = self._traj[uuid]
-                    t.append_pose(log['people'][i],
-                                  log['header']['stamp']['secs'],
-                                  log['header']['stamp']['nsecs'],
-                                  log['robot'])
-                if self.start_secs == -1 or \
-                        log['header']['stamp']['secs'] < self.start_secs:
-                    self.start_secs = log['header']['stamp']['secs']
-
-    def publish_trajectories(self, save_to_db=False):
-        start_time = self.start_secs
-        seq = 1
-        published_traj = []
-        counter = 0
-
-        # While start time does not exceed the latest trajectory
-        while len(published_traj) != len(self._traj):
-            rospy.loginfo("Total trajectories from %d", start_time)
-            trajs = human_trajectory.msg.Trajectories()
-            trajs.header.seq = seq
-            trajs.header.stamp = rospy.Time.now()
-            trajs.header.frame_id = '/map'
-            seq += 1
-            for uuid, traj in self._traj.iteritems():
-                end_time = start_time + self.publish_interval
-                if traj.secs[len(traj.secs)-1] <= end_time \
-                        and uuid not in published_traj:
-                    trajs.trajectories.append(traj.get_trajectory_message())
-                    published_traj.append(uuid)
-
-            start_time += self.publish_interval
-            counter += len(trajs.trajectories)
-            rospy.loginfo("up to %d is %d",
-                          start_time, len(trajs.trajectories))
-
-            if save_to_db:
-                meta = dict()
-                meta["map"] = self.map_info
-                self._store_client.insert(trajs, meta)
-                rospy.sleep(1)
-            else:
-                self.pub.publish(trajs)
-                self.publish_rate.sleep()
-
-        rospy.loginfo("Total trajectories: %d", counter)
-
-
-if __name__ == '__main__':
-    rospy.init_node('human_trajectories')
-
-    if len(sys.argv) < 3:
-        rospy.logerr("usage: trajectory publish_interval store_or_publish[1/0]")
-        sys.exit(2)
-
-    trajs = Trajectories(rospy.get_name(), int(sys.argv[1]))
-    trajs.publish_trajectories(int(sys.argv[2]))
