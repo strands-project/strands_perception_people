@@ -23,6 +23,7 @@
   <run_depend>strands_head_orientation</run_depend>
   <run_depend>upper_body_detector</run_depend>
   <run_depend>visual_odometry</run_depend>
+  <run_depend>human_trajectory</run_depend>
 
   <export>
     <metapackage/> 
