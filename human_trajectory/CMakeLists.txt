@@ -37,9 +37,9 @@ catkin_package(
 ## Build ##
 ###########
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
+#include_directories(
+  #${catkin_INCLUDE_DIRS}
+#)
 
 #############
 ## Install ##
@@ -47,9 +47,6 @@ include_directories(
 
  install(PROGRAMS
    scripts/trajectory_publisher.py
-   src/human_trajectory/__init__.py
-   src/human_trajectory/trajectory.py
-   src/human_trajectory/trajectories.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

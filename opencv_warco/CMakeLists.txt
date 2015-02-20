@@ -98,23 +98,23 @@ set(COMMON_SRC
 )
 
 ## Declare a cpp executable
-add_executable(opencv_warco-train src/opencv_warco/train.cpp ${COMMON_SRC})
-add_executable(opencv_warco-pred src/opencv_warco/pred.cpp ${COMMON_SRC})
-add_executable(opencv_warco-traintest src/opencv_warco/traintest.cpp ${COMMON_SRC})
-add_executable(opencv_warco-utest src/opencv_warco/utest.cpp ${COMMON_SRC})
-add_executable(opencv_warco-dists src/opencv_warco/save_dists.cpp ${COMMON_SRC})
-add_executable(opencv_warco-covs src/opencv_warco/save_covs.cpp ${COMMON_SRC})
+add_executable(opencv-warco-train src/opencv_warco/train.cpp ${COMMON_SRC})
+add_executable(opencv-warco-pred src/opencv_warco/pred.cpp ${COMMON_SRC})
+add_executable(opencv-warco-traintest src/opencv_warco/traintest.cpp ${COMMON_SRC})
+add_executable(opencv-warco-utest src/opencv_warco/utest.cpp ${COMMON_SRC})
+add_executable(opencv-warco-dists src/opencv_warco/save_dists.cpp ${COMMON_SRC})
+add_executable(opencv-warco-covs src/opencv_warco/save_covs.cpp ${COMMON_SRC})
 
-target_link_libraries(opencv_warco-train ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv_warco-pred ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv_warco-traintest ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv_warco-utest ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv_warco-dists ${PROJECT_NAME} ${OpenCV_LIBS})
-target_link_libraries(opencv_warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-train ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-pred ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-traintest ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-utest ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-dists ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(opencv-warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(opencv_warco_node opencv_warco_generate_messages_cpp)
+# add_dependencies(opencv-warco_node opencv-warco_generate_messages_cpp)
 
 #############
 ## Install ##
@@ -133,12 +133,12 @@ target_link_libraries(opencv_warco-covs ${PROJECT_NAME} ${OpenCV_LIBS})
 ## Mark executables and/or libraries for installation
 install(TARGETS 
     ${PROJECT_NAME} 
-    opencv_warco-train 
-    opencv_warco-pred
-    opencv_warco-traintest
-    opencv_warco-utest
-    opencv_warco-dists
-    opencv_warco-covs
+    opencv-warco-train 
+    opencv-warco-pred
+    opencv-warco-traintest
+    opencv-warco-utest
+    opencv-warco-dists
+    opencv-warco-covs
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
