@@ -2,8 +2,8 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.2 (2015-02-20)
+------------------
 * Fixing my sed mistakes and the install targets for human_trajectory.
 * fixing Cmake and package.xml, add this package in metapackage
 * add dependency in Cmake and package.xml
