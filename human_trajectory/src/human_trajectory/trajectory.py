@@ -3,6 +3,7 @@
 import rospy
 import human_trajectory.msg
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+from std_msgs.msg import Header
 
 import json
 import math
@@ -11,193 +12,144 @@ import math
 class Trajectory(object):
 
     def __init__(self, uuid):
-
         self.uuid = uuid
-        self.pose = []
-        self.secs = []
-        self.nsecs = []
-        self.robot_pose = []
+        self.humrobpose = []
         self.length = 0.0
-        self.seq = 1
+        self.sequence_id = 1
+        self._pose_seq = 1
+        self.pps = 0            # poses per second
 
+    # construct trajectory message based on Trajectory.msg
     def get_trajectory_message(self):
         traj = human_trajectory.msg.Trajectory()
-        traj.header.seq = self.seq
-        traj.header.stamp = rospy.Time.now()
-        traj.header.frame_id = '/map'
+        traj.header = Header(self.sequence_id, rospy.Time.now(), '/map')
         traj.uuid = self.uuid
-        traj.start_time = rospy.Time(self.secs[0], self.nsecs[0])
-        traj.end_time = rospy.Time(self.secs[len(self.secs)-1],
-                                   self.nsecs[len(self.nsecs)-1])
+        traj.start_time = self.humrobpose[0][0].header.stamp
+        last = self.humrobpose[len(self.humrobpose)-1]
+        traj.end_time = last[0].header.stamp
         traj.trajectory_length = self.length
         traj.complete = True
-        traj.sequence_id = self.seq
-        for i in range(len(self.pose)):
-            ps = PoseStamped()
-            ps.header.seq = i + 1
-            ps.header.stamp = rospy.Time(self.secs[i], self.nsecs[i])
-            ps.header.frame_id = ''
-            # Human pose
-            ps.pose = Pose(Point(self.pose[i]['position']['x'],
-                                 self.pose[i]['position']['y'],
-                                 self.pose[i]['position']['z']),
-                           Quaternion(self.pose[i]['orientation']['x'],
-                                      self.pose[i]['orientation']['y'],
-                                      self.pose[i]['orientation']['z'],
-                                      self.pose[i]['orientation']['w']))
-            traj.trajectory.append(ps)
-            # robot pose
-            pose = Pose(Point(self.robot_pose[i]['position']['x'],
-                              self.robot_pose[i]['position']['y'],
-                              self.robot_pose[i]['position']['z']),
-                        Quaternion(self.robot_pose[i]['orientation']['x'],
-                                   self.robot_pose[i]['orientation']['y'],
-                                   self.robot_pose[i]['orientation']['z'],
-                                   self.robot_pose[i]['orientation']['w']))
-            traj.robot.append(pose)
-
-        self.seq += 1
+        traj.sequence_id = self.sequence_id
+        for i in range(len(self.humrobpose)):
+            (human, robot) = self.humrobpose[i]
+            traj.trajectory.append(human)
+            traj.robot.append(robot)
+        self.sequence_id += 1
         return traj
 
+    # transform pose, secs, nsecs info into PoseStamped
+    # robot_pose into Pose and stored in tuple (PoseStamped, Pose)
     def append_pose(self, pose, secs, nsecs, robot_pose):
-        self.pose.append(pose)
-        self.secs.append(secs)
-        self.nsecs.append(nsecs)
-        self.robot_pose.append(robot_pose)
+        human_pose = Pose(Point(pose['position']['x'],
+                                pose['position']['y'],
+                                pose['position']['z']),
+                          Quaternion(pose['orientation']['x'],
+                                     pose['orientation']['y'],
+                                     pose['orientation']['z'],
+                                     pose['orientation']['w']))
+        header = Header(self._pose_seq, rospy.Time(secs, nsecs), '')
+        robot_pose = Pose(Point(robot_pose['position']['x'],
+                                robot_pose['position']['y'],
+                                robot_pose['position']['z']),
+                          Quaternion(robot_pose['orientation']['x'],
+                                     robot_pose['orientation']['y'],
+                                     robot_pose['orientation']['z'],
+                                     robot_pose['orientation']['w']))
+        self.humrobpose.append((PoseStamped(header, human_pose), robot_pose))
+        self._pose_seq += 1
 
-    def sort_pose(self):
-        # sorting secs
-        self.pose, self.secs, self.nsecs, self.robot_pose = self.__insert_sort(
-            self.pose, self.secs, self.nsecs, self.robot_pose)
-
-        # sorting and validating nsecs
+    # sort and validate poses (delete poses which have the same
+    # time stamp), also calculate length
+    def validate_poses(self):
+        self.humrobpose = sorted(self.humrobpose,
+                                 key=lambda pose: pose[0].header.stamp)
         i = 0
-        pose = secs = nsecs = robot_pose = []
-        while i < len(self.secs):
-            start_sec = self.secs[i]
-            j = i
-            while j < len(self.secs):
-                if self.secs[j] != start_sec:
-                    tpose, tnsecs, tsecs, trobot = self.__insert_sort(
-                        self.pose[i:j],
-                        self.nsecs[i:j],
-                        self.secs[i:j],
-                        self.robot_pose[i:j]
-                    )
-                    tpose, tsecs, tnsecs, trobot = self.__validate_poses(
-                        tpose, tsecs, tnsecs, trobot
-                    )
-                    pose = pose + tpose
-                    secs = secs + tsecs
-                    nsecs = nsecs + tnsecs
-                    robot_pose = robot_pose + trobot
-                    i = j
+        humrobpose = []
+        prev_pose = None
+        while i < len(self.humrobpose):
+            j = i + 1
+            while j < len(self.humrobpose):
+                if cmp(self.humrobpose[i][0].header.stamp,
+                       self.humrobpose[j][0].header.stamp) != 0:
+                    temp = self._delete_poses(self.humrobpose[i:j],
+                                              prev_pose,
+                                              self.humrobpose[j][0].pose)
+                    humrobpose.append(temp)
+                    prev_pose = temp[0].pose
                     break
                 j += 1
-            if j == len(self.secs):
-                tpose, tnsecs, tsecs, trobot = self.__insert_sort(
-                    self.pose[i:j],
-                    self.nsecs[i:j],
-                    self.secs[i:j],
-                    self.robot_pose[i:j]
+            if j == len(self.humrobpose):
+                temp = self._delete_poses(self.humrobpose[i:j], prev_pose)
+                humrobpose.append(temp)
+            i = j
+
+        self.humrobpose = humrobpose
+        if self.length == 0.0:
+            self._calc_length()
+        self._calc_pps()
+
+    # for same poses at the same time, choose one that has minimal distance
+    # with the previous pose and the next pose
+    def _delete_poses(self, humrob, prev_pose=None, next_pose=None):
+        i = 1
+        result = humrob[0]
+        while i < len(humrob):
+            print "aaaaaa"
+            ddist_prev1 = ddist_prev2 = 0
+            ddist_next1 = ddist_next2 = 0
+            if prev_pose is not None:
+                ddist_prev1 = math.hypot(
+                    result[0].pose.position.x - prev_pose.position.x,
+                    result[0].pose.position.y - prev_pose.position.y,
                 )
-                tpose, tsecs, tnsecs, trobot = self.__validate_poses(
-                    tpose, tsecs, tnsecs, trobot
+                ddist_prev2 = math.hypot(
+                    humrob[i][0].pose.position.x - prev_pose.position.x,
+                    humrob[i][0].pose.position.y - prev_pose.position.y,
                 )
-                pose = pose + tpose
-                secs = secs + tsecs
-                nsecs = nsecs + tnsecs
-                robot_pose = robot_pose + trobot
-                i = j
 
-        self.pose = pose
-        self.nsecs = nsecs
-        self.secs = secs
-        self.robot_pose = robot_pose
+            if next_pose is not None:
+                ddist_next1 = math.hypot(
+                    result[0].pose.position.x - next_pose.position.x,
+                    result[0].pose.position.y - next_pose.position.y,
+                )
+                ddist_next2 = math.hypot(
+                    humrob[i][0].pose.position.x - next_pose.position.x,
+                    humrob[i][0].pose.position.y - next_pose.position.y,
+                )
 
-    def __insert_sort(self, pose, secs, nsecs, robot_pose):
-        for i in range(1, len(secs)):
-            j = i
-            while j > 0 and secs[j - 1] > secs[j]:
-                secs[j - 1], secs[j] = secs[j], secs[j - 1]
-                nsecs[j - 1], nsecs[j] = nsecs[j], nsecs[j - 1]
-                pose[j - 1], pose[j] = pose[j], pose[j - 1]
-                robot_pose[j - 1], robot_pose[j] = \
-                    robot_pose[j], robot_pose[j - 1]
-                j -= 1
-        return pose, secs, nsecs, robot_pose
-
-    # this function assumes that all objects have the same length
-    # and the secs are the same
-    def __validate_poses(self, pose, secs, nsecs, robot_pose):
-        i = 0
-        while i < len(nsecs):
-            reduced_nsecs = nsecs[(i + 1):]
-            if nsecs[i] in reduced_nsecs:
-                index = reduced_nsecs.index(nsecs[i])
-                pose_index = pose[i + 1 + index]
-
-                prev_nsecs = next_nsecs = 1000000
-                prev_pose = next_pose = pose[i]
-                for j in range(len(nsecs)):
-                    delta = nsecs[j] - nsecs[i]
-                    if delta == 0:
-                        continue
-                    if delta > 0 and delta < next_nsecs:
-                        next_nsecs = nsecs[j]
-                        next_pose = pose[j]
-                    if delta < 0 and delta < prev_nsecs:
-                        prev_nsecs = nsecs[j]
-                        prev_pose = pose[j]
-
-                if prev_nsecs == 1000000 and next_nsecs == 1000000:
-                    pose = [pose[i]]
-                    secs = [secs[i]]
-                    nsecs = [nsecs[i]]
-                    robot_pose = [robot_pose[i]]
-                    break
-
-                delta_i_x = abs(pose[i]['position']['x'] -
-                                prev_pose['position']['x']) \
-                    + abs(pose[i]['position']['x'] - next_pose['position']['x'])
-                delta_i_y = abs(pose[i]['position']['y'] -
-                                prev_pose['position']['y']) \
-                    + abs(pose[i]['position']['y'] - next_pose['position']['y'])
-                delta_index_x = abs(pose_index['position']['x'] -
-                                    prev_pose['position']['x']) \
-                    + abs(pose_index['position']['x'] -
-                          next_pose['position']['x'])
-                delta_index_y = abs(pose_index['position']['y'] -
-                                    prev_pose['position']['y']) \
-                    + abs(pose_index['position']['y'] -
-                          next_pose['position']['y'])
-                if (delta_i_x + delta_i_y) < (delta_index_x + delta_index_y):
-                    del nsecs[i + 1 + index]
-                    del pose[i + 1 + index]
-                    del secs[i + 1 + index]
-                    del robot_pose[i + 1 + index]
-                    i -= 1
-                else:
-                    del nsecs[i]
-                    del pose[i]
-                    del secs[i]
-                    del robot_pose[i]
-                    i -= 1
+            if (ddist_prev1 + ddist_next1) > (ddist_prev2 + ddist_next2):
+                result = humrob[i]
             i += 1
-        return pose, secs, nsecs, robot_pose
+        return result
 
-    def calc_length(self):
+    # calculate travel distance from initial point to the end point
+    def _calc_length(self):
         length = 0.0
-        if len(self.pose) < 2:
-            return length
-        for i in range(1, len(self.pose)):
-            j = i - 1
-            length += math.hypot(
-                (self.pose[i]['position']['x'] - self.pose[j]['position']['x']),
-                (self.pose[i]['position']['x'] - self.pose[j]['position']['x'])
-            )
+        if len(self.humrobpose) >= 2:
+            for i in range(1, len(self.humrobpose)):
+                j = i - 1
+                ps1 = self.humrobpose[i][0]
+                ps2 = self.humrobpose[j][0]
+                length += math.hypot(
+                    (ps1.pose.position.x - ps2.pose.position.x),
+                    (ps1.pose.position.y - ps2.pose.position.y)
+                )
         self.length = length
 
+    # calculate average poses persecond
+    def _calc_pps(self):
+        inner_counter = outer_counter = 1
+        prev_sec = self.humrobpose[0][0].header.stamp.secs
+        for i, v in enumerate(self.humrobpose[1:]):
+            sec = v[0].header.stamp.secs
+            if prev_sec == sec:
+                inner_counter += 1
+            else:
+                prev_sec = sec
+                outer_counter += 1
+        self.pps = inner_counter/outer_counter
+
+    # create json for all data stored here
     def to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
