@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bayes_people_tracker_logging</name>
-  <version>0.0.0</version>
+  <version>0.1.2</version>
   <description>The bayes_people_tracker_logging package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
@@ -14,7 +14,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>bayes_people_tracker</build_depend>
-  <build_depend>camera_calibration</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>message_filters</build_depend>
   <build_depend>message_generation</build_depend>
@@ -23,8 +22,8 @@
   <build_depend>mdl_people_tracker</build_depend>
   <build_depend>tf</build_depend>
   <build_depend>upper_body_detector</build_depend>
+  
   <run_depend>bayes_people_tracker</run_depend>
-  <run_depend>camera_calibration</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>message_filters</run_depend>
   <run_depend>message_runtime</run_depend>

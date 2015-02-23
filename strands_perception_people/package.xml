@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>strands_perception_people</name>
-  <version>0.0.0</version>
+  <version>0.1.2</version>
   <description>The strands_perception_people metapackage</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
@@ -18,7 +18,9 @@
   <run_depend>ground_plane_estimation</run_depend>
   <run_depend>mdl_people_tracker</run_depend>
   <run_depend>odometry_to_motion_matrix</run_depend>
+  <run_depend>opencv_warco</run_depend>
   <run_depend>perception_people_launch</run_depend>
+  <run_depend>strands_head_orientation</run_depend>
   <run_depend>upper_body_detector</run_depend>
   <run_depend>visual_odometry</run_depend>
   <run_depend>human_trajectory</run_depend>

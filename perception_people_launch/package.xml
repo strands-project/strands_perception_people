@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>perception_people_launch</name>
-  <version>0.0.0</version>
+  <version>0.1.2</version>
   <description>The perception_people_launch package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
@@ -24,7 +24,7 @@
   <run_depend>leg_detector</run_depend>
   <run_depend>people_msgs</run_depend>
   <run_depend>bayes_people_tracker_logging</run_depend>
-  <run_depend>strands_ground_hog</run_depend>
+  <!--<run_depend>strands_ground_hog</run_depend>-->
 
   <export/>
 </package>
