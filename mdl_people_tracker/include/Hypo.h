@@ -147,6 +147,16 @@ public:
     void getStateCovMats(Vector<Matrix<double> >& covMats);
     void setStateCovMats(Vector<Matrix<double> >& covMats);
 
+
+    void pushUbdSeqNr(uint32_t seq);
+
+    void pushUbdIndex(int index);
+
+	const std::vector<int>& getUbdIndex();
+
+	const std::vector<uint32_t>& getUbdSeqNr();
+
+
 //    void setWasApproved(bool v);
 //    bool getWasApproved();
 
@@ -216,6 +226,14 @@ protected:
 
     bool b_terminationFlag;
     int n_lastSelected;
+
+
+    //UBD seq. numbers of messages that were used to make this hypothesis
+    std::vector<uint32_t> ubd_header_seq;
+    //Indices into the arrays in UBD messages. There are stored (among other) coordinates of the people (within camera image)
+    //that were used for the hypothesis.
+    std::vector<int> ubd_index;
+
 
 //    bool was_not_approved;
 
