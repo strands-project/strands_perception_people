@@ -145,8 +145,8 @@ bool ROI::GetRegion2D(Vector<double>& bbox, const Camera& camera, const PointClo
     // Check Height
     if(bbox(3) <= 0)
         return false;
-    else if(bbox(3) >= Globals::dImHeight)
-        bbox(3) = Globals::dImHeight - 1;
+//    else if(bbox(3) >= Globals::dImHeight)
+//        bbox(3) = Globals::dImHeight - 1;
 
     return true;
 }
