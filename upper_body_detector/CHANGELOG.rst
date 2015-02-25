@@ -2,8 +2,8 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.3 (2015-02-25)
+------------------
 * Fix for boundig box scaling issue.
 * Contributors: Pandoro
 
