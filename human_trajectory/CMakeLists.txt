@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   strands_navigation_msgs
   mongodb_store
+  bayes_people_tracker
 )
 
  catkin_python_setup()
@@ -30,7 +31,7 @@ generate_messages(
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs
+  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs bayes_people_tracker
 )
 
 ###########

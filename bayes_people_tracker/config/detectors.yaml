@@ -11,7 +11,7 @@ bayes_people_tracker:
                     y: 1.2
             matching_algorithm: "NNJPDA"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN + Joint Probability Data Association
         leg_detector:                                          # Name of detector (used internally to identify them. Has to be unique.
-            topic: "/to_pose_array/leg_detector"               # The topic on which the geometry_msgs/PoseArray is published
+            topic: "/edge_leg_detector"               # The topic on which the geometry_msgs/PoseArray is published
             noise_model:
                 velocity:                                      # The std deviation for the constant velocity model
                     x: 1.4

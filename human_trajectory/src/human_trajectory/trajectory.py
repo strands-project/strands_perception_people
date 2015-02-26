@@ -37,6 +37,9 @@ class Trajectory(object):
         self.sequence_id += 1
         return traj
 
+    def append_ros_pose(self, human_pose, header, robot_pose):
+        self.humrobpose.append((PoseStamped(header, human_pose), robot_pose))
+
     # transform pose, secs, nsecs info into PoseStamped
     # robot_pose into Pose and stored in tuple (PoseStamped, Pose)
     def append_pose(self, pose, secs, nsecs, robot_pose):
@@ -94,7 +97,6 @@ class Trajectory(object):
         i = 1
         result = humrob[0]
         while i < len(humrob):
-            print "aaaaaa"
             ddist_prev1 = ddist_prev2 = 0
             ddist_next1 = ddist_next2 = 0
             if prev_pose is not None:
