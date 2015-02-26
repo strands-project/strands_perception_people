@@ -2,6 +2,9 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.3 (2015-02-25)
+------------------
+
 0.1.1 (2015-02-18)
 ------------------
 * Merge pull request `#132 <https://github.com/strands-project/strands_perception_people/issues/132>`_ from cdondrup/opencv_warco

@@ -2,6 +2,11 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.3 (2015-02-25)
+------------------
+* polish code, change message that is stored, remove store_to_database option
+* Contributors: Ferdian Jovan
+
 0.1.2 (2015-02-20)
 ------------------
 * Fixing my sed mistakes and the install targets for human_trajectory.
