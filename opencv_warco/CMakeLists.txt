@@ -97,6 +97,8 @@ set(COMMON_SRC
     src/opencv_warco/jsoncpp.cpp
 )
 
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+
 ## Declare a cpp executable
 add_executable(opencv-warco-train src/opencv_warco/train.cpp ${COMMON_SRC})
 add_executable(opencv-warco-pred src/opencv_warco/pred.cpp ${COMMON_SRC})
