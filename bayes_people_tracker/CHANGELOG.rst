@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.4 (2015-03-06)
+------------------
 * Publishin people_msgs/People and adding orientation.
 * forgot to undo my config for detectors.yaml in bayes_people_tracker
 * provide online stitching poses into trajectories

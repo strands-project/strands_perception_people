@@ -2,8 +2,8 @@
 Changelog for package opencv_warco
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.4 (2015-03-06)
+------------------
 * Added missing include and linking. These were necessary to compile under OS X.
 * Contributors: Nick Hawes
 
