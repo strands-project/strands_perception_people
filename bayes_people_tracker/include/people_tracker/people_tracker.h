@@ -13,6 +13,8 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/ColorRGBA.h>
+#include <people_msgs/People.h>
+#include <people_msgs/Person.h>
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -40,15 +42,17 @@ private:
     void trackingThread();
     void publishDetections(bayes_people_tracker::PeopleTracker msg);
     void publishDetections(geometry_msgs::PoseStamped msg);
+    void publishDetections(people_msgs::People msg);
     void publishDetections(double time_sec,
-                           geometry_msgs::Point closest,
-                           std::vector<geometry_msgs::Point> ppl,
+                           geometry_msgs::Pose closest,
+                           std::vector<geometry_msgs::Pose> ppl,
+                           std::vector<geometry_msgs::Pose> vels,
                            std::vector<std::string> uuids,
                            std::vector<double> distances,
                            std::vector<double> angles,
                            double min_dist,
                            double angle);
-    void createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub);
+    void createVisualisation(std::vector<geometry_msgs::Pose> points, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
@@ -183,6 +187,7 @@ private:
 
     ros::Publisher pub_detect;
     ros::Publisher pub_pose;
+    ros::Publisher pub_people;
     ros::Publisher pub_marker;
     tf::TransformListener* listener;
     std::string target_frame;

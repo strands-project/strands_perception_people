@@ -16,6 +16,7 @@ PeopleTracker::PeopleTracker() :
     std::string pta_topic;
     std::string pub_topic;
     std::string pub_topic_pose;
+    std::string pub_topic_people;
     std::string pub_marker_topic;
 
     // Initialize node parameters from launch file or command line.
@@ -33,6 +34,8 @@ PeopleTracker::PeopleTracker() :
     pub_detect = n.advertise<bayes_people_tracker::PeopleTracker>(pub_topic.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("pose", pub_topic_pose, std::string("/people_tracker/pose"));
     pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
+    private_node_handle.param("people", pub_topic_people, std::string("/people_tracker/people"));
+    pub_people = n.advertise<people_msgs::People>(pub_topic_people.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("marker", pub_marker_topic, std::string("/people_tracker/marker_array"));
     pub_marker = n.advertise<visualization_msgs::MarkerArray>(pub_marker_topic.c_str(), 10, con_cb, con_cb);
 
@@ -75,33 +78,35 @@ void PeopleTracker::trackingThread() {
     ros::Rate fps(30);
     double time_sec = 0.0;
     while(ros::ok()) {
-        std::map<long, geometry_msgs::Point> ppl = st->track(&time_sec);
+        std::map<long, std::vector<geometry_msgs::Pose> > ppl = st->track(&time_sec);
         if(ppl.size()) {
-            geometry_msgs::Point closest_person_point;
-            std::vector<geometry_msgs::Point> tmp;
+            geometry_msgs::Pose closest_person_point;
+            std::vector<geometry_msgs::Pose> pose;
+            std::vector<geometry_msgs::Pose> vel;
             std::vector<std::string> uuids;
             std::vector<double> distances;
             std::vector<double> angles;
             double min_dist = 10000.0d;
             double angle;
 
-            for(std::map<long, geometry_msgs::Point>::const_iterator it = ppl.begin();
+            for(std::map<long, std::vector<geometry_msgs::Pose> >::const_iterator it = ppl.begin();
                 it != ppl.end(); ++it) {
-                tmp.push_back(it->second);
+                pose.push_back(it->second[0]);
+                vel.push_back(it->second[1]);
                 uuids.push_back(generateUUID(startup_time_str, it->first));
-                std::vector<double> polar = cartesianToPolar(it->second);
+                std::vector<double> polar = cartesianToPolar(it->second[0].position);
                 distances.push_back(polar[0]);
                 angles.push_back(polar[1]);
 
                 //Find closest person and get distance and angle
                 angle = polar[0] < min_dist ? polar[1] : angle;
-                closest_person_point = polar[0] < min_dist ? it->second : closest_person_point;
+                closest_person_point = polar[0] < min_dist ? it->second[0] : closest_person_point;
                 min_dist = polar[0] < min_dist ? polar[0] : min_dist;
             }
 
             if(pub_marker.getNumSubscribers())
-                createVisualisation(tmp, pub_marker);
-            publishDetections(time_sec, closest_person_point, tmp, uuids, distances, angles, min_dist, angle);
+                createVisualisation(pose, pub_marker);
+            publishDetections(time_sec, closest_person_point, pose, vel, uuids, distances, angles, min_dist, angle);
         }
         fps.sleep();
     }
@@ -109,8 +114,9 @@ void PeopleTracker::trackingThread() {
 
 void PeopleTracker::publishDetections(
         double time_sec,
-        geometry_msgs::Point closest,
-        std::vector<geometry_msgs::Point> ppl,
+        geometry_msgs::Pose closest,
+        std::vector<geometry_msgs::Pose> ppl,
+        std::vector<geometry_msgs::Pose> vels,
         std::vector<std::string> uuids,
         std::vector<double> distances,
         std::vector<double> angles,
@@ -120,22 +126,7 @@ void PeopleTracker::publishDetections(
     result.header.stamp.fromSec(time_sec);
     result.header.frame_id = target_frame;
     result.header.seq = ++detect_seq;
-    for(int i = 0; i < ppl.size(); i++) {
-        geometry_msgs::Pose pose;
-        pose.position.x = ppl[i].x;
-        pose.position.y = ppl[i].y;
-        pose.position.z = ppl[i].z;
-        //TODO: Get orientation from direction estimation
-        pose.orientation.x = 0.0;
-        pose.orientation.y = 0.0;
-        pose.orientation.z = 0.0;
-        pose.orientation.w = 1.0;
-        result.poses.push_back(pose);
-        ROS_DEBUG("publishDetections: Publishing detection: x: %f, y: %f, z: %f",
-                  pose.position.x,
-                  pose.position.y,
-                  pose.position.z);
-    }
+    result.poses = ppl;
     result.uuids = uuids;
     result.distances = distances;
     result.angles = angles;
@@ -145,12 +136,22 @@ void PeopleTracker::publishDetections(
 
     geometry_msgs::PoseStamped pose;
     pose.header = result.header;
-    pose.pose.position = closest;
-    pose.pose.orientation.x = 0.0;
-    pose.pose.orientation.y = 0.0;
-    pose.pose.orientation.z = 0.0;
-    pose.pose.orientation.w = 1.0;
+    pose.pose = closest;
     publishDetections(pose);
+
+    people_msgs::People people;
+    people.header = result.header;
+    for(int i = 0; i < ppl.size(); i++) {
+        people_msgs::Person person;
+        person.position = ppl[i].position;
+        person.velocity = vels[i].position;
+        person.name = uuids[i];
+        person.tags.push_back(uuids[i]);
+        person.tagnames.push_back("uuid");
+        person.reliability = 1.0;
+        people.people.push_back(person);
+    }
+    publishDetections(people);
 }
 
 void PeopleTracker::publishDetections(bayes_people_tracker::PeopleTracker msg) {
@@ -161,21 +162,15 @@ void PeopleTracker::publishDetections(geometry_msgs::PoseStamped msg) {
     pub_pose.publish(msg);
 }
 
-void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Point> points, ros::Publisher& pub) {
+void PeopleTracker::publishDetections(people_msgs::People msg) {
+    pub_people.publish(msg);
+}
+
+void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, ros::Publisher& pub) {
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
-    for(int i = 0; i < points.size(); i++) {
-
-        geometry_msgs::Pose pose;
-        pose.position.x = points[i].x;
-        pose.position.y = points[i].y;
-        pose.position.z = 0.6;
-        pose.orientation.x = 0.0;
-        pose.orientation.y = 0.0;
-        pose.orientation.z = 0.0;
-        pose.orientation.w = 1.0;
-        std::vector<visualization_msgs::Marker> human = createHuman(i*10, pose);
-
+    for(int i = 0; i < poses.size(); i++) {
+        std::vector<visualization_msgs::Marker> human = createHuman(i*10, poses[i]);
         marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
     }
     pub.publish(marker_array);

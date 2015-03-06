@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
     bayes_tracking
     geometry_msgs
     message_generation
+    people_msgs
     roscpp
     std_msgs
     tf

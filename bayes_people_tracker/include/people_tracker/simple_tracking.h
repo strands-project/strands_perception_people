@@ -23,7 +23,7 @@
 
 #include <ros/ros.h>
 #include <ros/time.h>
-#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
 #include <bayes_tracking/multitracker.h>
 #include <bayes_tracking/models.h>
 #include <bayes_tracking/ekfilter.h>
@@ -31,6 +31,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/optional.hpp>
+#include <math.h>
 
 using namespace std;
 using namespace MTRK;
@@ -93,9 +94,9 @@ public:
         detectors[name] = det;
     }
 
-    std::map<long, geometry_msgs::Point> track(double* track_time = NULL) {
+    std::map<long, std::vector<geometry_msgs::Pose> > track(double* track_time = NULL) {
         boost::mutex::scoped_lock lock(mutex);
-        std::map<long, geometry_msgs::Point> result;
+        std::map<long, std::vector<geometry_msgs::Pose> > result;
         dt = getTime() - time;
         time += dt;
         if(track_time) *track_time = time;
@@ -112,16 +113,23 @@ public:
         }
 
         for (int i = 0; i < mtrk.size(); i++) {
+            double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
             ROS_DEBUG("trk_%ld: Position: (%f, %f), Orientation: %f, Std Deviation: %f, %f",
                     mtrk[i].id,
                     mtrk[i].filter->x[0], mtrk[i].filter->x[2], //x, y
-                    atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]), //orientation
+                    theta, //orientation
                     sqrt(mtrk[i].filter->X(0,0)), sqrt(mtrk[i].filter->X(2,2))//std dev
                     );
-            geometry_msgs::Point point;
-            point.x = mtrk[i].filter->x[0];
-            point.y = mtrk[i].filter->x[2];
-            result[mtrk[i].id] = point;
+            geometry_msgs::Pose pose, vel;
+            pose.position.x = mtrk[i].filter->x[0];
+            pose.position.y = mtrk[i].filter->x[2];
+            pose.orientation.z = sin(theta/2);
+            pose.orientation.w = cos(theta/2);
+            result[mtrk[i].id].push_back(pose);
+
+            vel.position.x = mtrk[i].filter->x[1];
+            vel.position.y = mtrk[i].filter->x[3];
+            result[mtrk[i].id].push_back(vel);
         }
         return result;
     }
