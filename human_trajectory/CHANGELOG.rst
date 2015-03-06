@@ -2,6 +2,13 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* provide online stitching poses into trajectories
+* Merge branch 'indigo-devel' of https://github.com/strands-project/strands_perception_people into indigo-devel
+* add online trajectory construction from /people_tracker/positions
+* Contributors: Ferdian Jovan
+
 0.1.3 (2015-02-25)
 ------------------
 * polish code, change message that is stored, remove store_to_database option
