@@ -39,12 +39,7 @@ class TrajectoryPublisher(object):
             self._publish_rate = rospy.Rate(1)
             self.trajs = OfflineTrajectories()
 
-        # t = threading.Thread(target=self._publish_in_nav_msgs)
-        # t.daemon = True
-        # t.start()
-
         rospy.loginfo("human_trajectory is ready...")
-        # t.join()
 
     # construct trajectories message header
     def _construct_header(self):
