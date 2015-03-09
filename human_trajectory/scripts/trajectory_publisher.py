@@ -16,6 +16,7 @@ class TrajectoryPublisher(object):
     def __init__(self, name, interval, online):
         self.name = name
         self.pub_nav = dict()
+        self._last_seen = dict()
         self.map_info = ''
         self._publish_interval = interval
         self.online = online
@@ -87,20 +88,25 @@ class TrajectoryPublisher(object):
             rospy.loginfo("Creating a publisher for %s...", uuid)
             name = uuid.replace("-", "0")
             self.pub_nav[uuid] = rospy.Publisher(
-                self.name + '/' + name, Path, queue_size=10
+                self.name + '/' + name, Path, latch=True, queue_size=10
             )
 
     # publish each traj in nav_msg/Path format
     def _publish_in_nav_msgs(self):
+        current_time = rospy.Time.now()
         for uuid, pub in self.pub_nav.items():
             if uuid in self.trajs.traj:
                 traj_msg = self.trajs._temp_traj[uuid].get_trajectory_message()
                 self.trajs._temp_traj[uuid].sequence_id -= 1
                 path = Path(traj_msg.header, traj_msg.trajectory)
                 pub.publish(path)
+            elif uuid in self._last_seen:
+                if (current_time - self._last_seen[uuid]).secs > 60:
+                    pub.unregister()
+                    del self.pub_nav[uuid]
+                    del self._last_seen[uuid]
             else:
-                pub.unregister()
-                del self.pub_nav[uuid]
+                self._last_seen[uuid] = current_time
 
     # publish based on offline data in mongodb
     def _publish_offline_data(self):
