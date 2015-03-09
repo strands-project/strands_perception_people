@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+# import threading
 import sys
 import rospy
 from human_trajectory.msg import Trajectories
 from human_trajectory.trajectories import OfflineTrajectories
 from human_trajectory.trajectories import OnlineTrajectories
+from nav_msgs.msg import Path
 from strands_navigation_msgs.msg import TopologicalMap
 from mongodb_store.message_store import MessageStoreProxy
 
@@ -12,6 +14,9 @@ from mongodb_store.message_store import MessageStoreProxy
 class TrajectoryPublisher(object):
 
     def __init__(self, name, interval, online):
+        self.name = name
+        self.pub_nav = dict()
+        self._last_seen = dict()
         self.map_info = ''
         self._publish_interval = interval
         self.online = online
@@ -48,15 +53,17 @@ class TrajectoryPublisher(object):
 
     # publish based on online data from people_tracker
     def _publish_online_data(self, incremental=False):
-        from_time = None
         while not rospy.is_shutdown():
             trajs = self._construct_header()
 
             for uuid, traj in self.trajs.traj.items():
-                if incremental and uuid in self.trajs._checked \
-                        and self.trajs._checked[uuid]:
-                    traj_msg = traj.get_trajectory_message(self._publish_interval)
-                    trajs.trajectories.append(traj_msg)
+                if uuid in self.trajs._checked and self.trajs._checked[uuid]:
+                    if incremental:
+                        traj_msg = traj.get_trajectory_message(
+                            self._publish_interval
+                        )
+                        trajs.trajectories.append(traj_msg)
+                    self._add_in_nav_msgs(uuid)
                 if uuid in self.trajs.complete:
                     if self.trajs.complete[uuid]:
                         traj_msg = traj.get_trajectory_message()
@@ -71,8 +78,35 @@ class TrajectoryPublisher(object):
                     del self.trajs.traj[uuid]
                     del self.trajs.complete[uuid]
 
+            self._publish_in_nav_msgs()
             self._pub.publish(trajs)
             self._publish_rate.sleep()
+
+    # add each traj to be published in nav_msg/Path
+    def _add_in_nav_msgs(self, uuid):
+        if uuid not in self.pub_nav:
+            rospy.loginfo("Creating a publisher for %s...", uuid)
+            name = uuid.replace("-", "0")
+            self.pub_nav[uuid] = rospy.Publisher(
+                self.name + '/' + name, Path, latch=True, queue_size=10
+            )
+
+    # publish each traj in nav_msg/Path format
+    def _publish_in_nav_msgs(self):
+        current_time = rospy.Time.now()
+        for uuid, pub in self.pub_nav.items():
+            if uuid in self.trajs.traj:
+                traj_msg = self.trajs._temp_traj[uuid].get_trajectory_message()
+                self.trajs._temp_traj[uuid].sequence_id -= 1
+                path = Path(traj_msg.header, traj_msg.trajectory)
+                pub.publish(path)
+            elif uuid in self._last_seen:
+                if (current_time - self._last_seen[uuid]).secs > 60:
+                    pub.unregister()
+                    del self.pub_nav[uuid]
+                    del self._last_seen[uuid]
+            else:
+                self._last_seen[uuid] = current_time
 
     # publish based on offline data in mongodb
     def _publish_offline_data(self):

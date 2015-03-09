@@ -78,7 +78,7 @@ class Trajectory(object):
             traj.trajectory.append(human)
             traj.robot.append(robot)
         self.sequence_id += 1
-        if to_index != len(self.humrobpose):
+        if to_index < len(self.humrobpose) - 1:
             self.publish_index = to_index
         return traj
 
