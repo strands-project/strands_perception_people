@@ -2,6 +2,13 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* keep visualization for 1 min
+* forgot (again) to change default detector.yaml in bayes_people_tracker
+* adding visualization to rviz via nav_msgs/Path
+* Contributors: Ferdian Jovan
+
 0.1.4 (2015-03-06)
 ------------------
 * provide online stitching poses into trajectories

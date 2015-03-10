@@ -2,6 +2,20 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Nicer print
+* Adding ability to switch between Extended and Unscented Kalman Filter
+* Making simple_tracking template based.
+* Changed config file structure and made necessary changes to the code.
+* Adding pose, pose_array and people publishers to connection callback.
+* * Publishing a pose array for all detected people to have more generic output
+  * Added missing bayes tracker parameters to launch files and READMEs
+  * Starting the mdl tracker is now optional when using the robot launch file. `with_mdl_tracker=true` starts the mdl tracker in addition to the bayes tracker. Default is `false`
+* forgot (again) to change default detector.yaml in bayes_people_tracker
+* adding visualization to rviz via nav_msgs/Path
+* Contributors: Christian Dondrup, Ferdian Jovan
+
 0.1.4 (2015-03-06)
 ------------------
 * Publishin people_msgs/People and adding orientation.

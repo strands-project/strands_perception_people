@@ -2,6 +2,9 @@
 Changelog for package ground_plane_estimation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 0.1.4 (2015-03-06)
 ------------------
 
