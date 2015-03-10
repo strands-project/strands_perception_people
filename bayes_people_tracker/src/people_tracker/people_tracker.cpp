@@ -266,9 +266,11 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
 void PeopleTracker::connectCallback(ros::NodeHandle &n) {
     bool loc = pub_detect.getNumSubscribers();
     bool markers = pub_marker.getNumSubscribers();
-    bool test_markers = pub_marker.getNumSubscribers();
+    bool people = pub_people.getNumSubscribers();
+    bool pose = pub_pose.getNumSubscribers();
+    bool pose_array = pub_pose_array.getNumSubscribers();
     std::map<std::pair<std::string, std::string>, ros::Subscriber>::const_iterator it;
-    if(!loc && !markers && !test_markers) {
+    if(!loc && !markers && !people && !pose && !pose_array) {
         ROS_DEBUG("Pedestrian Localisation: No subscribers. Unsubscribing.");
         for(it = subscribers.begin(); it != subscribers.end(); ++it)
             const_cast<ros::Subscriber&>(it->second).shutdown();
