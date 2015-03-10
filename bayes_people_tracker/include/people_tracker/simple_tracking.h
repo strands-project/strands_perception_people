@@ -27,6 +27,7 @@
 #include <bayes_tracking/multitracker.h>
 #include <bayes_tracking/models.h>
 #include <bayes_tracking/ekfilter.h>
+#include <bayes_tracking/ukfilter.h>
 #include <cstdio>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -36,9 +37,6 @@
 using namespace std;
 using namespace MTRK;
 using namespace Models;
-
-
-typedef EKFilter Filter;
 
 // rule to detect lost track
 template<class FilterType>
@@ -77,6 +75,7 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq) {
     return true;
 }
 
+template<typename FilterType>
 class SimpleTracking
 {
 public:
@@ -85,11 +84,14 @@ public:
         observation = new FM::Vec(2);
     }
 
-    void addDetectorModel(std::string name, association_t alg, double vel_noise_x, double vel_noise_y, double pos_noise_x, double pos_noise_y) {
+    void createConstantVelocityModel(double vel_noise_x, double vel_noise_y) {
+        cvm = new CVModel(vel_noise_x, vel_noise_y);
+    }
+
+    void addDetectorModel(std::string name, association_t alg, double pos_noise_x, double pos_noise_y) {
         ROS_INFO("Adding detector model for: %s.", name.c_str());
         detector_model det;
         det.alg = alg;
-        det.cvm = new CVModel(vel_noise_x, vel_noise_y);
         det.ctm = new CartesianModel(pos_noise_x, pos_noise_y);
         detectors[name] = det;
     }
@@ -101,12 +103,12 @@ public:
         time += dt;
         if(track_time) *track_time = time;
 
-        for(std::map<std::string, detector_model>::const_iterator it = detectors.begin();
+        for(typename std::map<std::string, detector_model>::const_iterator it = detectors.begin();
             it != detectors.end();
             ++it) {
             // prediction
-            it->second.cvm->update(dt);
-            mtrk.predict<CVModel>(*(it->second.cvm));
+            cvm->update(dt);
+            mtrk.template predict<CVModel>(*cvm);
 
             // process observations (if available) and update tracks
             mtrk.process(*(it->second.ctm), it->second.alg);
@@ -150,8 +152,8 @@ public:
         time += dt;
 
         // prediction
-        det.cvm->update(dt);
-        mtrk.predict<CVModel>(*(det.cvm));
+        cvm->update(dt);
+        mtrk.template predict<CVModel>(*cvm);
 
         mtrk.process(*(det.ctm), det.alg);
 
@@ -164,16 +166,17 @@ public:
     }
 
 private:
-    MultiTracker<Filter, 4> mtrk;    // state [x, v_x, y, v_y]
-    FM::Vec *observation;            // observation [x, y]
+
+    FM::Vec *observation;           // observation [x, y]
     double dt, time;
     boost::mutex mutex;
+    CVModel *cvm;                   // CV model
+    MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
 
-    struct detector_model {
-        CVModel *cvm;               // CV model
+    typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
         association_t alg;          // Data association algorithm
-    };
+    } detector_model;
     std::map<std::string, detector_model> detectors;
 
     double getTime() {

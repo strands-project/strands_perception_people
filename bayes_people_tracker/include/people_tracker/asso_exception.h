@@ -12,4 +12,12 @@ class asso_exception: public exception
   }
 };
 
+class filter_exception: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Unknown filter type!";
+  }
+};
+
 #endif // ASSO_EXCEPTION_H

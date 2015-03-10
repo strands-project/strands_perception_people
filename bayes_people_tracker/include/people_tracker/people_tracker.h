@@ -21,6 +21,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <bayes_tracking/BayesFilter/bayesFlt.hpp>
+
 #include <XmlRpcValue.h>
 
 #include <string.h>
@@ -220,7 +222,8 @@ private:
 
     boost::uuids::uuid dns_namespace_uuid;
 
-    SimpleTracking *st;
+    SimpleTracking<EKFilter> *ekf = NULL;
+    SimpleTracking<UKFilter> *ukf = NULL;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
 };
 
