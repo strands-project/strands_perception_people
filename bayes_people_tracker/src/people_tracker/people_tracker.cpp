@@ -49,7 +49,7 @@ PeopleTracker::PeopleTracker() :
 void PeopleTracker::parseParams(ros::NodeHandle n) {
     std::string filter;
     n.getParam("filter_type", filter);
-    ROS_INFO_STREAM(filter);
+    ROS_INFO_STREAM("Found filter type: " << filter);
     if(filter == "EKF")
         ekf = new SimpleTracking<EKFilter>();
     else if(filter == "UKF")
@@ -62,10 +62,11 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     XmlRpc::XmlRpcValue cv_noise;
     n.getParam("cv_noise_params", cv_noise);
     ROS_ASSERT(cv_noise.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-    ROS_INFO_STREAM("Constant Velocity model noise: " << cv_noise);
+    ROS_INFO_STREAM("Constant Velocity Model noise: " << cv_noise);
     ekf == NULL ?
         ukf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]) :
         ekf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+    ROS_INFO_STREAM("Created " << filter << " based tracker using constant velocity prediction model.");
 
     XmlRpc::XmlRpcValue detectors;
     n.getParam("detectors", detectors);
