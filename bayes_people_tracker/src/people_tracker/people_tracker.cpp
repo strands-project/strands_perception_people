@@ -7,7 +7,6 @@ PeopleTracker::PeopleTracker() :
     ros::NodeHandle n;
 
     listener = new tf::TransformListener();
-    st = new SimpleTracking<EKFilter>();
 
     startup_time = ros::Time::now().toSec();
     startup_time_str = num_to_str<double>(startup_time);
@@ -51,12 +50,22 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     std::string filter;
     n.getParam("filter_type", filter);
     ROS_INFO_STREAM(filter);
+    if(filter == "EKF")
+        ekf = new SimpleTracking<EKFilter>();
+    else if(filter == "UKF")
+        ukf = new SimpleTracking<UKFilter>();
+    else {
+        ROS_FATAL_STREAM("Filter type " << filter << " is not specified. Unable to create the tracker. Please use either EKF or UKF.");
+        return;
+    }
 
     XmlRpc::XmlRpcValue cv_noise;
     n.getParam("cv_noise_params", cv_noise);
     ROS_ASSERT(cv_noise.getType() == XmlRpc::XmlRpcValue::TypeStruct);
     ROS_INFO_STREAM("Constant Velocity model noise: " << cv_noise);
-    st->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+    ekf == NULL ?
+        ukf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]) :
+        ekf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
 
     XmlRpc::XmlRpcValue detectors;
     n.getParam("detectors", detectors);
@@ -64,7 +73,12 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = detectors.begin(); it != detectors.end(); ++it) {
         ROS_INFO_STREAM("Found detector: " << (std::string)(it->first) << " ==> " << detectors[it->first]);
         try {
-            st->addDetectorModel(it->first,
+            ekf == NULL ?
+                ukf->addDetectorModel(it->first,
+                    detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                    detectors[it->first]["cartesian_noise_params"]["x"],
+                    detectors[it->first]["cartesian_noise_params"]["y"]) :
+                ekf->addDetectorModel(it->first,
                     detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
                     detectors[it->first]["cartesian_noise_params"]["x"],
                     detectors[it->first]["cartesian_noise_params"]["y"]);
@@ -77,7 +91,7 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
                     << (std::string)(it->first)
                     << " to the tracker. Please use either NN or NNJPDA as association algorithms."
             );
-            continue;
+            return;
         }
         ros::Subscriber sub;
         subscribers[std::pair<std::string, std::string>(it->first, detectors[it->first]["topic"])] = sub;
@@ -89,7 +103,7 @@ void PeopleTracker::trackingThread() {
     ros::Rate fps(30);
     double time_sec = 0.0;
     while(ros::ok()) {
-        std::map<long, std::vector<geometry_msgs::Pose> > ppl = st->track(&time_sec);
+        std::map<long, std::vector<geometry_msgs::Pose> > ppl = ekf == NULL ? ukf->track(&time_sec) : ekf->track(&time_sec);
         if(ppl.size()) {
             geometry_msgs::Pose closest_person_point;
             std::vector<geometry_msgs::Pose> pose;
@@ -266,8 +280,11 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             ppl.push_back(poseInTargetCoords.pose.position);
 
     }
-    if(ppl.size())
-        st->addObservation(detector, ppl, pta->header.stamp.toSec());
+    if(ppl.size()) {
+        ekf == NULL ?
+            ukf->addObservation(detector, ppl, pta->header.stamp.toSec()) :
+            ekf->addObservation(detector, ppl, pta->header.stamp.toSec());
+    }
 }
 
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
