@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>strands_perception_people</name>
-  <version>0.1.4</version>
+  <version>1.0.0</version>
   <description>The strands_perception_people metapackage</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>

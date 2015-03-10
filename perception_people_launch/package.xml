@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>perception_people_launch</name>
-  <version>0.1.4</version>
+  <version>1.0.0</version>
   <description>The perception_people_launch package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>

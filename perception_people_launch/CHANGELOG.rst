@@ -2,8 +2,8 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2015-03-10)
+------------------
 * * Publishing a pose array for all detected people to have more generic output
   * Added missing bayes tracker parameters to launch files and READMEs
   * Starting the mdl tracker is now optional when using the robot launch file. `with_mdl_tracker=true` starts the mdl tracker in addition to the bayes tracker. Default is `false`

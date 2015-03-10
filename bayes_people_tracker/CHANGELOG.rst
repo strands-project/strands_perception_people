@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2015-03-10)
+------------------
 * Nicer print
 * Adding ability to switch between Extended and Unscented Kalman Filter
 * Making simple_tracking template based.
