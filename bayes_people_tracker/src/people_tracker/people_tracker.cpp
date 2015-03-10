@@ -7,7 +7,7 @@ PeopleTracker::PeopleTracker() :
     ros::NodeHandle n;
 
     listener = new tf::TransformListener();
-    st = new SimpleTracking/*<EKFilter>*/();
+    st = new SimpleTracking<EKFilter>();
 
     startup_time = ros::Time::now().toSec();
     startup_time_str = num_to_str<double>(startup_time);

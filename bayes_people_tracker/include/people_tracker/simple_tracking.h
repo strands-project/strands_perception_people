@@ -75,7 +75,7 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq) {
     return true;
 }
 
-//template<typename FilterType>
+template<typename FilterType>
 class SimpleTracking
 {
 public:
@@ -103,12 +103,12 @@ public:
         time += dt;
         if(track_time) *track_time = time;
 
-        for(/*typename*/ std::map<std::string, detector_model>::const_iterator it = detectors.begin();
+        for(typename std::map<std::string, detector_model>::const_iterator it = detectors.begin();
             it != detectors.end();
             ++it) {
             // prediction
             cvm->update(dt);
-            mtrk./*template */predict<CVModel>(*cvm);
+            mtrk.template predict<CVModel>(*cvm);
 
             // process observations (if available) and update tracks
             mtrk.process(*(it->second.ctm), it->second.alg);
@@ -153,7 +153,7 @@ public:
 
         // prediction
         cvm->update(dt);
-        mtrk./*template */predict<Models::CVModel>(*cvm);
+        mtrk.template predict<CVModel>(*cvm);
 
         mtrk.process(*(det.ctm), det.alg);
 
@@ -171,7 +171,7 @@ private:
     double dt, time;
     boost::mutex mutex;
     CVModel *cvm;                   // CV model
-    MultiTracker<EKFilter, 4> mtrk; // state [x, v_x, y, v_y]
+    MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
 
     typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
