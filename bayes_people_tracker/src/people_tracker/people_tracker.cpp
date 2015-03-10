@@ -7,7 +7,7 @@ PeopleTracker::PeopleTracker() :
     ros::NodeHandle n;
 
     listener = new tf::TransformListener();
-    st = new SimpleTracking();
+    st = new SimpleTracking/*<EKFilter>*/();
 
     startup_time = ros::Time::now().toSec();
     startup_time_str = num_to_str<double>(startup_time);
@@ -48,6 +48,16 @@ PeopleTracker::PeopleTracker() :
 }
 
 void PeopleTracker::parseParams(ros::NodeHandle n) {
+    std::string filter;
+    n.getParam("filter_type", filter);
+    ROS_INFO_STREAM(filter);
+
+    XmlRpc::XmlRpcValue cv_noise;
+    n.getParam("cv_noise_params", cv_noise);
+    ROS_ASSERT(cv_noise.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+    ROS_INFO_STREAM("Constant Velocity model noise: " << cv_noise);
+    st->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+
     XmlRpc::XmlRpcValue detectors;
     n.getParam("detectors", detectors);
     ROS_ASSERT(detectors.getType() == XmlRpc::XmlRpcValue::TypeStruct);
@@ -56,10 +66,8 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
         try {
             st->addDetectorModel(it->first,
                     detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-                    detectors[it->first]["noise_model"]["velocity"]["x"],
-                    detectors[it->first]["noise_model"]["velocity"]["y"],
-                    detectors[it->first]["noise_model"]["position"]["x"],
-                    detectors[it->first]["noise_model"]["position"]["y"]);
+                    detectors[it->first]["cartesian_noise_params"]["x"],
+                    detectors[it->first]["cartesian_noise_params"]["y"]);
         } catch (std::exception& e) {
             ROS_FATAL_STREAM(""
                     << e.what()
