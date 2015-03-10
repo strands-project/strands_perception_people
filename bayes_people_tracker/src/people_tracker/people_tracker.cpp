@@ -16,6 +16,7 @@ PeopleTracker::PeopleTracker() :
     std::string pta_topic;
     std::string pub_topic;
     std::string pub_topic_pose;
+    std::string pub_topic_pose_array;
     std::string pub_topic_people;
     std::string pub_marker_topic;
 
@@ -34,6 +35,8 @@ PeopleTracker::PeopleTracker() :
     pub_detect = n.advertise<bayes_people_tracker::PeopleTracker>(pub_topic.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("pose", pub_topic_pose, std::string("/people_tracker/pose"));
     pub_pose = n.advertise<geometry_msgs::PoseStamped>(pub_topic_pose.c_str(), 10, con_cb, con_cb);
+    private_node_handle.param("pose_array", pub_topic_pose_array, std::string("/people_tracker/pose_array"));
+    pub_pose_array = n.advertise<geometry_msgs::PoseArray>(pub_topic_pose_array.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("people", pub_topic_people, std::string("/people_tracker/people"));
     pub_people = n.advertise<people_msgs::People>(pub_topic_people.c_str(), 10, con_cb, con_cb);
     private_node_handle.param("marker", pub_marker_topic, std::string("/people_tracker/marker_array"));
@@ -139,6 +142,11 @@ void PeopleTracker::publishDetections(
     pose.pose = closest;
     publishDetections(pose);
 
+    geometry_msgs::PoseArray poses;
+    poses.header = result.header;
+    poses.poses = ppl;
+    publishDetections(poses);
+
     people_msgs::People people;
     people.header = result.header;
     for(int i = 0; i < ppl.size(); i++) {
@@ -160,6 +168,10 @@ void PeopleTracker::publishDetections(bayes_people_tracker::PeopleTracker msg) {
 
 void PeopleTracker::publishDetections(geometry_msgs::PoseStamped msg) {
     pub_pose.publish(msg);
+}
+
+void PeopleTracker::publishDetections(geometry_msgs::PoseArray msg) {
+    pub_pose_array.publish(msg);
 }
 
 void PeopleTracker::publishDetections(people_msgs::People msg) {

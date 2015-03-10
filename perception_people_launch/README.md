@@ -36,13 +36,17 @@ Parameters:
 * `upper_body_markers default = /upper_body_detector/marker_array_: A visualisation array for rviz
 * `upper_body_image` _default = /upper_body_detector/image_: The detected upper body image
 * `visual_odometry` _default = /visual_odometry/motion_matrix_: The odometry. This takes the real odometry and only follows naming conventions for the ease of use.
-* `pedestrain_array` _default = /mdl_people_tracker/people_array_: The detected and tracked people
-* `people_markers" default="/mdl_people_tracker/marker_array_: A visualisation array for rviz
-* `people_poses" default = /mdl_people_tracker/pose_array_: A PoseArray of the detected people
+* `mdl_people_array` _default = /mdl_people_tracker/people_array_: The detected and tracked people
+* `mdl_people_markers" default="/mdl_people_tracker/marker_array_: A visualisation array for rviz
+* `mdl_people_poses" default = /mdl_people_tracker/pose_array_: A PoseArray of the detected people
 * `tf_target_frame` _default = /map: The coordinate system into which the localisations should be transformed
-* `pd_positions` _default = /people_tracker/positions_: The poses of the tracked people
+* `bayes_people_positions` _default = /people_tracker/positions_: The poses of the tracked people
+* `bayes_people_pose`: _Default: /people_tracker/pose_: The topic under which the closest detected person is published as a geometry_msgs/PoseStamped`
+* `bayes_people_pose_array`: _Default: /people_tracker/pose_array_: The topic under which the detections are published as a geometry_msgs/PoseArray`
+* `bayes_people_poeple`: _Default: /people_tracker/people_: The topic under which the results are published as people_msgs/People`
 * `pd_marker` _default = /people_tracker/marker_array_: A marker arry to visualise found people in rviz
 * `log` _default = false_: Log people and robot locations together with tracking and detection results to message_store database into people_perception collection. Disabled by default because if it is enabled the perception is running continuously.
+* `with_mdl_tracker` _default = false_: Starts the mdl people tracker in addition to the bayes tracker
 
 
 Running:
