@@ -61,6 +61,9 @@ Parameters:
 
 * `target_frame`: _Default: /base_link_:the tf frame in which the tracked poses will be published. 
 * `position`: _Default: /people_tracker/positions_: The topic under which the results are published as bayes_people_tracker/PeopleTracker`
+* `pose`: _Default: /people_tracker/pose_: The topic under which the closest detected person is published as a geometry_msgs/PoseStamped`
+* `pose_array`: _Default: /people_tracker/pose_array_: The topic under which the detections are published as a geometry_msgs/PoseArray`
+* `poeple`: _Default: /people_tracker/people_: The topic under which the results are published as people_msgs/People`
 * `marker`: _Default /people_tracker/marker_array_: A visualisation marker array.
 
 You can run the node with:
