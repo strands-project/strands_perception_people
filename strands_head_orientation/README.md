@@ -76,15 +76,17 @@ Anything below this line can be ignored for the g4s scenario.
 
 Install
 =======
-Please download and extract the model file into the `models` folder. By default:
+
+Please download and extract one of the [available model files](https://omnomnom.vision.rwth-aachen.de/strands/data/ghmodels-l/) into the `models` folder. The larger models will have better prediction but will run slower. By default:
 
 ```
 cd strands_head_orientation/models
-wget http://lucasb.eyer.be/academic/face_orientation/model-default.txz
-tar xJv < model-default.txz
+wget https://omnomnom.vision.rwth-aachen.de/strands/data/ghmodels-l/model-small.tar.bz2
+tar xjv < model-small.tar.bz2
+ln -s default-0.1 default
 ```
 
-This should create the `models/default` folder with a bunch of files.
+This should create the `models/default` link pointing to the `models/default-0.1` folder with a bunch of files.
 
 Run
 ===
