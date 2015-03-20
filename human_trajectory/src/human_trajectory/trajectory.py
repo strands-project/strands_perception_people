@@ -50,7 +50,7 @@ class Trajectory(object):
         traj.end_time = self.humrobpose[-1][0].header.stamp
         traj.trajectory = [i[0] for i in self.humrobpose[from_index:]]
         traj.robot = [i[1] for i in self.humrobpose[from_index:]]
-        traj.complete = chunked
+        traj.complete = not chunked
         traj.sequence_id = self.sequence_id
         traj.trajectory_length = self.length[-1] - self.length[from_index]
 
