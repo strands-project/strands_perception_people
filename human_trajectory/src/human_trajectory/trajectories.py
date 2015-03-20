@@ -16,22 +16,10 @@ class Trajectories(object):
 
     # delete trajs that appear less than 5 secs or have length less than 0.1
     def _validate_trajectories(self, traj):
-        rospy.loginfo("Validating data...")
-        will_be_deleted = []
-        for uuid in traj:
-            traj[uuid].validate_all_poses()
-            if traj[uuid].length[-1] < 0.1 and uuid not in will_be_deleted:
-                will_be_deleted.append(uuid)
-            start_appear = traj[uuid].humrobpose[0][0].header.stamp
-            end_appear = traj[uuid].humrobpose[-1][0].header.stamp
-            delta_appear = end_appear - start_appear
-            if delta_appear.secs < 3 and uuid not in will_be_deleted:
-                will_be_deleted.append(uuid)
-
-        rospy.loginfo("Deleting noisy data...")
-        for i, uuid in enumerate(will_be_deleted):
-            del traj[uuid]
-
+        for uuid, t in traj.items():
+            t.validate_all_poses()
+            if t.length[-1] < 0.1 or len(t.humrobpose) < 20:
+                del traj[uuid]
         return traj
 
 
@@ -40,9 +28,6 @@ class OnlineTrajectories(Trajectories):
     def __init__(self):
         Trajectories.__init__(self)
         self._temp_traj = dict()
-        self._first_seen = dict()
-        self._last_seen = dict()
-        self._checked = dict()
         self.complete = dict()
         self.robot_pose = Pose()
         rospy.Subscriber(
@@ -62,44 +47,33 @@ class OnlineTrajectories(Trajectories):
     def pt_callback(self, msg):
         for i, uuid in enumerate(msg.uuids):
             if uuid not in self._temp_traj:
-                t = Trajectory(uuid)
-                t.append_ros_pose(msg.poses[i], msg.header, self.robot_pose)
-                self._temp_traj[uuid] = t
-                self._first_seen[uuid] = msg.header.stamp.secs
-                self._checked[uuid] = False
-            else:
-                t = self._temp_traj[uuid]
-                t.append_ros_pose(msg.poses[i], msg.header, self.robot_pose)
-            self._last_seen[uuid] = msg.header.stamp.secs
+                self._temp_traj[uuid] = Trajectory(uuid)
+            self._temp_traj[uuid].append_pose(
+                msg.poses[i], msg.header, self.robot_pose, True
+            )
 
+        self.traj.update({
+            uuid: traj
+            for uuid, traj in self._temp_traj.iteritems()
+            if len(traj.humrobpose) >= 20}
+        )
         self.check_completeness()
 
     # check complete trajectories from _temp_traj and validate
-    # the those complete trajectories before they are put in ready
-    # trajectories (self.traj)
+    # those complete trajectories
     def check_completeness(self):
         cur_time = rospy.Time.now()
-        will_be_deleted = []
-        for uuid, secs in self._first_seen.items():
-            if (cur_time.secs - 5) >= secs:
-                self._checked[uuid] = True
-
-        self.traj.update({
-            uuid:self._temp_traj[uuid]
-            for uuid, val in self._checked.iteritems() if val
-        })
-
-        for uuid, secs in self._last_seen.items():
-            if (cur_time.secs - 5) >= secs:
-                temp = self._validate_trajectories({uuid:self._temp_traj[uuid]})
+        for uuid, t in self.traj.items():
+            delta = cur_time - t.humrobpose[-1][0].header.stamp
+            if delta.secs >= 5:
+                temp = self._validate_trajectories({uuid: t})
                 if temp == {}:
                     self.complete[uuid] = False
                 else:
                     self.complete[uuid] = True
-                del self._temp_traj[uuid]
-                del self._first_seen[uuid]
-                del self._last_seen[uuid]
-                del self._checked[uuid]
+                    self.traj[uuid] = temp[uuid]
+                if uuid in self._temp_traj:
+                    del self._temp_traj[uuid]
 
 
 class OfflineTrajectories(Trajectories):
@@ -111,6 +85,7 @@ class OfflineTrajectories(Trajectories):
 
         self.from_people_trajectory = self._retrieve_logs()
         if not self.from_people_trajectory:
+            rospy.loginfo("Validating data...")
             self.traj = self._validate_trajectories(self.traj)
         rospy.loginfo("Data is ready...")
 
@@ -120,18 +95,32 @@ class OfflineTrajectories(Trajectories):
         for log in logs:
             for i, uuid in enumerate(log['uuids']):
                 if uuid not in self.traj:
-                    t = Trajectory(uuid)
-                    t.append_pose(log['people'][i],
-                                  log['header']['stamp']['secs'],
-                                  log['header']['stamp']['nsecs'],
-                                  log['robot'])
-                    self.traj[uuid] = t
-                else:
-                    t = self.traj[uuid]
-                    t.append_pose(log['people'][i],
-                                  log['header']['stamp']['secs'],
-                                  log['header']['stamp']['nsecs'],
-                                  log['robot'])
+                    self.traj[uuid] = Trajectory(uuid)
+                header = Header(
+                    log['header']['seq'],
+                    rospy.Time(log['header']['stamp']['secs'],
+                               log['header']['stamp']['nsecs']),
+                    log['header']['frame_id']
+                )
+                human_pose = Pose(
+                    Point(log['people'][i]['position']['x'],
+                          log['people'][i]['position']['y'],
+                          log['people'][i]['position']['z']),
+                    Quaternion(log['people'][i]['orientation']['x'],
+                               log['people'][i]['orientation']['y'],
+                               log['people'][i]['orientation']['z'],
+                               log['people'][i]['orientation']['w'])
+                )
+                robot_pose = Pose(
+                    Point(log['robot']['position']['x'],
+                          log['robot']['position']['y'],
+                          log['robot']['position']['z']),
+                    Quaternion(log['robot']['orientation']['x'],
+                               log['robot']['orientation']['y'],
+                               log['robot']['orientation']['z'],
+                               log['robot']['orientation']['w']))
+                self.traj[uuid].append_pose(human_pose, header, robot_pose)
+
                 if self.start_secs == -1 or \
                         log['header']['stamp']['secs'] < self.start_secs:
                     self.start_secs = log['header']['stamp']['secs']
@@ -158,7 +147,10 @@ class OfflineTrajectories(Trajectories):
             human_pose = [
                 PoseStamped(
                     Header(i['header']['seq'],
-                           rospy.Time(i['header']['stamp']['secs'], i['header']['stamp']['nsecs']), i['header']['frame_id']), Pose(
+                           rospy.Time(i['header']['stamp']['secs'],
+                                      i['header']['stamp']['nsecs']),
+                           i['header']['frame_id']),
+                    Pose(
                         Point(i['pose']['position']['x'],
                               i['pose']['position']['y'],
                               i['pose']['position']['z']),
@@ -183,6 +175,7 @@ class OfflineTrajectories(Trajectories):
         rospy.loginfo("Retrieving data from mongodb...")
         people_traj = client.message_store.people_trajectory.find()
         if people_traj.count() > 0:
+            # check if the data is already stored in people_trajectory database
             uuid = [
                 people_traj[random.randint(0, people_traj.count()-1)]['uuid']
                 for i in range(5)
@@ -200,5 +193,4 @@ class OfflineTrajectories(Trajectories):
 
         logs = client.message_store.people_perception.find()
         self._construct_from_people_perception(logs)
-
         return False
