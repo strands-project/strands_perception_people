@@ -58,13 +58,15 @@ class TrajectoryVisualization(object):
 
     def __init__(self, marker_name):
         self._modulo = 3
-        self.offtraj = OfflineTrajectories()
+        self.trajs = OfflineTrajectories()
         self._server = ims.InteractiveMarkerServer(marker_name)
 
+    # choosing the visualisation you want, all trajectories, the longest,
+    # shortest or average length of trajectories
     def visualize_trajectories(self, mode="all", avg_len=0, longest_len=0):
         counter = 0
 
-        for traj in self.offtraj.traj.itervalues():
+        for traj in self.trajs.traj.itervalues():
             if len(traj.humrobpose) > 1:
                 if mode == "average":
                     if abs(traj.length[-1]-avg_len) < (avg_len/10):
@@ -82,7 +84,7 @@ class TrajectoryVisualization(object):
                     self.visualize_trajectory(traj)
                     counter += 1
 
-        rospy.loginfo("Total Trajectories: " + str(len(self.offtraj.traj)))
+        rospy.loginfo("Total Trajectories: " + str(len(self.trajs.traj)))
         rospy.loginfo("Printed trajectories: " + str(counter))
 
     def _update_cb(self, feedback):
@@ -130,14 +132,14 @@ class TrajectoryVisualization(object):
         return int_marker
 
     def trajectory_visualization(self, mode):
-        average_length = 0
-        longest_length = -1
+        average_length = 0.0
+        longest_length = -1.0
         short_trajectories = 0
-        average_vel = 0
-        highest_vel = -1
+        average_vel = 0.0
+        highest_vel = -1.0
 
-        for uuid, traj in self.offtraj.traj.iteritems():
-            average_length += traj.length[-1]
+        for uuid, traj in self.trajs.traj.iteritems():
+            average_length += float(traj.length[-1])
             avg_vel = average_velocity(traj)
             average_vel += average_velocity(traj)
             if traj.length[-1] < 1:
@@ -147,13 +149,13 @@ class TrajectoryVisualization(object):
             if highest_vel < avg_vel:
                 highest_vel = avg_vel
 
-        average_length /= len(self.offtraj.traj)
-        average_vel /= len(self.offtraj.traj)
-        rospy.loginfo("Average length of tracks is %d", average_length)
-        rospy.loginfo("Longest length of tracks is %d", longest_length)
-        rospy.loginfo("Short trajectories are %d", short_trajectories)
-        rospy.loginfo("Average velocity of tracks is %d", average_vel)
-        rospy.loginfo("Highest velocity of tracks is %d", highest_vel)
+        average_length /= float(len(self.trajs.traj))
+        average_vel /= float(len(self.trajs.traj))
+        rospy.loginfo("Average length of tracks is " + str(average_length))
+        rospy.loginfo("Longest length of tracks is " + str(longest_length))
+        rospy.loginfo("Short trajectories are " + str(short_trajectories))
+        rospy.loginfo("Average velocity of tracks is " + str(average_vel))
+        rospy.loginfo("Highest velocity of tracks is " + str(highest_vel))
 
         self.visualize_trajectories(mode, average_length, longest_length)
 
