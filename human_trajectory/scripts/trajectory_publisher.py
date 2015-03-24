@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# import threading
 import sys
 import rospy
 from human_trajectory.msg import Trajectories
@@ -17,7 +16,7 @@ class TrajectoryPublisher(object):
         self.name = name
         self.pub_nav = dict()
         self._last_seen = dict()
-        self.map_info = ''
+        self.map_info = 'unknown'
         self._publish_interval = interval
         self.online = online
         self.counter = self.seq = 0
@@ -30,11 +29,14 @@ class TrajectoryPublisher(object):
         )
         rospy.loginfo("Creating human_trajectory/trajectories topic...")
         self._pub = rospy.Publisher(
-            name+'/trajectories', Trajectories, queue_size=10
+            name+'/trajectories/complete', Trajectories, queue_size=10
         )
 
         if online:
-            self._publish_rate = rospy.Rate(1 / float(interval))
+            self._pub_incr = rospy.Publisher(
+                name+'/trajectories/batch', Trajectories, queue_size=10
+            )
+            self._publish_rate = rospy.Rate(1 / interval)
             self.trajs = OnlineTrajectories()
         else:
             self._publish_rate = rospy.Rate(1)
@@ -52,23 +54,21 @@ class TrajectoryPublisher(object):
         return trajs
 
     # publish based on online data from people_tracker
-    def _publish_online_data(self, incremental=False):
+    def _publish_online_data(self):
         while not rospy.is_shutdown():
             trajs = self._construct_header()
+            trajs_com = self._construct_header()
 
             for uuid, traj in self.trajs.traj.items():
-                if uuid in self.trajs._checked and self.trajs._checked[uuid]:
-                    if incremental:
-                        traj_msg = traj.get_trajectory_message(
-                            self._publish_interval
-                        )
-                        trajs.trajectories.append(traj_msg)
-                    self._add_in_nav_msgs(uuid)
+                traj_msg = traj.get_trajectory_message(True)
+                if traj_msg is not None:
+                    trajs.trajectories.append(traj_msg)
+                self._add_in_nav_msgs(uuid)
+
                 if uuid in self.trajs.complete:
                     if self.trajs.complete[uuid]:
                         traj_msg = traj.get_trajectory_message()
-                        if not incremental:
-                            trajs.trajectories.append(traj_msg)
+                        trajs_com.trajectories.append(traj_msg)
                         meta = dict()
                         meta["map"] = self.map_info
                         meta["taken"] = "online"
@@ -79,7 +79,8 @@ class TrajectoryPublisher(object):
                     del self.trajs.complete[uuid]
 
             self._publish_in_nav_msgs()
-            self._pub.publish(trajs)
+            self._pub_incr.publish(trajs)
+            self._pub.publish(trajs_com)
             self._publish_rate.sleep()
 
     # add each traj to be published in nav_msg/Path
@@ -96,10 +97,8 @@ class TrajectoryPublisher(object):
         current_time = rospy.Time.now()
         for uuid, pub in self.pub_nav.items():
             if uuid in self.trajs.traj:
-                traj_msg = self.trajs._temp_traj[uuid].get_trajectory_message()
-                self.trajs._temp_traj[uuid].sequence_id -= 1
-                path = Path(traj_msg.header, traj_msg.trajectory)
-                pub.publish(path)
+                nav_msg = self.trajs.traj[uuid].get_nav_message()
+                pub.publish(nav_msg)
             elif uuid in self._last_seen:
                 if (current_time - self._last_seen[uuid]).secs > 60:
                     pub.unregister()
@@ -141,24 +140,24 @@ class TrajectoryPublisher(object):
 
     # publish as ros message or store human trajectories into mongodb
     # sort poses for each human, delete noisy trajectory
-    def publish_trajectories(self, incremental):
+    def publish_trajectories(self):
         if self.online:
-            self._publish_online_data(incremental)
+            self._publish_online_data()
         else:
             self._publish_offline_data()
 
 if __name__ == '__main__':
     rospy.init_node('human_trajectories')
 
-    if len(sys.argv) < 4:
-        rospy.logerr("usage: trajectory publish_interval online/offline[1/0] complete/incremental[0/1]")
+    if len(sys.argv) < 3:
+        rospy.logerr("usage: trajectory publish_interval online/offline[1/0]")
         sys.exit(2)
 
     tp = TrajectoryPublisher(
         rospy.get_name(),
-        int(sys.argv[1]),
+        float(sys.argv[1]),
         int(sys.argv[2])
     )
-    tp.publish_trajectories(int(sys.argv[3]))
+    tp.publish_trajectories()
 
     rospy.spin()
