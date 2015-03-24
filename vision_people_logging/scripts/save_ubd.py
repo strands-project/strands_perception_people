@@ -37,7 +37,7 @@ class SaveLocations():
         if mgr_topic is not None:
             subs += [message_filters.Subscriber(mgr_topic, LoggingManager)]
 
-        ts = message_filters.ApproximateTimeSynchronizer(subs, queue_size=5, slop=0.1)
+        ts = message_filters.ApproximateTimeSynchronizer(subs, queue_size=5, slop=0.15)
         ts.registerCallback(self.cb)
 
 
