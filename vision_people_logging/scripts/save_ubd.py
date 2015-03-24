@@ -2,7 +2,7 @@
 
 import rospy
 from mongodb_store.message_store import MessageStoreProxy
-#from topological_logging_manager.msg import LoggingManager
+from topological_logging_manager.msg import LoggingManager
 from upper_body_detector.msg import UpperBodyDetector
 from vision_people_logging.msg import LoggingUBD
 import geometry_msgs.msg
@@ -47,7 +47,7 @@ class SaveLocations():
 
     def cb(self, ubd, ubd_cent, rgb, d, *mgr):
         # Check for perission, if necessary:
-        if len(mgr) and not mgr.log:
+        if len(mgr) and not mgr[0].log:
             return
 
         # UBD publishes an empty message even when there's no detection.
