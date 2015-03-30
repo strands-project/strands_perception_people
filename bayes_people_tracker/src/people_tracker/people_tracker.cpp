@@ -120,11 +120,29 @@ void PeopleTracker::trackingThread() {
                 pose.push_back(it->second[0]);
                 vel.push_back(it->second[1]);
                 uuids.push_back(generateUUID(startup_time_str, it->first));
-                std::vector<double> polar = cartesianToPolar(it->second[0].position);
-                distances.push_back(polar[0]);
-                angles.push_back(polar[1]);
+
+                geometry_msgs::PoseStamped poseInRobotCoords;
+                geometry_msgs::PoseStamped poseInTargetCoords;
+                poseInTargetCoords.header.frame_id = target_frame;
+                poseInTargetCoords.header.stamp.fromSec(time_sec);
+                poseInTargetCoords.pose = it->second[0];
 
                 //Find closest person and get distance and angle
+                if(strcmp(target_frame.c_str(), BASE_LINK)) {
+                    try{
+                        ROS_DEBUG("Transforming received position into %s coordinate system.", BASE_LINK);
+                        listener->waitForTransform(poseInTargetCoords.header.frame_id, BASE_LINK, poseInTargetCoords.header.stamp, ros::Duration(3.0));
+                        listener->transformPose(BASE_LINK, ros::Time(0), poseInTargetCoords, poseInTargetCoords.header.frame_id, poseInRobotCoords);
+                    } catch(tf::TransformException ex) {
+                        ROS_WARN("Failed transform: %s", ex.what());
+                        continue;
+                    }
+                } else {
+                    poseInRobotCoords = poseInTargetCoords;
+                }
+                std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
+                distances.push_back(polar[0]);
+                angles.push_back(polar[1]);
                 angle = polar[0] < min_dist ? polar[1] : angle;
                 closest_person_point = polar[0] < min_dist ? it->second[0] : closest_person_point;
                 min_dist = polar[0] < min_dist ? polar[0] : min_dist;
@@ -235,40 +253,22 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
         return;
     }
 
-    geometry_msgs::PoseStamped closest_person;
     std::vector<geometry_msgs::Point> ppl;
-    std::vector<int> ids;
-    std::vector<std::string> uuids;
-    std::vector<double> scores;
-    std::vector<double> distances;
-    std::vector<double> angles;
-    double min_dist = 10000.0d;
-    double angle;
     for(int i = 0; i < pta->poses.size(); i++) {
         geometry_msgs::Pose pt = pta->poses[i];
 
             //Create stamped pose for tf
             geometry_msgs::PoseStamped poseInCamCoords;
-            geometry_msgs::PoseStamped poseInRobotCoords;
             geometry_msgs::PoseStamped poseInTargetCoords;
             poseInCamCoords.header = pta->header;
             poseInCamCoords.pose = pt;
 
             //Transform
             try {
-                // Transform into robot coordinate system /base_link for the caluclation of relative distances and angles
-                ROS_DEBUG("Transforming received position into %s coordinate system.", BASE_LINK);
-                listener->waitForTransform(poseInCamCoords.header.frame_id, BASE_LINK, poseInCamCoords.header.stamp, ros::Duration(3.0));
-                listener->transformPose(BASE_LINK, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInRobotCoords);
-
                 // Transform into given traget frame. Default /map
-                if(strcmp(target_frame.c_str(), BASE_LINK)) {
-                    ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
-                    listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
-                    listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
-                } else {
-                    poseInTargetCoords = poseInRobotCoords;
-                }
+                ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
+                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
             }
             catch(tf::TransformException ex) {
                 ROS_WARN("Failed transform: %s", ex.what());
@@ -276,8 +276,6 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             }
 
             poseInTargetCoords.pose.position.z = 0.0;
-            poseInRobotCoords.pose.position.z = 0.0;
-
             ppl.push_back(poseInTargetCoords.pose.position);
 
     }
