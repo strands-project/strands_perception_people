@@ -128,7 +128,7 @@ void PeopleTracker::trackingThread() {
                 poseInTargetCoords.pose = it->second[0];
 
                 //Find closest person and get distance and angle
-                if(strcmp(target_frame.c_str(), BASE_LINK) == 0) {
+                if(strcmp(target_frame.c_str(), BASE_LINK)) {
                     try{
                         ROS_DEBUG("Transforming received position into %s coordinate system.", BASE_LINK);
                         listener->waitForTransform(poseInTargetCoords.header.frame_id, BASE_LINK, poseInTargetCoords.header.stamp, ros::Duration(3.0));
