@@ -1,0 +1,10 @@
+<launch>
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER)" user="$(arg user)" default="true"/>
+    <node pkg="vision_people_logging" type="save_ubd.py" name="save_ubd" output="screen">
+        <param name="manager" value="/logging_manager/log_stamped"/>
+    </node>
+
+</launch>
