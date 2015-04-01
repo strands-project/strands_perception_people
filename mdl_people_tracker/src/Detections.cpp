@@ -92,6 +92,31 @@ Detections::Detections(int x, const int flag)
 
 // ++++++++++++++++++++++++ Implementation ++++++++++++++++++++++++++++++++++++++
 
+/*
+ * Get sequence number from a detection. If the particular detection message was empty, return 0
+ */
+uint32_t Detections::getSeqNr(int frame, int detec){
+    	//cout<<"trying to access frame: "<<frame<<" and detection: "<<detec<<endl;
+
+    	Vector<Vector<double> > v=detC(frame);
+    	int vs = v.getSize();
+
+    	if(detec >= vs || frame >= detC.getSize()){
+    		return 0;
+    	}
+    	return static_cast<unsigned int>(detC(frame)(detec)(24));
+    }
+
+/*
+ * Get index from a detection. If the particular detection message was empty, return -1
+ */
+int Detections::getIndex(int frame, int detec){
+	if(detec >= detC(frame).getSize() || frame >= detC.getSize()){
+		return -1;
+	}
+
+	return static_cast<int>(detC(frame)(detec)(1));
+}
 
 int Detections::numberDetectionsAtFrame(int frame)
 {
@@ -165,7 +190,7 @@ int Detections::prepareDet(Vector<double> &detContent, Vector<Vector <double> >&
     int bbox_hog = 4;
     int distance_z = 8;
 
-    detContent.setSize(24, 0.0);
+    detContent.setSize(25, 0.0);
 
     detContent(score) = det(i)(score_hog);
     detContent(scale) = det(i)(scale_hog) ;
@@ -182,6 +207,11 @@ int Detections::prepareDet(Vector<double> &detContent, Vector<Vector <double> >&
     {
         detContent(22) = 1;
     }
+
+    // det is a vector, that contains the detection messages. Detection message contains the seq # that I want, at index 9
+    // here, I'm saving the number
+    detContent(24) = det(i)(9);
+
 
     Matrix<double> camRot = Eye<double>(3);
     Vector<double> camPos(3, 0.0);
@@ -492,7 +522,8 @@ void Detections::addHOGdetOneFrame(Vector<Vector <double> >& det, int frame, CIm
 
             computeColorHist(colhist, v_bbox, Globals::binSize, imageLeft);
 
-            detC(frame).pushBack(detContent);
+            //ROS_FATAL_STREAM("2) seq number of frame "<< frame <<" saved in detContent:"<<detContent(24));
+            detC(frame).pushBack(detContent); //HERE is the push of the single detection into the vector of all detections.
 
 
             colHists(frame).pushBack(colhist);
