@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>detector_msg_to_pose_array</name>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   <description>The detector_msg_to_pose_array package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
