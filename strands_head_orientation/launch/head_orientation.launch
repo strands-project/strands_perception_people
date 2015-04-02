@@ -9,7 +9,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
-    <node pkg="strands_head_orientation" type="strands_head_orientation" name="head_orientation" output="screen">
+    <node pkg="strands_head_orientation" type="strands_head_orientation" name="head_orientation" output="screen" respawn="true">
         <param name="model_dir" value="$(arg model_dir)" type="string"/>
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>

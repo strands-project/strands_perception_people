@@ -13,7 +13,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
-    <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen">
+    <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen" respawn="true">
         <param name="target_frame" value="$(arg target_frame)" type="string"/>
         <param name="positions" value="$(arg positions)" type="string"/>
         <param name="pose" value="$(arg pose)" type="string"/>

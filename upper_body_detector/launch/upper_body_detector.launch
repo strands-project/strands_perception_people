@@ -20,7 +20,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
-    <node pkg="upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="log">
+    <node pkg="upper_body_detector" type="upper_body_detector" name="upper_body_detector" output="log" respawn="true">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="depth_image" value="$(arg depth_image)" type="string"/>

@@ -7,7 +7,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
-    <node pkg="detector_msg_to_pose_array" type="to_pose_array.py" name="to_pose_array" output="screen">
+    <node pkg="detector_msg_to_pose_array" type="to_pose_array.py" name="to_pose_array" output="screen" respawn="true">
     </node>
 
 </launch> 
