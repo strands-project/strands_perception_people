@@ -5,118 +5,86 @@ from mongodb_store.message_store import MessageStoreProxy
 from bayes_people_tracker.msg import PeopleTracker
 #from mdl_people_tracker.msg import MdlPeopleTrackerArray, MdlPeopleTracker
 #from upper_body_detector.msg import UpperBodyDetector
-from bayes_people_tracker_logging.msg import Logging
-import geometry_msgs.msg
-#import message_filters
+from topological_logging_manager.msg import LoggingManager
+from bayes_people_tracker_logging.msg import PeopleTrackerLogging
+from geometry_msgs.msg import Pose, PoseStamped
+import message_filters
 import tf
 
 
 class SaveLocations():
     def __init__(self):
         rospy.logdebug("Intialising logging")
-        self.robot_pose = geometry_msgs.msg.Pose()
+        self.robot_pose = Pose()
         self.tfl = tf.TransformListener()
-        self.dataset_name = "locations"
+        self.dataset_name = "tracks"
+        self.target_frame = "/map"
         self.msg_store = MessageStoreProxy(collection="people_perception")
-        rospy.Subscriber(
-            "/people_tracker/positions",
-            PeopleTracker,
-            self.people_callback
+
+        manager_topic = rospy.get_param("~manager_topic", None)
+        subs = [
+            message_filters.Subscriber(
+                "/people_tracker/positions",
+            PeopleTracker
+            )
+        ]
+        if manager_topic:
+            subs += [message_filters.Subscriber(manager_topic, LoggingManager)]
+        ts = message_filters.ApproximateTimeSynchronizer(
+            subs,
+            10,
+            0.5
         )
-#        locations = message_filters.Subscriber(
-#            "/people_tracker/positions",
-#            PeopleTracker,
-#        )
-#        people = message_filters.Subscriber(
-#            "/mdl_people_tracker/people_array",
-#            MdlPeopleTrackerArray,
-#        )
-#        upper = message_filters.Subscriber(
-#            "/upper_body_detector/detections",
-#            UpperBodyDetector,
-#        )
+        ts.registerCallback(self.people_callback)
         rospy.Subscriber(
             "/robot_pose",
-            geometry_msgs.msg.Pose,
-            self.pose_callback,
-            None,
-            10
+            Pose,
+            callback=self.pose_callback,
+            queue_size=10
         )
-#        ts = message_filters.ApproximateTimeSynchronizer(
-#            0.5,
-#            [locations, people, upper],
-#            10
-#        )
-#        ts.registerCallback(self.people_callback)
 
-    def transform(self, source_frame, target_frame, time):
-        rospy.logdebug(
-            "Looking up transform: %s -> %s",
-            source_frame,
-            target_frame
-        )
-        transform = geometry_msgs.msg.Transform()
-        if self.tfl.frameExists(source_frame[1:]) \
-                and self.tfl.frameExists(target_frame[1:]):
-            try:
-                self.tfl.waitForTransform(
-                    target_frame,
-                    source_frame,
-                    time,
-                    rospy.Duration(0.1)
-                )
-                translation, rotation = self.tfl.lookupTransform(
-                    target_frame,
-                    source_frame,
-                    time
-                )
-                transform.translation.x = translation[0]
-                transform.translation.y = translation[1]
-                transform.translation.z = translation[2]
-                transform.rotation.x = rotation[0]
-                transform.rotation.y = rotation[1]
-                transform.rotation.z = rotation[2]
-                transform.rotation.w = rotation[3]
-            except (
-                tf.Exception,
-                tf.ConnectivityException,
-                tf.LookupException,
-                tf.ExtrapolationException
-            ) as e:
-                rospy.logwarn(e)
-        return transform
+    def transform(self, pose, target_frame):
+        try:
+            self.tfl.waitForTransform(
+                target_frame,
+                pose.header.frame_id,
+                pose.header.stamp,
+                rospy.Duration(3.0)
+            )
+            return self.tfl.transformPose(target_frame=target_frame, ps=pose)
+        except (
+            tf.Exception,
+            tf.ConnectivityException,
+            tf.LookupException,
+            tf.ExtrapolationException
+        ) as e:
+            rospy.logwarn(e)
+            return None
 
-#    def people_callback(self, pl, pt, up):
-    def people_callback(self, pl):
-        if len(pl.distances) == 0:
+        return None
+
+    def people_callback(self, pl, *mgr):
+        if len(mgr) and not mgr[0].log:
             return
+
+        if not len(pl.distances):
+            return
+
         meta = {}
         meta["people"] = self.dataset_name
         rospy.logdebug(
             "Person detected. "
             "Logging to people_perception collection."
         )
-        insert = Logging()
+        insert = PeopleTrackerLogging()
         insert.header = pl.header
         insert.uuids = pl.uuids
-        insert.people = pl.poses
+        for p in pl.poses:
+            tp = self.transform(PoseStamped(header=pl.header, pose=p), self.target_frame)
+            if tp:
+                insert.people.append(tp)
         insert.robot = self.robot_pose
         insert.people_tracker = pl
-#        insert.mdl_people_tracker = pt.people
-#        insert.upper_body_detections = up
-#        insert.target_frame = self.transform(
-#            pt.header.frame_id,
-#            pl.header.frame_id,
-#            pt.header.stamp
-#        )
-#        if pl.header.frame_id == '/base_link':
-#            insert.base_link = insert.target_frame
-#        else:
-#            insert.base_link = self.transform(
-#                pt.header.frame_id,
-#                '/base_link',
-#                pt.header.stamp
-#            )
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):
