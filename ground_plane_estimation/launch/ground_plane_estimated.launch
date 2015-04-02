@@ -13,7 +13,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
-    <node pkg="ground_plane_estimation" type="ground_plane_estimated" name="ground_plane" output="log">
+    <node pkg="ground_plane_estimation" type="ground_plane_estimated" name="ground_plane" output="log" respawn="true">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="depth_image" value="$(arg depth_image)" type="string"/>

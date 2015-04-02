@@ -10,7 +10,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
-    <node pkg="ground_plane_estimation" type="ground_plane_fixed" name="ground_plane" output="log">
+    <node pkg="ground_plane_estimation" type="ground_plane_fixed" name="ground_plane" output="log" respawn="true">
         <param name="ptu_state" value="$(arg ptu_state)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
     </node>
