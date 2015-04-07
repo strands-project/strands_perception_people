@@ -2,6 +2,12 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Copy and paste error
+  d'oh
+* Contributors: Christian Dondrup
+
 1.1.1 (2015-04-03)
 ------------------
 

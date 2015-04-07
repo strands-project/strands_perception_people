@@ -2,6 +2,9 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.1 (2015-04-03)
 ------------------
 
