@@ -3,25 +3,53 @@
 import rospy
 from mongodb_store.message_store import MessageStoreProxy
 from bayes_people_tracker.msg import PeopleTracker
-#from mdl_people_tracker.msg import MdlPeopleTrackerArray, MdlPeopleTracker
-#from upper_body_detector.msg import UpperBodyDetector
 from topological_logging_manager.msg import LoggingManager
 from bayes_people_tracker_logging.msg import PeopleTrackerLogging
 from geometry_msgs.msg import Pose, PoseStamped
 import message_filters
 import tf
+from std_msgs.msg import String
 
 
 class SaveLocations():
     def __init__(self):
         rospy.logdebug("Intialising logging")
         self.robot_pose = Pose()
+        self.current_node = "none"
+        self.current_edge = "none"
+        self.closest_node = "none"
         self.tfl = tf.TransformListener()
         self.dataset_name = "tracks"
         self.target_frame = "/map"
         self.msg_store = MessageStoreProxy(collection="people_perception")
 
         manager_topic = rospy.get_param("~manager_topic", None)
+
+        rospy.Subscriber(
+            "/robot_pose",
+            Pose,
+            callback=self.pose_callback,
+            queue_size=10
+        )
+        rospy.Subscriber(
+            "/current_node",
+            String,
+            callback=self.node_callback,
+            queue_size=10
+        )
+        rospy.Subscriber(
+            "/current_edge",
+            String,
+            callback=self.edge_callback,
+            queue_size=10
+        )
+        rospy.Subscriber(
+            "/closest_node",
+            String,
+            callback=self.closest_callback,
+            queue_size=10
+        )
+
         subs = [
             message_filters.Subscriber(
                 "/people_tracker/positions",
@@ -36,12 +64,6 @@ class SaveLocations():
             0.5
         )
         ts.registerCallback(self.people_callback)
-        rospy.Subscriber(
-            "/robot_pose",
-            Pose,
-            callback=self.pose_callback,
-            queue_size=10
-        )
 
     def transform(self, pose, target_frame):
         try:
@@ -85,10 +107,22 @@ class SaveLocations():
                 insert.people.append(tp)
         insert.robot = self.robot_pose
         insert.people_tracker = pl
+        insert.closest_node = self.closest_node
+        insert.current_edge = self.current_edge
+        insert.current_node = self.current_node
         self.msg_store.insert(insert, meta)
 
     def pose_callback(self, pose):
         self.robot_pose = pose
+
+    def node_callback(self, msg):
+        self.current_node = msg.data
+
+    def edge_callback(self, msg):
+        self.current_edge = msg.data
+
+    def closest_callback(self, msg):
+        self.closest_node = msg.data
 
 if __name__ == '__main__':
     rospy.init_node('save_people_locations')
