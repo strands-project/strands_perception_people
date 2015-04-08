@@ -2,10 +2,12 @@
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
     <arg name="log" default="true" />
+    <arg name="manager_topic" default=""/>
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
     <node pkg="bayes_people_tracker_logging" type="save_locations.py" name="save_people_locations" output="log" if="$(arg log)" respawn="true">
+        <param name="manager_topic" type="string" value="$(arg manager_topic)"/>
     </node>
 
 </launch> 

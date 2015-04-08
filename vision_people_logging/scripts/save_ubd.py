@@ -33,8 +33,8 @@ class SaveLocations():
 
         # Potentially also make use of the manager to tell us whether
         # we are allowed to record or not.
-        mgr_topic = rospy.get_param("~manager", None)
-        if mgr_topic is not None:
+        mgr_topic = rospy.get_param("~manager_topic", "")
+        if not mgr_topic == '':
             subs += [message_filters.Subscriber(mgr_topic, LoggingManager)]
 
         ts = message_filters.ApproximateTimeSynchronizer(subs, queue_size=5, slop=0.15)

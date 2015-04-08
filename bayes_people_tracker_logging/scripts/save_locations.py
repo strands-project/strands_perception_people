@@ -23,7 +23,7 @@ class SaveLocations():
         self.target_frame = "/map"
         self.msg_store = MessageStoreProxy(collection="people_perception")
 
-        manager_topic = rospy.get_param("~manager_topic", None)
+        manager_topic = rospy.get_param("~manager_topic", "")
 
         rospy.Subscriber(
             "/robot_pose",
@@ -56,7 +56,7 @@ class SaveLocations():
             PeopleTracker
             )
         ]
-        if manager_topic:
+        if not manager_topic == '':
             subs += [message_filters.Subscriber(manager_topic, LoggingManager)]
         ts = message_filters.ApproximateTimeSynchronizer(
             subs,

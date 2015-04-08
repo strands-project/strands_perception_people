@@ -32,6 +32,7 @@
     <arg name="scan" default="/scan" />
     <arg name="with_mdl_tracker" default="false"/>
     <arg name="log" default="false" />
+    <arg name="manager_topic" default="" />
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -121,6 +122,7 @@
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="log" value="$(arg log)"/>
+        <arg name="manager_topic" value="$(arg manager_topic)"/>
     </include>
 
 </launch> 
