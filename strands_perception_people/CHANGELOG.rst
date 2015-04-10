@@ -2,6 +2,11 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding [vision_people_logging] to metapackage
+* Contributors: Christian Dondrup
+
 1.1.2 (2015-04-07)
 ------------------
 

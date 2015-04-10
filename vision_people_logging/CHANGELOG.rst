@@ -2,6 +2,12 @@
 Changelog for package vision_people_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changes according to comments by @lucasb-eyer
+* Adjusting code and loaunch files of logging nodes for proper use of manager topic.
+* Contributors: Christian Dondrup
+
 1.1.2 (2015-04-07)
 ------------------
 

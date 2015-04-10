@@ -2,6 +2,11 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding logging manager topic to overall launch file
+* Contributors: Christian Dondrup
+
 1.1.2 (2015-04-07)
 ------------------
 
