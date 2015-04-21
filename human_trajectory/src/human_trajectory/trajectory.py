@@ -14,7 +14,8 @@ class Trajectory(object):
         self.uuid = uuid
         self.humrobpose = []
         self.length = [0.0]
-        self.sequence_id = 1
+        self.sequence_id = 0
+        self.header_seq = 1
         self._publish_index = 0
 
     # check consistency between a new pose with
@@ -42,9 +43,10 @@ class Trajectory(object):
             self._publish_index = len(self.humrobpose)
             if from_index == len(self.humrobpose):
                 return None
+            self.sequence_id += 1
 
         traj = human_trajectory.msg.Trajectory()
-        traj.header = Header(self.sequence_id, rospy.Time.now(), '/map')
+        traj.header = Header(self.header_seq, rospy.Time.now(), '/map')
         traj.uuid = self.uuid
         traj.start_time = self.humrobpose[from_index][0].header.stamp
         traj.end_time = self.humrobpose[-1][0].header.stamp
@@ -54,12 +56,13 @@ class Trajectory(object):
         traj.sequence_id = self.sequence_id
         traj.trajectory_length = self.length[-1] - self.length[from_index]
 
-        self.sequence_id += 1
+        self.header_seq += 1
         return traj
 
     # construct nav_msg/Path for visualization
     def get_nav_message(self):
-        header = Header(self.sequence_id, rospy.Time.now(), '/map')
+        header = Header(self.header_seq, rospy.Time.now(), '/map')
+        self.header_seq += 1
         return Path(header, [i[0] for i in self.humrobpose])
 
     # append human pose and robot pose
