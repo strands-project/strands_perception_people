@@ -4,7 +4,6 @@ import rospy
 import pymongo
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
-from rostopic import ROSTopicHz
 from bayes_people_tracker.msg import PeopleTracker
 from human_trajectory.trajectory import Trajectory
 
@@ -25,32 +24,18 @@ class Trajectories(object):
 
 class OnlineTrajectories(Trajectories):
 
-    def __init__(self):
+    def __init__(self, topic):
         Trajectories.__init__(self)
         self._temp_traj = dict()
         self.complete_traj = dict()
         self.robot_pose = Pose()
-        self.tracker_freq = self._get_ppl_tracker_pub_rate()
-        rospy.Subscriber(
-            "/people_tracker/positions", PeopleTracker,
-            self.pt_callback, None, 30
+        self.subs = rospy.Subscriber(
+            topic, PeopleTracker, self.pt_callback, None, 30
         )
         rospy.Subscriber(
             "/robot_pose", Pose, self.pose_callback, None, 10
         )
-        rospy.loginfo("Taking data from people_tracker/positions...")
-
-    # get people_tracker/positions publish rate
-    def _get_ppl_tracker_pub_rate(self):
-        rt = ROSTopicHz(-1, None)
-        subs = rospy.Subscriber(
-            "/people_tracker/positions", PeopleTracker,
-            rt.callback_hz, None, 30
-        )
-        rospy.sleep(1)
-        tracker_freq = len(rt.times)/sum(rt.times)
-        subs.unregister()
-        return tracker_freq
+        rospy.loginfo("Taking data from %s..." % topic)
 
     # get robot position
     def pose_callback(self, pose):

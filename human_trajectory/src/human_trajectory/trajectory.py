@@ -16,7 +16,7 @@ class Trajectory(object):
         self.length = [0.0]
         self.sequence_id = 0
         self.header_seq = 1
-        self._publish_index = 0
+        self._publish_index = 1
 
     # check consistency between a new pose with
     # all stored poses (based on time stamp)
@@ -38,10 +38,11 @@ class Trajectory(object):
     # construct trajectory message based on Trajectory.msg
     def get_trajectory_message(self, chunked=False):
         from_index = 0
+        to_index = len(self.humrobpose)
         if chunked:
-            from_index = self._publish_index
-            self._publish_index = len(self.humrobpose)
-            if from_index == len(self.humrobpose):
+            from_index = self._publish_index - 1
+            self._publish_index = to_index
+            if from_index == to_index:
                 return None
             self.sequence_id += 1
 
@@ -49,12 +50,12 @@ class Trajectory(object):
         traj.header = Header(self.header_seq, rospy.Time.now(), '/map')
         traj.uuid = self.uuid
         traj.start_time = self.humrobpose[from_index][0].header.stamp
-        traj.end_time = self.humrobpose[-1][0].header.stamp
-        traj.trajectory = [i[0] for i in self.humrobpose[from_index:]]
-        traj.robot = [i[1] for i in self.humrobpose[from_index:]]
+        traj.end_time = self.humrobpose[to_index-1][0].header.stamp
+        traj.trajectory = [i[0] for i in self.humrobpose[from_index:to_index]]
+        traj.robot = [i[1] for i in self.humrobpose[from_index:to_index]]
         traj.complete = not chunked
         traj.sequence_id = self.sequence_id
-        traj.trajectory_length = self.length[-1] - self.length[from_index]
+        traj.trajectory_length = self.length[to_index-1] - self.length[from_index]
 
         self.header_seq += 1
         return traj

@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   strands_navigation_msgs
   mongodb_store
   bayes_people_tracker
+  topological_logging_manager
 )
 
  catkin_python_setup()
@@ -31,7 +32,7 @@ generate_messages(
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs bayes_people_tracker
+  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs bayes_people_tracker topological_logging_manager
 )
 
 ###########
@@ -48,6 +49,7 @@ catkin_package(
 
  install(PROGRAMS
    scripts/trajectory_publisher.py
+   scripts/traj_visualisation.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import sys
 import rospy
 from human_trajectory.msg import Trajectories
 from human_trajectory.trajectories import OfflineTrajectories
@@ -13,16 +12,17 @@ from mongodb_store.message_store import MessageStoreProxy
 
 class TrajectoryManager(object):
 
-    def __init__(self, name, visualisation, online):
+    def __init__(self, name):
         self.name = name
         self.pub_nav = dict()
         self._last_seen = dict()
         self.map_info = 'unknown'
         self._publish_interval = 1.0
-        self._vis = visualisation
-        self.online = online
+        self._vis = rospy.get_param("~path_visualisation", "false")
+        self.online = rospy.get_param("~online_construction", "true")
         self.counter = self.seq = 0
         self._log_permitted = True
+        self._with_logman = rospy.get_param("~with_logging_manager", "false")
 
         rospy.loginfo("Connecting to mongodb...")
         self._store_client = MessageStoreProxy(collection="people_trajectory")
@@ -36,17 +36,21 @@ class TrajectoryManager(object):
             name+'/trajectories/complete', Trajectories, queue_size=10
         )
 
-        if online:
-            mgr_topic = rospy.get_param("~manager_topic", "")
-            if mgr_topic != '':
+        if self.online:
+            if self._with_logman:
                 self._sub_log = rospy.Subscriber(
-                    mgr_topic, LoggingManager, self.log_man_cb, None, 10
+                    rospy.get_param(
+                        "~logging_manager_topic", "/logging_manager/log_stamped"
+                    ),
+                    LoggingManager, self._log_man_cb, None, 10
                 )
             self._pub_incr = rospy.Publisher(
                 name+'/trajectories/batch', Trajectories, queue_size=10
             )
             self._publish_rate = rospy.Rate(1 / self._publish_interval)
-            self.trajs = OnlineTrajectories()
+            self.trajs = OnlineTrajectories(
+                rospy.get_param("~tracker_topic", "/people_tracker/positions")
+            )
         else:
             self._publish_rate = rospy.Rate(1)
             self.trajs = OfflineTrajectories()
@@ -54,8 +58,12 @@ class TrajectoryManager(object):
         rospy.loginfo("human_trajectory is ready...")
 
     # check logging manager permission
-    def log_man_cb(self, msg):
+    def _log_man_cb(self, msg):
         self._log_permitted = msg.log
+
+    # check logging manager connection
+    def _check_log_connection(self):
+        return True if self._sub_log.get_num_connections() else False
 
     # construct trajectories message header
     def _construct_header(self):
@@ -76,14 +84,14 @@ class TrajectoryManager(object):
                 traj_msg = traj.get_trajectory_message(True)
                 # if trajectory is not long enough, no need to print.
                 # it will be stored in database though.
-                if traj_msg is not None:
-                    if len(traj_msg.trajectory) >= self.trajs.tracker_freq/2.0:
-                        trajs.trajectories.append(traj_msg)
+                if traj_msg is not None and len(traj_msg.trajectory) > 1:
+                    trajs.trajectories.append(traj_msg)
                 if self._vis:
                     self._add_in_nav_msgs(uuid)
 
             for uuid, traj in self.trajs.complete_traj.items():
-                if self._log_permitted:
+                # store trajectories if it is allowed and
+                if not self._with_logman or (self._log_permitted and self._check_log_connection()):
                     traj_msg = traj.get_trajectory_message()
                     trajs_com.trajectories.append(traj_msg)
                     meta = dict()
@@ -92,6 +100,10 @@ class TrajectoryManager(object):
                     self._store_client.insert(traj_msg, meta)
                     self.counter += 1
                     rospy.loginfo("Total trajectories: %d", self.counter)
+                elif not self._check_log_connection():
+                    rospy.logwarn("Connection with logging manager is lost, trajectories will not be saved")
+                else:
+                    rospy.logwarn("Restricted area, trajectories will not be saved")
                 del self.trajs.complete_traj[uuid]
 
             if self._vis:
@@ -131,7 +143,7 @@ class TrajectoryManager(object):
             trajs = self._construct_header()
 
             for uuid, traj in self.trajs.traj.items():
-                end_time = start_time + self._publish_interval
+                end_time = start_time + 1800 # showing trajectories each 30 mins
                 traj_end = traj.humrobpose[-1][0].header.stamp.secs
                 if traj_end <= end_time:
                     traj_msg = traj.get_trajectory_message()
@@ -143,7 +155,7 @@ class TrajectoryManager(object):
                         self._store_client.insert(traj_msg, meta)
                     del self.trajs.traj[uuid]
 
-            start_time += self._publish_interval
+            start_time += 1800 # showing trajectories recorded in 30 mins
             self.counter += len(trajs.trajectories)
             rospy.loginfo("Total trajectories: %d", self.counter)
 
@@ -166,15 +178,7 @@ class TrajectoryManager(object):
 if __name__ == '__main__':
     rospy.init_node('human_trajectories')
 
-    if len(sys.argv) < 3:
-        rospy.logerr("usage: trajectory visualisation[1/0] online[1/0]")
-        sys.exit(2)
-
-    tp = TrajectoryManager(
-        rospy.get_name(),
-        int(sys.argv[1]),
-        int(sys.argv[2])
-    )
+    tp = TrajectoryManager(rospy.get_name())
     tp.publish_trajectories()
 
     rospy.spin()
