@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import random
 import rospy
 import pymongo
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
@@ -25,19 +24,18 @@ class Trajectories(object):
 
 class OnlineTrajectories(Trajectories):
 
-    def __init__(self):
+    def __init__(self, topic):
         Trajectories.__init__(self)
         self._temp_traj = dict()
-        self.complete = dict()
+        self.complete_traj = dict()
         self.robot_pose = Pose()
-        rospy.Subscriber(
-            "/people_tracker/positions", PeopleTracker,
-            self.pt_callback, None, 30
+        self.subs = rospy.Subscriber(
+            topic, PeopleTracker, self.pt_callback, None, 30
         )
         rospy.Subscriber(
             "/robot_pose", Pose, self.pose_callback, None, 10
         )
-        rospy.loginfo("Taking data from people_tracker/positions...")
+        rospy.loginfo("Taking data from %s..." % topic)
 
     # get robot position
     def pose_callback(self, pose):
@@ -67,13 +65,11 @@ class OnlineTrajectories(Trajectories):
             delta = cur_time - t.humrobpose[-1][0].header.stamp
             if delta.secs >= 5:
                 temp = self._validate_trajectories({uuid: t})
-                if temp == {}:
-                    self.complete[uuid] = False
-                else:
-                    self.complete[uuid] = True
-                    self.traj[uuid] = temp[uuid]
-                if uuid in self._temp_traj:
-                    del self._temp_traj[uuid]
+                if temp != {}:
+                    self.complete_traj[uuid] = temp[uuid]
+
+                del self.traj[uuid]
+                del self._temp_traj[uuid]
 
 
 class OfflineTrajectories(Trajectories):
@@ -176,20 +172,20 @@ class OfflineTrajectories(Trajectories):
         people_traj = client.message_store.people_trajectory.find()
         if people_traj.count() > 0:
             # check if the data is already stored in people_trajectory database
-            uuid = [
-                people_traj[random.randint(0, people_traj.count()-1)]['uuid']
-                for i in range(5)
-            ]
-            temp = [{"uuids": i} for i in uuid]
-            logs = client.message_store.people_perception.find(
-                {"$or": temp},
-                {"uuids": 1}
-            )
-            if logs.count() > 0:
-                self._construct_from_people_trajectory(people_traj)
-                # if data comes from people_trajectory db then the data
-                # has been validated
-                return True
+            # uuid = [
+            #     people_traj[random.randint(0, people_traj.count()-1)]['uuid']
+            #     for i in range(5)
+            # ]
+            # temp = [{"uuids": i} for i in uuid]
+            # logs = client.message_store.people_perception.find(
+            #     {"$or": temp},
+            #     {"uuids": 1}
+            # )
+            # if logs.count() > 0:
+            self._construct_from_people_trajectory(people_traj)
+            # if data comes from people_trajectory db then the data
+            # has been validated
+            return True
 
         logs = client.message_store.people_perception.find()
         self._construct_from_people_perception(logs)
