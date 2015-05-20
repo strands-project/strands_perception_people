@@ -2,6 +2,9 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2015-05-10)
+------------------
+
 1.1.3 (2015-04-10)
 ------------------
 * Adding [vision_people_logging] to metapackage

@@ -2,6 +2,13 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2015-05-10)
+------------------
+* forgot to add launch folder
+* add launch file, add logging_manager permission, add restriction to post trajectories longer than 1 pose.
+* add logging manager, fix fluctuating cpu usage
+* Contributors: Ferdian Jovan
+
 1.1.3 (2015-04-10)
 ------------------
 

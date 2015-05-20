@@ -2,6 +2,9 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2015-05-10)
+------------------
+
 1.1.3 (2015-04-10)
 ------------------
 * Merge branch 'indigo-devel' of http://github.com/strands-project/strands_perception_people into topolog
