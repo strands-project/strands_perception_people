@@ -4,6 +4,7 @@
     <arg name="online_construction" default="true"/>
     <arg name="tracker_topic" default="/people_tracker/positions"/>
     <arg name="logging_manager_topic" default="/logging_manager/log_stamped"/>
+    <arg name="map_info" default=""/>
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -17,5 +18,6 @@ name="human_trajectories" output="screen" respawn="true">
         <param name="online_construction" value="$(arg online_construction)" type="bool"/>
         <param name="tracker_topic" value="$(arg tracker_topic)" type="string"/>
         <param name="logging_manager_topic" value="$(arg logging_manager_topic)" type="string"/>
+        <param name="map_info" value="$(arg map_info)" type="string"/>
     </node>
 </launch>
