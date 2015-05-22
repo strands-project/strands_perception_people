@@ -2,6 +2,9 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.4 (2015-05-10)
 ------------------
 

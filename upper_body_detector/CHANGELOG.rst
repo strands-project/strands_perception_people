@@ -2,6 +2,9 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.4 (2015-05-10)
 ------------------
 

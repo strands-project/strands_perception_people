@@ -2,6 +2,9 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.4 (2015-05-10)
 ------------------
 * forgot to add launch folder
