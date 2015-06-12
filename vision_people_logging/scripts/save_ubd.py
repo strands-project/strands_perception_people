@@ -10,6 +10,7 @@ import sensor_msgs.msg
 import message_filters
 from cv_bridge import CvBridge
 import tf
+import std_msgs.msg
 
 
 class SaveLocations():
@@ -81,24 +82,25 @@ class SaveLocations():
             rospy.logdebug("Before: {}x{}@{},{} ; After: {}x{}".format(w,hfact*h, x, y, tmp.shape[1], tmp.shape[0]))
             yield b.cv2_to_imgmsg(img[y1:y2, x1:x2])
 
-
     def to_world_all(self, pose_arr):
+        transformed_pose_arr = list()
         try:
-            # Get the translation for this camera's frame to the world.
             fid = pose_arr.header.frame_id
-            ctime = self.tfl.getLatestCommonTime(fid, "/map")
-            t, _ = self.tfl.lookupTransform("/map", fid, ctime)
+            for cpose in pose_arr.poses:
+                ctime = self.tfl.getLatestCommonTime(fid, "/map")
+                pose_stamped = geometry_msgs.msg.PoseStamped(
+                    std_msgs.msg.Header(1, ctime, fid), cpose
+                )
+                # Get the translation for this camera's frame to the world.
+                # And apply it to all current detections.
+                tpose = self.tfl.transformPose("/map", pose_stamped)
+                transformed_pose_arr.append(tpose.pose.position)
         except tf.Exception as e:
             rospy.logwarn(e)
             # In case of a problem, just give empty world coordinates.
             return []
 
-        rospy.logdebug("Camera to world translation: {}".format(t))
-
-        # And apply it to all current detections.
-        return [geometry_msgs.msg.Point(x=p.position.x+t[0],
-                                        y=p.position.y+t[1],
-                                        z=p.position.z+t[2]) for p in pose_arr.poses]
+        return transformed_pose_arr
 
 if __name__ == '__main__':
     rospy.init_node('save_ubd')
