@@ -74,7 +74,8 @@ class OnlineTrajectories(Trajectories):
 
 class OfflineTrajectories(Trajectories):
 
-    def __init__(self):
+    def __init__(self, map_info=''):
+        self.map_info = map_info
         self.start_secs = -1
         # calling superclass
         Trajectories.__init__(self)
@@ -165,28 +166,25 @@ class OfflineTrajectories(Trajectories):
     # retrieve trajectory from mongodb
     def _retrieve_logs(self):
         client = pymongo.MongoClient(
-            rospy.get_param("datacentre_host", "localhost"),
-            rospy.get_param("datacentre_port", 62345)
+            rospy.get_param("mongodb_host", "localhost"),
+            rospy.get_param("mongodb_port", 62345)
         )
-        rospy.loginfo("Retrieving data from mongodb...")
-        people_traj = client.message_store.people_trajectory.find()
+        rospy.loginfo(
+            "Retrieving data from mongodb from map %s..." % self.map_info
+        )
+        if self.map_info == '':
+            people_traj = client.message_store.people_trajectory.find()
+        else:
+            people_traj = client.message_store.people_trajectory.find(
+                {'_meta.map':self.map_info}
+            )
         if people_traj.count() > 0:
-            # check if the data is already stored in people_trajectory database
-            # uuid = [
-            #     people_traj[random.randint(0, people_traj.count()-1)]['uuid']
-            #     for i in range(5)
-            # ]
-            # temp = [{"uuids": i} for i in uuid]
-            # logs = client.message_store.people_perception.find(
-            #     {"$or": temp},
-            #     {"uuids": 1}
-            # )
-            # if logs.count() > 0:
             self._construct_from_people_trajectory(people_traj)
             # if data comes from people_trajectory db then the data
             # has been validated
             return True
 
+        rospy.loginfo("No data in people trajectory collection, looking data in people perception collection...")
         logs = client.message_store.people_perception.find()
         self._construct_from_people_perception(logs)
         return False

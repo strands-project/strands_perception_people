@@ -113,6 +113,9 @@ class TrajectoryVisualization(object):
         line_marker.color.a = 1.0
 
         line_marker.points = []
+        while len(traj.humrobpose) / self._modulo > 5000:
+            self._modulo += 1
+
         for i, pose in enumerate(traj.humrobpose):
             if i % self._modulo == 0:
                 p = Point(
@@ -121,6 +124,8 @@ class TrajectoryVisualization(object):
                     0.0
                 )
                 line_marker.points.append(p)
+
+        self._modulo = 3
 
         # create a control which will move the box
         # this control does not contain any markers,

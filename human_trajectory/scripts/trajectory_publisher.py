@@ -16,7 +16,7 @@ class TrajectoryManager(object):
         self.name = name
         self.pub_nav = dict()
         self._last_seen = dict()
-        self.map_info = 'unknown'
+        self.map_info = rospy.get_param("~map_info", "")
         self._publish_interval = 1.0
         self._vis = rospy.get_param("~path_visualisation", "false")
         self.online = rospy.get_param("~online_construction", "true")
@@ -53,7 +53,7 @@ class TrajectoryManager(object):
             )
         else:
             self._publish_rate = rospy.Rate(1)
-            self.trajs = OfflineTrajectories()
+            self.trajs = OfflineTrajectories(self.map_info)
 
         rospy.loginfo("human_trajectory is ready...")
 
@@ -90,16 +90,20 @@ class TrajectoryManager(object):
                     self._add_in_nav_msgs(uuid)
 
             for uuid, traj in self.trajs.complete_traj.items():
-                # store trajectories if it is allowed and
+                # store trajectories if it is allowed and connections are still
+                # intact. LOGGING MANAGER CAN POSSIBLY NOT ALLOW TO STORE DATA
+                # (LOG = FALSE), EVEN THOUGH IT SHOULD ALLOW (WP IS LISTED IN
+                # CONFIG)
                 if not self._with_logman or (self._log_permitted and self._check_log_connection()):
-                    traj_msg = traj.get_trajectory_message()
-                    trajs_com.trajectories.append(traj_msg)
+                    traj_msg = self._traj_size_checking(traj.get_trajectory_message())
                     meta = dict()
                     meta["map"] = self.map_info
                     meta["taken"] = "online"
-                    self._store_client.insert(traj_msg, meta)
-                    self.counter += 1
-                    rospy.loginfo("Total trajectories: %d", self.counter)
+                    if traj_msg is not None:
+                        trajs_com.trajectories.append(traj_msg)
+                        self._store_client.insert(traj_msg, meta)
+                        self.counter += 1
+                        rospy.loginfo("Total trajectories: %d", self.counter)
                 elif not self._check_log_connection():
                     rospy.logwarn("Connection with logging manager is lost, trajectories will not be saved")
                 else:
@@ -111,6 +115,15 @@ class TrajectoryManager(object):
             self._pub_incr.publish(trajs)
             self._pub.publish(trajs_com)
             self._publish_rate.sleep()
+
+    # check how many poses the trajectory has.
+    # too long trajectory will not be stored (size restriction from mongodb)
+    def _traj_size_checking(self, traj):
+        if len(traj.robot) > 100000:
+            rospy.logwarn("Trajectory %s is too big in size. It will not be stored" % traj.uuid)
+            return None
+        else:
+            return traj
 
     # add each traj to be published in nav_msg/Path
     def _add_in_nav_msgs(self, uuid):
@@ -143,7 +156,8 @@ class TrajectoryManager(object):
             trajs = self._construct_header()
 
             for uuid, traj in self.trajs.traj.items():
-                end_time = start_time + 1800 # showing trajectories each 30 mins
+                # showing trajectories each 10 mins
+                end_time = start_time + 600
                 traj_end = traj.humrobpose[-1][0].header.stamp.secs
                 if traj_end <= end_time:
                     traj_msg = traj.get_trajectory_message()
@@ -155,12 +169,13 @@ class TrajectoryManager(object):
                         self._store_client.insert(traj_msg, meta)
                     del self.trajs.traj[uuid]
 
-            start_time += 1800 # showing trajectories recorded in 30 mins
+            # showing trajectories recorded in 10 mins
+            start_time += 600
             self.counter += len(trajs.trajectories)
             rospy.loginfo("Total trajectories: %d", self.counter)
 
-            self._pub.publish(trajs)
             self._publish_rate.sleep()
+            self._pub.publish(trajs)
 
     # get map info from topological navigation
     def map_callback(self, msg):

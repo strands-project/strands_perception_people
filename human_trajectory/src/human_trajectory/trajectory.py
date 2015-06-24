@@ -17,6 +17,7 @@ class Trajectory(object):
         self.sequence_id = 0
         self.header_seq = 1
         self._publish_index = 1
+        self.too_long = False
 
     # check consistency between a new pose with
     # all stored poses (based on time stamp)
@@ -39,6 +40,10 @@ class Trajectory(object):
     def get_trajectory_message(self, chunked=False):
         from_index = 0
         to_index = len(self.humrobpose)
+
+        if len(self.humrobpose) > len(self.length):
+            rospy.logwarn("The overall length is not updated yet, ignoring the last pose.")
+            to_index = len(self.length)
         if chunked:
             from_index = self._publish_index - 1
             self._publish_index = to_index
@@ -70,6 +75,9 @@ class Trajectory(object):
     def append_pose(self, human_pose, header, robot_pose, calc_length=False):
         pose = (PoseStamped(header, human_pose), robot_pose)
         self.humrobpose.append(self._check_poses_consistency(pose))
+        start_time = self.humrobpose[0][0].header.stamp
+        current_time = self.humrobpose[-1][0].header.stamp
+        self.too_long = (current_time - start_time).secs > 3600
         if calc_length:
             self._calc_length()
 
