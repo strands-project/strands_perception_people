@@ -2,6 +2,16 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Fixing error length problem in get_trajectory_message function, making visualisation adaptive to the length of poses (preventing error),
+  Add the option to choose trajectories from a specific map.
+* Contributors: Ferdian Jovan, Jenkins
+
 1.1.5 (2015-05-22)
 ------------------
 

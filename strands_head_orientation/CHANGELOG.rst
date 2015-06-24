@@ -2,6 +2,14 @@
 Changelog for package strands_head_orientation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Contributors: Jenkins
+
 1.1.5 (2015-05-22)
 ------------------
 
