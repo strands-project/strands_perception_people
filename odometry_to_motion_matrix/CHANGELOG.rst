@@ -2,8 +2,8 @@
 Changelog for package odometry_to_motion_matrix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.6 (2015-06-24)
+------------------
 * 1.1.5
 * updated changelogs
 * 1.1.4

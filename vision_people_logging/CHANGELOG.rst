@@ -2,8 +2,8 @@
 Changelog for package vision_people_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.6 (2015-06-24)
+------------------
 * Revert "Fixing the wrong translation and rotation for the tf transformation"
   This reverts commit decbc5566227adbc334df91046991d23df4bf643.
 * 1.1.5
