@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import sys, math
 import pymongo
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
@@ -74,8 +75,8 @@ class OnlineTrajectories(Trajectories):
 
 class OfflineTrajectories(Trajectories):
 
-    def __init__(self, map_info=''):
-        self.map_info = map_info
+    def __init__(self, query=None):
+        self.query=query
         self.start_secs = -1
         # calling superclass
         Trajectories.__init__(self)
@@ -130,6 +131,7 @@ class OfflineTrajectories(Trajectories):
             t.length = [0.0 for i in range(len(log['robot']))]
             t.length[-1] = log['trajectory_length']
             t.sequence_id = log['sequence_id']
+
             robot_pose = [
                 Pose(
                     Point(i['position']['x'],
@@ -157,6 +159,14 @@ class OfflineTrajectories(Trajectories):
                                    i['pose']['orientation']['w'])))
                 for i in log['trajectory']
             ]
+
+            if "trajectory_displacement" not in log.keys():
+                t.trajectory_displacement = math.hypot(
+                    (human_pose[0].pose.position.x- human_pose[-1].pose.position.x),
+                    (human_pose[0].pose.position.y - human_pose[-1].pose.position.y)
+                    )
+                t.displacement_pose_ratio = t.trajectory_displacement / float(len(human_pose))
+
             t.humrobpose = zip(human_pose, robot_pose)
             self.traj[log['uuid']] = t
             traj_start = log['trajectory'][0]['header']['stamp']['secs']
@@ -169,15 +179,10 @@ class OfflineTrajectories(Trajectories):
             rospy.get_param("mongodb_host", "localhost"),
             rospy.get_param("mongodb_port", 62345)
         )
-        rospy.loginfo(
-            "Retrieving data from mongodb from map %s..." % self.map_info
-        )
-        if self.map_info == '':
-            people_traj = client.message_store.people_trajectory.find()
-        else:
-            people_traj = client.message_store.people_trajectory.find(
-                {'_meta.map':self.map_info}
+        if self.query != None: rospy.loginfo(
+            "Retrieving data using query: %s..." % self.query
             )
+        people_traj = client.message_store.people_trajectory.find(self.query)
         if people_traj.count() > 0:
             self._construct_from_people_trajectory(people_traj)
             # if data comes from people_trajectory db then the data
