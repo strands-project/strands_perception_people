@@ -82,10 +82,14 @@ class OfflineTrajectories(Trajectories):
         Trajectories.__init__(self)
 
         self.from_people_trajectory = self._retrieve_logs()
-        if not self.from_people_trajectory:
+
+        if self.from_people_trajectory == None:
+            rospy.loginfo("Too much data. Needs re-running.")
+
+        elif not self.from_people_trajectory:
             rospy.loginfo("Validating data...")
             self.traj = self._validate_trajectories(self.traj)
-        rospy.loginfo("Data is ready...")
+            rospy.loginfo("Data is ready...")
 
     # construct trajectories based on data from people_perception collection
     def _construct_from_people_perception(self, logs):
@@ -127,10 +131,12 @@ class OfflineTrajectories(Trajectories):
     def _construct_from_people_trajectory(self, logs):
         rospy.loginfo("Constructing data from people trajectory...")
         for log in logs:
+
             t = Trajectory(str(log['uuid']))
             t.length = [0.0 for i in range(len(log['robot']))]
             t.length[-1] = log['trajectory_length']
             t.sequence_id = log['sequence_id']
+            t._meta = log['_meta']
 
             robot_pose = [
                 Pose(
@@ -160,12 +166,11 @@ class OfflineTrajectories(Trajectories):
                 for i in log['trajectory']
             ]
 
-            if "trajectory_displacement" not in log.keys():
-                t.trajectory_displacement = math.hypot(
-                    (human_pose[0].pose.position.x- human_pose[-1].pose.position.x),
-                    (human_pose[0].pose.position.y - human_pose[-1].pose.position.y)
-                    )
-                t.displacement_pose_ratio = t.trajectory_displacement / float(len(human_pose))
+            t.trajectory_displacement = math.hypot(
+                (human_pose[0].pose.position.x- human_pose[-1].pose.position.x),
+                (human_pose[0].pose.position.y - human_pose[-1].pose.position.y)
+                )
+            t.displacement_pose_ratio = t.trajectory_displacement / float(len(human_pose))
 
             t.humrobpose = zip(human_pose, robot_pose)
             self.traj[log['uuid']] = t
@@ -179,10 +184,15 @@ class OfflineTrajectories(Trajectories):
             rospy.get_param("mongodb_host", "localhost"),
             rospy.get_param("mongodb_port", 62345)
         )
-        if self.query != None: rospy.loginfo(
-            "Retrieving data using query: %s..." % self.query
-            )
+        #if self.query != None: rospy.loginfo(
+        #    "Retrieving data using query: %s..." % self.query
+        #    )
         people_traj = client.message_store.people_trajectory.find(self.query)
+        print "number of trajs returned = %s " % people_traj.count()
+        if people_traj.count() > 3000:
+            rospy.logwarn("RE-DO this query with less data")
+            return None
+
         if people_traj.count() > 0:
             self._construct_from_people_trajectory(people_traj)
             # if data comes from people_trajectory db then the data

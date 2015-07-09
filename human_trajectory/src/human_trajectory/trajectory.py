@@ -18,6 +18,7 @@ class Trajectory(object):
         self.header_seq = 1
         self._publish_index = 1
         self.too_long = False
+        self._meta = {}
 
     # check consistency between a new pose with
     # all stored poses (based on time stamp)
