@@ -61,6 +61,8 @@ class Trajectory(object):
         traj.complete = not chunked
         traj.sequence_id = self.sequence_id
         traj.trajectory_length = self.length[to_index-1] - self.length[from_index]
+        traj.trajectory_displacement = self.trajectory_displacement
+        traj.displacement_pose_ratio = self.displacement_pose_ratio
 
         self.header_seq += 1
         return traj
@@ -152,3 +154,10 @@ class Trajectory(object):
                         (ps1.pose.position.y - ps2.pose.position.y)
                     )
                 )
+            ps1 = self.humrobpose[0][0]
+            ps2 = self.humrobpose[-1][0]
+            self.trajectory_displacement = math.hypot(
+                (ps1.pose.position.x - ps2.pose.position.x),
+                (ps1.pose.position.y - ps2.pose.position.y)
+            )
+            self.displacement_pose_ratio = self.trajectory_displacement/float(len(self.humrobpose))
