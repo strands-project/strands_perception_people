@@ -75,8 +75,9 @@ class OnlineTrajectories(Trajectories):
 
 class OfflineTrajectories(Trajectories):
 
-    def __init__(self, query=None):
+    def __init__(self, query=None, size=10000):
         self.query = query
+        self.size = size
         self.start_secs = -1
         self.client = pymongo.MongoClient(
             rospy.get_param("mongodb_host", "localhost"),
@@ -186,10 +187,10 @@ class OfflineTrajectories(Trajectories):
         rospy.loginfo("Getting trajectories from database with query %s" % self.query)
         total_traj = self.client.message_store.people_trajectory.find(self.query).count()
         rospy.loginfo("Number of trajs returned = %s " % total_traj)
-        if int(total_traj) > 10000:
-            rospy.logwarn("Total trajectories retrieved is greater than 10000")
-            rospy.loginfo("Limiting the retrieved trajectories to 10000...")
-        people_traj = self.client.message_store.people_trajectory.find(self.query).limit(10000)
+        if int(total_traj) > self.size:
+            rospy.logwarn("Total trajectories retrieved is greater than %d" % self.size)
+            rospy.loginfo("Limiting the retrieved trajectories to %d..." % self.size)
+        people_traj = self.client.message_store.people_trajectory.find(self.query).limit(self.size)
 
         if people_traj.count() > 0:
             self._construct_from_people_trajectory(people_traj)
@@ -199,10 +200,10 @@ class OfflineTrajectories(Trajectories):
 
         rospy.loginfo("No data in people trajectory collection, looking data in people perception collection...")
         total_poses = self.client.message_store.people_perception.find(self.query).count()
-        if int(total_poses) > 1000000:
-            rospy.logwarn("Total poses retrieved is greater than 1000000")
-            rospy.loginfo("Limiting the retrieved poses to 1000000...")
-        logs = self.client.message_store.people_perception.find(self.query).limit(1000000)
+        if int(total_poses) > self.size * 100:
+            rospy.logwarn("Total poses retrieved is greater than %d" % (self.size * 100))
+            rospy.loginfo("Limiting the retrieved poses to %d..." % (self.size * 100))
+        logs = self.client.message_store.people_perception.find(self.query).limit(self.size * 100)
 
         self._construct_from_people_perception(logs)
         return False
