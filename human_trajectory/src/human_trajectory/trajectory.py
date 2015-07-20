@@ -154,9 +154,9 @@ class Trajectory(object):
                         (ps1.pose.position.y - ps2.pose.position.y)
                     )
                 )
-            ps1 = self.humrobpose[0]
-            ps2 = self.humrobpose[-1]
-            self.trajectory_displacement =  math.hypot(
+            ps1 = self.humrobpose[0][0]
+            ps2 = self.humrobpose[-1][0]
+            self.trajectory_displacement = math.hypot(
                 (ps1.pose.position.x - ps2.pose.position.x),
                 (ps1.pose.position.y - ps2.pose.position.y)
             )

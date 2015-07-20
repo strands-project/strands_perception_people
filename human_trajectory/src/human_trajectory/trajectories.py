@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-import sys, math
+import math
 import pymongo
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
@@ -75,15 +75,20 @@ class OnlineTrajectories(Trajectories):
 
 class OfflineTrajectories(Trajectories):
 
-    def __init__(self, query=None):
-        self.query=query
+    def __init__(self, query=None, size=10000):
+        self.query = query
+        self.size = size
         self.start_secs = -1
+        self.client = pymongo.MongoClient(
+            rospy.get_param("mongodb_host", "localhost"),
+            rospy.get_param("mongodb_port", 62345)
+        )
         # calling superclass
         Trajectories.__init__(self)
 
         self.from_people_trajectory = self._retrieve_logs()
 
-        if self.from_people_trajectory == None:
+        if self.from_people_trajectory is None:
             rospy.loginfo("Too much data. Needs re-running.")
 
         elif not self.from_people_trajectory:
@@ -131,7 +136,6 @@ class OfflineTrajectories(Trajectories):
     def _construct_from_people_trajectory(self, logs):
         rospy.loginfo("Constructing data from people trajectory...")
         for log in logs:
-
             t = Trajectory(str(log['uuid']))
             t.length = [0.0 for i in range(len(log['robot']))]
             t.length[-1] = log['trajectory_length']
@@ -167,7 +171,7 @@ class OfflineTrajectories(Trajectories):
             ]
 
             t.trajectory_displacement = math.hypot(
-                (human_pose[0].pose.position.x- human_pose[-1].pose.position.x),
+                (human_pose[0].pose.position.x - human_pose[-1].pose.position.x),
                 (human_pose[0].pose.position.y - human_pose[-1].pose.position.y)
                 )
             t.displacement_pose_ratio = t.trajectory_displacement / float(len(human_pose))
@@ -180,18 +184,13 @@ class OfflineTrajectories(Trajectories):
 
     # retrieve trajectory from mongodb
     def _retrieve_logs(self):
-        client = pymongo.MongoClient(
-            rospy.get_param("mongodb_host", "localhost"),
-            rospy.get_param("mongodb_port", 62345)
-        )
-        #if self.query != None: rospy.loginfo(
-        #    "Retrieving data using query: %s..." % self.query
-        #    )
-        people_traj = client.message_store.people_trajectory.find(self.query)
-        print "number of trajs returned = %s " % people_traj.count()
-        if people_traj.count() > 3000:
-            rospy.logwarn("RE-DO this query with less data")
-            return None
+        rospy.loginfo("Getting trajectories from database with query %s" % self.query)
+        total_traj = self.client.message_store.people_trajectory.find(self.query).count()
+        rospy.loginfo("Number of trajs returned = %s " % total_traj)
+        if int(total_traj) > self.size:
+            rospy.logwarn("Total trajectories retrieved is greater than %d" % self.size)
+            rospy.loginfo("Limiting the retrieved trajectories to %d..." % self.size)
+        people_traj = self.client.message_store.people_trajectory.find(self.query).limit(self.size)
 
         if people_traj.count() > 0:
             self._construct_from_people_trajectory(people_traj)
@@ -200,6 +199,11 @@ class OfflineTrajectories(Trajectories):
             return True
 
         rospy.loginfo("No data in people trajectory collection, looking data in people perception collection...")
-        logs = client.message_store.people_perception.find()
+        total_poses = self.client.message_store.people_perception.find(self.query).count()
+        if int(total_poses) > self.size * 100:
+            rospy.logwarn("Total poses retrieved is greater than %d" % (self.size * 100))
+            rospy.loginfo("Limiting the retrieved poses to %d..." % (self.size * 100))
+        logs = self.client.message_store.people_perception.find(self.query).limit(self.size * 100)
+
         self._construct_from_people_perception(logs)
         return False

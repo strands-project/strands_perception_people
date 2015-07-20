@@ -53,7 +53,7 @@ class TrajectoryManager(object):
             )
         else:
             self._publish_rate = rospy.Rate(1)
-            self.trajs = OfflineTrajectories(self.map_info)
+            self.trajs = OfflineTrajectories(size=rospy.get_param("~max_trajectories", 10000))
 
         rospy.loginfo("human_trajectory is ready...")
 
