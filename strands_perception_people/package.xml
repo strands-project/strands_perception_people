@@ -8,9 +8,9 @@
 
   <license>MIT</license>
 
-  <url type="website">https://github.com/strands-project/strands_perception_people</url> 
+  <url type="website">https://github.com/strands-project/strands_perception_people</url>
 
-  <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author> 
+  <author email="cdondrup@lincoln.ac.uk">Christian Dondrup</author>
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>bayes_people_tracker</run_depend>
@@ -25,8 +25,9 @@
   <run_depend>vision_people_logging</run_depend>
   <run_depend>visual_odometry</run_depend>
   <run_depend>human_trajectory</run_depend>
+  <run_depend>people_tracker_emulator</run_depend>
 
   <export>
-    <metapackage/> 
+    <metapackage/>
   </export>
 </package>
