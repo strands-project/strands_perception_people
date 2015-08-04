@@ -19,10 +19,12 @@ class PeopleTrackerEmulator(object):
     _uuid = 'fred' # Only one person and no id so we make one up
     _prev_time = 0.0
     _prev_pose = None
+    _vel = Vector3()
 
     def __init__(self, name):
         rospy.loginfo("Starting %s ..." % name)
-        rospy.Subscriber(rospy.get_param("~pose_in_topic","/human/transformed"), PoseStamped, self.callback)
+        self.rate = rospy.Rate(30) # Ensure same speed as people tracker.
+        rospy.Subscriber(rospy.get_param("~pose_in_topic","/human/transformed"), PoseStamped, self.callback, queue_size=1)
         self.pospub = rospy.Publisher(rospy.get_param("~positions","/people_tracker/positions"), PeopleTracker, queue_size=10)
         self.markpub = rospy.Publisher(rospy.get_param("~marker","/people_tracker/marker_array"), MarkerArray, queue_size=10)
         self.pplpub = rospy.Publisher(rospy.get_param("~people","/people_tracker/people"), People, queue_size=10)
@@ -43,21 +45,23 @@ class PeopleTrackerEmulator(object):
 
         # Get velocity if previous pose and timestamp are available,
         # 0 otherwise
-        vel = Vector3()
         if self._prev_pose and self._prev_time:
              dt = msg.header.stamp.to_sec() - self._prev_time
-             vel = mc.get_velocity(new_pose, self._prev_pose, dt)
+             self._vel = mc.get_velocity(self._vel, new_pose, self._prev_pose, dt)
 
         # Publish all the topics
         self.posepub.publish(new_pose)
         self.poseapub.publish(PoseArray(header=new_pose.header, poses=[new_pose.pose]))
-        self.pospub.publish(mc.people_tracker_msg_from_posestamped(self._uuid, new_pose, vel, self.tf))
+        self.pospub.publish(mc.people_tracker_msg_from_posestamped(self._uuid, new_pose, self._vel, self.tf))
         self.markpub.publish(mc.marker_array_from_people_tracker_msg([new_pose.pose], self.target_frame))
-        self.pplpub.publish(mc.people_msg_from_pose_stamped(self._uuid, new_pose, vel))
+        self.pplpub.publish(mc.people_msg_from_pose_stamped(self._uuid, new_pose, self._vel))
 
         # Update prev pose and time
         self._prev_time = msg.header.stamp.to_sec()
         self._prev_pose = new_pose
+
+        # Ensure same rate as people tracker
+        self.rate.sleep()
 
 
 if __name__ == "__main__":
