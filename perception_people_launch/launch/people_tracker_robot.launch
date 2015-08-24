@@ -24,6 +24,7 @@
     <arg name="mdl_people_poses" default="/mdl_people_tracker/pose_array" />
     <arg name="mdl_people_image" default="/mdl_people_tracker/image" />
     <arg name="tf_target_frame" default="/map" />
+    <arg name="bayes_people_param_file" default="$(find bayes_people_tracker)/config/detectors.yaml" />
     <arg name="bayes_people_positions" default="/people_tracker/positions" />
     <arg name="bayes_people_pose" default="/people_tracker/pose" />
     <arg name="bayes_people_pose_array" default="/people_tracker/pose_array" />
@@ -98,6 +99,7 @@
     <include file="$(find bayes_people_tracker)/launch/people_tracker.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
+        <arg name="param_file" value="$(arg bayes_people_param_file)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
         <arg name="positions" value="$(arg bayes_people_positions)"/>
         <arg name="pose" value="$(arg bayes_people_pose)"/>
