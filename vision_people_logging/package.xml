@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>vision_people_logging</name>
-  <version>1.1.6</version>
+  <version>1.1.7</version>
   <description>The vision_people_logging package</description>
 
   <maintainer email="beyer@vision.rwth-aachen.de">Lucas Beyer</maintainer>
