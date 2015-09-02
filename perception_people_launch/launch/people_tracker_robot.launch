@@ -34,6 +34,7 @@
     <arg name="with_mdl_tracker" default="false"/>
     <arg name="log" default="false" />
     <arg name="manager_topic" default="" />
+    <arg name="with_map_filter" default="true"/>
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -115,9 +116,20 @@
     </include>
     
     <!-- Leg Detector -->
-    <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" output="screen">
-        <param name="fixed_frame" type="string" value="odom" />
-    </node>
+    <group if="$(arg with_map_filter)">
+        <node pkg="laser_filters" type="scan_to_scan_filter_chain" respawn="true" name="laser_filter">
+            <rosparam command="load" file="$(find map_laser)/filters.yaml" />
+        </node>
+        <node pkg="map_laser" type="filter.py" name="map_laser_filter" respawn="true" output="screen"/>
+        <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=/base_scan_filter $(find leg_detector)/config/trained_leg_detector.yaml" respawn="true" output="screen">
+            <param name="fixed_frame" type="string" value="odom" />
+        </node>
+    </group>
+    <group unless="$(arg with_map_filter)">
+        <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" respawn="true" output="screen">
+            <param name="fixed_frame" type="string" value="odom" />
+        </node>
+    </group>
     
     <!-- Logging -->
     <include file="$(find bayes_people_tracker_logging)/launch/logging.launch">
