@@ -2,6 +2,9 @@
 Changelog for package strands_head_orientation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.1.6 (2015-06-24)
 ------------------
 * 1.1.5
