@@ -363,7 +363,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("camera_info_depth", topic_camera_info, string("/depth/camera_info"));
     topic_camera_info = cam_ns + topic_camera_info;
     string topic_depth_image;
-    private_node_handle_.param("depth_image", topic_depth_image, string("/depth/image_rect_meters"));
+    private_node_handle_.param("depth_image", topic_depth_image, string("/depth/image_rect"));
     topic_depth_image = cam_ns + topic_depth_image;
 
     // Printing queue size

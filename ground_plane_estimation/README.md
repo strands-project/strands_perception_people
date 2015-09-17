@@ -12,7 +12,7 @@ Parameters for estimation:
 * `queue_size` _default = 5_: The synchronisation queue size
 * `config_file` _default = ""_: The global config file. Can be found in ground_plane_estimation/config
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
-* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `depth_image` _default = /depth/image_rect_: `camera_namespace` + `depth_image` = depth image topic
 * `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
 * `ground_plane` _default = /ground_plane_: The estimated ground plane
 

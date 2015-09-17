@@ -12,7 +12,7 @@ Parameters:
 * `config_file` _default = ""_: The global config file. Can be found in strands_upper_bodydetector/config
 * `template_file` _default = ""_: The template file. Can be found in config.
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
-* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `depth_image` _default = /depth/image_rect_: `camera_namespace` + `depth_image` = depth image topic
 * `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
 * `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `ground_plane` _default = /ground_plane_: The estimated/fixed ground plane
