@@ -264,7 +264,7 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
         // Make a copy here so that in case `render_bbox_2D` corrupts memory,
         // we don't corrupt the original buffer in the ROS message and may get better stacktraces.
         QImage image_rgb = QImage(&color->data[0], color->width, color->height, color->step, QImage::Format_RGB888).copy();
-        render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
+        render_bbox_2D(detection_msg, image_rgb, 255, 0, 0, 2);
         const uchar *bits = image_rgb.constBits();
 
         sensor_msgs::Image sensor_image;
