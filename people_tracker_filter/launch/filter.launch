@@ -1,0 +1,15 @@
+<launch>
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+    <arg name="map"/>
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+
+    <!-- lanch map server -->
+    <node name="people_tracker_filter" pkg="people_tracker_filter" type="people_tracker_filter" output="screen"/>
+
+    <node name="ppl_map_server" pkg="map_server" type="map_server" args="$(arg map)">
+        <remap from="/map" to="/ppl_map"/>
+    </node>
+
+</launch>
