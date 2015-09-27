@@ -13,6 +13,8 @@ import tf
 from visualization_msgs.msg import MarkerArray
 import people_tracker_emulator.msg_creator as mc
 from people_msgs.msg import People
+from std_srvs.srv import Empty, EmptyResponse
+import uuid
 
 
 class PeopleTrackerEmulator(object):
@@ -28,9 +30,14 @@ class PeopleTrackerEmulator(object):
         self.pplpub = rospy.Publisher(rospy.get_param("~people","/people_tracker/people"), People, queue_size=10)
         self.posepub = rospy.Publisher(rospy.get_param("~pose","/people_tracker/pose"), PoseStamped, queue_size=10)
         self.poseapub = rospy.Publisher(rospy.get_param("~pose_array","/people_tracker/pose_array"), PoseArray, queue_size=10)
+        rospy.Service("~new_id", Empty, self.srv_cb)
         self.tf = tf.TransformListener()
         self.target_frame = rospy.get_param("~target_frame", "/map")
         rospy.loginfo("... all done")
+
+    def srv_cb(self, req):
+        self._uuid = uuid.uuid1().hex
+        return EmptyResponse()
 
     def callback(self, msg):
         try:
