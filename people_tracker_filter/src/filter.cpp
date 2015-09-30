@@ -18,12 +18,17 @@ void posistion_callback(const bayes_people_tracker::PeopleTracker::ConstPtr& msg
         bayes_people_tracker::PeopleTracker out;
         out.header = msg->header;
         for(int i = 0; i < msg->poses.size(); i++){
-            if(int(map.data.at(occupancy_grid_utils::pointIndex(map.info, msg->poses[i].position))) == 0) {
-                out.distances.push_back(msg->distances[i]);
-                out.angles.push_back(msg->angles[i]);
-                out.poses.push_back(msg->poses[i]);
-                out.uuids.push_back(msg->uuids[i]);
-                out.velocities.push_back(msg->velocities[i]);
+            try {
+                if(int(map.data.at(occupancy_grid_utils::pointIndex(map.info, msg->poses[i].position))) == 0) {
+                    out.distances.push_back(msg->distances[i]);
+                    out.angles.push_back(msg->angles[i]);
+                    out.poses.push_back(msg->poses[i]);
+                    out.uuids.push_back(msg->uuids[i]);
+                    out.velocities.push_back(msg->velocities[i]);
+                }
+            } catch (occupancy_grid_utils::CellOutOfBoundsException) {
+                ROS_WARN("Cell out of bounds");
+                continue;
             }
         }
         if(out.distances.size() != 0){
@@ -40,8 +45,13 @@ void marker_callback(const visualization_msgs::MarkerArray::ConstPtr& msg) {
     if(msg->markers.size() != 0){
         visualization_msgs::MarkerArray out;
         for(int i = 0; i < msg->markers.size(); i++){
-            if(int(map.data.at(occupancy_grid_utils::pointIndex(map.info, msg->markers[i].pose.position))) == 0) {
-                out.markers.push_back(msg->markers[i]);
+            try {
+                if(int(map.data.at(occupancy_grid_utils::pointIndex(map.info, msg->markers[i].pose.position))) == 0) {
+                    out.markers.push_back(msg->markers[i]);
+                }
+            } catch (occupancy_grid_utils::CellOutOfBoundsException) {
+                ROS_WARN("Cell out of bounds");
+                continue;
             }
         }
         mpub.publish(out);
