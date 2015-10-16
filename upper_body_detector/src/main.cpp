@@ -258,7 +258,7 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     }
 
     // Creating a ros image with the detection results an publishing it
-    if(vis) {
+    if(vis && (color->encoding == "rgb8" || color->encoding == "bgr8")) {
         ROS_DEBUG("Publishing image");
         QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888); // would opencv be better?
         render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
@@ -273,6 +273,8 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
         sensor_image.encoding = color->encoding;
 
         pub_result_image.publish(sensor_image);
+    } else if(vis && color->encoding != "rgb8" && color->encoding != "bgr8") {
+        ROS_WARN("Color image not in RGB8 or BGR8 format not supported");
     }
 
     // Publishing detections
