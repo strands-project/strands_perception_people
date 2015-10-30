@@ -107,7 +107,7 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
                     pt_out.angles.push_back(pt->angles[i]);
                     pt_out.poses.push_back(pt->poses[i]);
                     pt_out.uuids.push_back(pt->uuids[i]);
-//                    pt_out.velocities.push_back(pt->velocities[i]);
+                    pt_out.velocities.push_back(pt->velocities[i]);
 
                     p_out.people.push_back(p->people[i]); // Both arrays are in the same order.
                 }
