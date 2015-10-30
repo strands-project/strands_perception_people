@@ -123,6 +123,7 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
             ps_out.pose = pt_out.poses[idx];
         }
         pt_pub.publish(pt_out);
+        p_pub.publish(p_out);
         ps_pub.publish(ps_out);
 
         pa_out.poses = pt_out.poses;
