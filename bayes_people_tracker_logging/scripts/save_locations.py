@@ -52,8 +52,8 @@ class SaveLocations():
 
         subs = [
             message_filters.Subscriber(
-                "/people_tracker/positions",
-            PeopleTracker
+                rospy.get_param("~positions", "/people_tracker_filter/positions"),
+                PeopleTracker
             )
         ]
         if not manager_topic == '':

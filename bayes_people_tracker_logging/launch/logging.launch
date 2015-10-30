@@ -3,11 +3,13 @@
     <arg name="user" default="" />
     <arg name="log" default="true" />
     <arg name="manager_topic" default=""/>
+    <arg name="positions" default="/people_tracker_filter/positions"/>
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
     <node pkg="bayes_people_tracker_logging" type="save_locations.py" name="save_people_locations" output="log" if="$(arg log)" respawn="true">
         <param name="manager_topic" type="string" value="$(arg manager_topic)"/>
+	<param name="positions" type="string" value="$(arg positions)"/>
     </node>
 
 </launch> 
