@@ -11,7 +11,6 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/exact_time.h>
 #include <bayes_people_tracker/people_marker.h>
-#include <exception>
 #include <tf/transform_datatypes.h>
 #include <nav_msgs/MapMetaData.h>
 
