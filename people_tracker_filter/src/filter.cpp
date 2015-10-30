@@ -1,6 +1,5 @@
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
-#include <occupancy_grid_utils/coordinate_conversions.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -12,10 +11,74 @@
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/exact_time.h>
 #include <bayes_people_tracker/people_marker.h>
+#include <exception>
+#include <tf/transform_datatypes.h>
+#include <nav_msgs/MapMetaData.h>
 
 ros::Publisher pt_pub, ma_pub, ps_pub, pa_pub, p_pub;
 nav_msgs::OccupancyGrid ppl_map;
 PeopleMarker pm;
+
+typedef uint32_t index_t;
+typedef int16_t coord_t;
+
+struct Cell
+{
+  Cell(const coord_t x=0, const coord_t y=0) : x(x), y(y) {}
+  coord_t x;
+  coord_t y;
+
+  bool operator== (const Cell& c) const;
+  bool operator< (const Cell& c) const;
+};
+
+inline
+tf::Transform mapToWorld (const nav_msgs::MapMetaData& info)
+{
+  tf::Transform world_to_map;
+  tf::poseMsgToTF (info.origin, world_to_map);
+  return world_to_map;
+}
+
+inline
+tf::Transform worldToMap (const nav_msgs::MapMetaData& info)
+{
+  return mapToWorld(info).inverse();
+}
+
+inline
+bool withinBounds (const nav_msgs::MapMetaData& info, const Cell& c)
+{
+  return (c.x >= 0) && (c.y >= 0) && (c.x < (coord_t) info.width) && (c.y < (coord_t) info.height);
+}
+
+inline
+Cell pointCell (const nav_msgs::MapMetaData& info, const geometry_msgs::Point& p)
+{
+  tf::Point pt;
+  tf::pointMsgToTF(p, pt);
+  tf::Point p2 = worldToMap(info)*pt;
+  return Cell(floor(p2.x()/info.resolution), floor(p2.y()/info.resolution));
+}
+
+struct CellOutOfBoundsException
+{
+  CellOutOfBoundsException () {}
+};
+
+inline
+index_t cellIndex (const nav_msgs::MapMetaData& info, const Cell& c)
+{
+  if (!withinBounds(info, c))
+    throw CellOutOfBoundsException();
+  return c.x + c.y*info.width;
+}
+
+inline
+index_t pointIndex (const nav_msgs::MapMetaData& info, const geometry_msgs::Point& p)
+{
+  return cellIndex(info, pointCell(info, p));
+}
 
 void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
@@ -39,7 +102,7 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
 
         for(int i = 0; i < pt->poses.size(); i++){
             try {
-                if(int(ppl_map.data.at(occupancy_grid_utils::pointIndex(ppl_map.info, pt->poses[i].position))) == 0) { // Check if detection is in allowed area
+                if(int(ppl_map.data.at(pointIndex(ppl_map.info, pt->poses[i].position))) == 0) { // Check if detection is in allowed area
                     pt_out.distances.push_back(pt->distances[i]);
                     pt_out.angles.push_back(pt->angles[i]);
                     pt_out.poses.push_back(pt->poses[i]);
@@ -48,7 +111,7 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
 
                     p_out.people.push_back(p->people[i]); // Both arrays are in the same order.
                 }
-            } catch (occupancy_grid_utils::CellOutOfBoundsException) {
+            } catch (CellOutOfBoundsException) {
                 ROS_WARN("Cell out of bounds");
                 continue;
             }

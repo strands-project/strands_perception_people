@@ -6,7 +6,6 @@ project(people_tracker_filter)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   nav_msgs
-  occupancy_grid_utils
   roscpp
   std_msgs
   tf
