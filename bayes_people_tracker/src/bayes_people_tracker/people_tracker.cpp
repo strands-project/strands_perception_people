@@ -1,8 +1,7 @@
-#include "people_tracker/people_tracker.h"
+#include "bayes_people_tracker/people_tracker.h"
 
 PeopleTracker::PeopleTracker() :
-    detect_seq(0),
-    marker_seq(0)
+    detect_seq(0)
 {
     ros::NodeHandle n;
 
@@ -233,7 +232,7 @@ void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, 
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < poses.size(); i++) {
-        std::vector<visualization_msgs::Marker> human = createHuman(i*10, poses[i]);
+        std::vector<visualization_msgs::Marker> human = pm.createHuman(i*10, poses[i], target_frame);
         marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
     }
     pub.publish(marker_array);
