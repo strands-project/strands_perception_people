@@ -47,7 +47,14 @@ Parameters:
 * `pd_marker` _default = /people_tracker/marker_array_: A marker arry to visualise found people in rviz
 * `log` _default = false_: Log people and robot locations together with tracking and detection results to message_store database into people_perception collection. Disabled by default because if it is enabled the perception is running continuously.
 * `with_mdl_tracker` _default = false_: Starts the mdl people tracker in addition to the bayes tracker
-* `with_map_filter` _default = true_: Starts the map filter to reduce false positives from the leg detector
+* `with_laser_filter` _default = true_: Starts the laser filter to reduce false positives from the leg detector
+* `with_tracker_filter_map` _default = false_: Use a special map to filter the tracker results instead of just the map used for navigation.
+* `tracker_filter_map`: The map to use instead of the navigation map to filter the tracker results.
+* `tracker_filter_positions` _default = /people_tracker_filter/positions_: The filtered tracker results.
+* `tracker_filter_pose` _default = /people_tracker_filter/pose_: The filtered pose for the closest person.
+* `tracker_filter_pose_array` _default = /people_tracker_filter/pose_array_: The filetered pose array.
+* `tracker_filter_people` _default = /people_tracker_filter/people_: The filetered people message.
+* `tracker_filter_marker` _default = /people_tracker_filter/marker_array_: The filetered marker array.
 
 
 Running:

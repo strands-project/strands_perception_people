@@ -50,7 +50,7 @@ include_directories(
 )
 
 add_executable(bayes_people_tracker
-  src/people_tracker/people_tracker.cpp
+  src/bayes_people_tracker/people_tracker.cpp
 )
 
 add_dependencies(bayes_people_tracker ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})

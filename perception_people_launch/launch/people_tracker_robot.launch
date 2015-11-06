@@ -34,7 +34,13 @@
     <arg name="with_mdl_tracker" default="false"/>
     <arg name="log" default="false" />
     <arg name="manager_topic" default="" />
-    <arg name="with_map_filter" default="true"/>
+    <arg name="with_laser_filter" default="true"/>
+    <arg name="with_tracker_filter_map" default="false" />
+    <arg name="tracker_filter_positions" default="/people_tracker_filter/positions" />
+    <arg name="tracker_filter_pose" default="/people_tracker_filter/pose" />
+    <arg name="tracker_filter_pose_array" default="/people_tracker_filter/pose_array" />
+    <arg name="tracker_filter_people" default="/people_tracker_filter/people" />
+    <arg name="tracker_filter_marker" default="/people_tracker_filter/marker_array" />
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
@@ -116,7 +122,7 @@
     </include>
     
     <!-- Leg Detector -->
-    <group if="$(arg with_map_filter)">
+    <group if="$(arg with_laser_filter)">
         <node pkg="laser_filters" type="scan_to_scan_filter_chain" respawn="true" name="laser_filter">
             <rosparam command="load" file="$(find map_laser)/filters.yaml" />
         </node>
@@ -125,11 +131,48 @@
             <param name="fixed_frame" type="string" value="odom" />
         </node>
     </group>
-    <group unless="$(arg with_map_filter)">
+    <group unless="$(arg with_laser_filter)">
         <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" respawn="true" output="screen">
             <param name="fixed_frame" type="string" value="odom" />
         </node>
     </group>
+
+    <!-- People Tracker Filter -->
+    <group if="$(arg with_tracker_filter_map)">
+        <arg name="tracker_filter_map"/>
+        <include file="$(find people_tracker_filter)/launch/filter.launch">
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="user" value="$(arg user)"/>
+            <arg name="with_ppl_map" value="$(arg with_tracker_filter_map)"/>
+            <arg name="map" value="$(arg tracker_filter_map)"/>
+            <arg name="positions" value="$(arg bayes_people_positions)"/>
+            <arg name="pose" value="$(arg bayes_people_pose)"/>
+            <arg name="pose_array" value="$(arg bayes_people_pose_array)"/>
+            <arg name="people" value="$(arg bayes_people_people)"/>
+            <arg name="filtered_positions" value="$(arg tracker_filter_positions)"/>
+            <arg name="filtered_pose" value="$(arg tracker_filter_pose)"/>
+            <arg name="filtered_pose_array" value="$(arg tracker_filter_pose_array)"/>
+            <arg name="filtered_people" value="$(arg tracker_filter_people)"/>
+            <arg name="filtered_marker" value="$(arg tracker_filter_marker)"/>
+        </include>
+    </group>
+    <group unless="$(arg with_tracker_filter_map)">
+        <include file="$(find people_tracker_filter)/launch/filter.launch">
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="user" value="$(arg user)"/>
+            <arg name="with_ppl_map" value="$(arg with_tracker_filter_map)"/>
+            <arg name="positions" value="$(arg bayes_people_positions)"/>
+            <arg name="pose" value="$(arg bayes_people_pose)"/>
+            <arg name="pose_array" value="$(arg bayes_people_pose_array)"/>
+            <arg name="people" value="$(arg bayes_people_people)"/>
+            <arg name="filtered_positions" value="$(arg tracker_filter_positions)"/>
+            <arg name="filtered_pose" value="$(arg tracker_filter_pose)"/>
+            <arg name="filtered_pose_array" value="$(arg tracker_filter_pose_array)"/>
+            <arg name="filtered_people" value="$(arg tracker_filter_people)"/>
+            <arg name="filtered_marker" value="$(arg tracker_filter_marker)"/>
+        </include>
+    </group>
+    
     
     <!-- Logging -->
     <include file="$(find bayes_people_tracker_logging)/launch/logging.launch">
@@ -137,6 +180,7 @@
         <arg name="user" value="$(arg user)"/>
         <arg name="log" value="$(arg log)"/>
         <arg name="manager_topic" value="$(arg manager_topic)"/>
+        <arg name="positions" value="$(arg tracker_filter_positions)"/>
     </include>
 
 </launch> 
