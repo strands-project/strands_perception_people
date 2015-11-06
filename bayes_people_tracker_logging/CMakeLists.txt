@@ -54,6 +54,7 @@ catkin_package(
 
 install(PROGRAMS
   scripts/save_locations.py
+  scripts/migrate.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
