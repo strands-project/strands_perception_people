@@ -2,6 +2,18 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding missing tf include
+* Renaming directories in bayes_people_tracker. Before this the header files were not installed correctly.
+  Also creating a a new cals dedictaed to creating the human marker for rviz. Will be used in people_tracker_filter.
+* Merge pull request `#169 <https://github.com/strands-project/strands_perception_people/issues/169>`_ from cdondrup/velo_message
+  Adding the velocity of detect people to PeopleTracker message
+* Adding mygrate.py and missing install targets.
+* Adding rule to migrate rosbags to new message format
+* Adding velocities of detected people as a geometry_msgs/Vector3 to PeopleTracker message
+* Contributors: Christian Dondrup, Marc Hanheide
+
 1.1.8 (2015-09-03)
 ------------------
 

@@ -2,6 +2,12 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Logging component logs the filtered output now.
+* Adding mygrate.py and missing install targets.
+* Contributors: Christian Dondrup
+
 1.1.8 (2015-09-03)
 ------------------
 

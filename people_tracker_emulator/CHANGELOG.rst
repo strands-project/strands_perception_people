@@ -2,6 +2,15 @@
 Changelog for package people_tracker_emulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#169 <https://github.com/strands-project/strands_perception_people/issues/169>`_ from cdondrup/velo_message
+  Adding the velocity of detect people to PeopleTracker message
+* Adding option to create new uuid in emulator via service call.
+* Smoothing velocity and ensuring the same publishing rate as for the people tracker.
+* Using new PeopleTracker message in emulator + code clean-up
+* Contributors: Christian Dondrup, Marc Hanheide
+
 1.1.8 (2015-09-03)
 ------------------
 

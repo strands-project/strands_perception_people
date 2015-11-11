@@ -2,6 +2,12 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make UBD viz padding-aware and not share ROS buffer.
+* UBD viz only works for rgb8 images.
+* Contributors: lucasb-eyer
+
 1.1.8 (2015-09-03)
 ------------------
 
