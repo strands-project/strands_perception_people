@@ -2,8 +2,8 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2015-11-11)
+------------------
 * Adding new parameters to readme file.
 * Adding people tracker filter to overall launch file. Is started by default using the map provided on `/map`.
   If not subscribed to, will not use any CPU.

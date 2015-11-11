@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2015-11-11)
+------------------
 * Adding missing tf include
 * Renaming directories in bayes_people_tracker. Before this the header files were not installed correctly.
   Also creating a a new cals dedictaed to creating the human marker for rviz. Will be used in people_tracker_filter.

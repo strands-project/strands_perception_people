@@ -2,8 +2,8 @@
 Changelog for package people_tracker_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2015-11-11)
+------------------
 * Updating CMakeLists and package.xml
 * Adding velocities to filter.
 * Actually publishing people message now.
