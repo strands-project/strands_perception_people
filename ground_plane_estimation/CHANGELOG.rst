@@ -2,6 +2,11 @@
 Changelog for package ground_plane_estimation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Changing default topic name for use with openni2
+* Contributors: Christian Dondrup
+
 1.2.0 (2015-11-11)
 ------------------
 
