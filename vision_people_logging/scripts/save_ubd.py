@@ -29,7 +29,7 @@ class SaveLocations():
             message_filters.Subscriber(rospy.get_param("~ubd", "/upper_body_detector/detections"), UpperBodyDetector),
             message_filters.Subscriber(rospy.get_param("~ubd_cent", "/upper_body_detector/bounding_box_centres"), geometry_msgs.msg.PoseArray),
             message_filters.Subscriber(rospy.get_param("~ubd_rgb", "/head_xtion/rgb/image_rect_color"), sensor_msgs.msg.Image),
-            message_filters.Subscriber(rospy.get_param("~ubd_d", "/head_xtion/depth/image_rect_meters"), sensor_msgs.msg.Image),
+            message_filters.Subscriber(rospy.get_param("~ubd_d", "/head_xtion/depth/image_rect"), sensor_msgs.msg.Image),
         ]
 
         # Potentially also make use of the manager to tell us whether

@@ -1,7 +1,7 @@
 <launch>
     <arg name="queue_size" default="5" />
     <arg name="camera_namespace" default="/head_xtion" />
-    <arg name="depth_image" default="/depth/image_rect_meters" />
+    <arg name="depth_image" default="/depth/image_rect" />
     <arg name="mono_image" default="/rgb/image_mono" />
     <arg name="camera_info_depth" default="/depth/camera_info" />
     <arg name="motion_parameters" default="/visual_odometry/motion_matrix" />

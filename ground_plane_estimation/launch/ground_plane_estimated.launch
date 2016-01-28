@@ -5,7 +5,7 @@
 
     <arg name="queue_size" default="5" />
     <arg name="camera_namespace" default="/head_xtion" />
-    <arg name="depth_image" default="/depth/image_rect_meters" />
+    <arg name="depth_image" default="/depth/image_rect" />
     <arg name="camera_info_rgb" default="/rgb/camera_info" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="machine" default="localhost" />
