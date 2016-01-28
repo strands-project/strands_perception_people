@@ -2,8 +2,8 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2016-01-28)
+------------------
 * Changing default topic name for use with openni2
 * Contributors: Christian Dondrup
 

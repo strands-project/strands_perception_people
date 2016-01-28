@@ -2,8 +2,8 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2016-01-28)
+------------------
 * Making the bbox red again.
 * Changing default topic name for use with openni2
 * Contributors: Christian Dondrup
