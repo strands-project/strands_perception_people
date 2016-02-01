@@ -26,6 +26,7 @@
   <run_depend>bayes_people_tracker_logging</run_depend>
   <run_depend>map_laser</run_depend>
   <run_depend>laser_filters</run_depend>
+  <run_depend>people_tracker_filter</run_depend>
   <!--<run_depend>strands_ground_hog</run_depend>-->
 
   <export/>
