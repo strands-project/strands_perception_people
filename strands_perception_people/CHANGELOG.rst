@@ -2,6 +2,11 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding people_tracker_filter to run dependencies of meta and launch package.
+* Contributors: Christian Dondrup
+
 1.2.1 (2016-01-28)
 ------------------
 

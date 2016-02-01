@@ -2,6 +2,9 @@
 Changelog for package people_tracker_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.2.1 (2016-01-28)
 ------------------
 
