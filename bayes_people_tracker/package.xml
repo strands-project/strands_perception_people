@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bayes_people_tracker</name>
-  <version>0.1.2</version>
+  <version>1.3.0</version>
   <description>The bayes_people_tracker package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
@@ -18,6 +18,7 @@
   <build_depend>bayes_tracking</build_depend>
   <build_depend>geometry_msgs</build_depend>
   <build_depend>message_generation</build_depend>
+  <build_depend>people_msgs</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>tf</build_depend>
@@ -27,10 +28,14 @@
   <run_depend>bayes_tracking</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
+  <run_depend>people_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>tf</run_depend>
   <run_depend>visualization_msgs</run_depend>
+  <run_depend>rosbag_migration_rule</run_depend>
 
-  <export/>
+  <export>
+      <rosbag_migration_rule rule_file="share/people_tracker_rule.bmr"/>
+  </export>
 </package>

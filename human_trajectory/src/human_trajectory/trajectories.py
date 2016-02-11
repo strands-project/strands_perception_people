@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-import random
 import rospy
+import math
 import pymongo
 from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
+from bayes_people_tracker.msg import PeopleTracker
 from human_trajectory.trajectory import Trajectory
 
 
@@ -12,59 +13,121 @@ class Trajectories(object):
 
     def __init__(self):
         self.traj = dict()
-        self.start_secs = -1
-        self.average_pps = 0
-        self.from_people_trajectory = False
-        self._client = pymongo.MongoClient(
-            rospy.get_param("datacentre_host", "localhost"),
-            rospy.get_param("datacentre_port", 62345)
+
+    # delete trajs that appear less than 5 secs or have length less than 0.1
+    def _validate_trajectories(self, traj):
+        for uuid, t in traj.items():
+            t.validate_all_poses()
+            if t.length[-1] < 0.1 or len(t.humrobpose) < 20:
+                del traj[uuid]
+        return traj
+
+
+class OnlineTrajectories(Trajectories):
+
+    def __init__(self, topic):
+        Trajectories.__init__(self)
+        self._temp_traj = dict()
+        self.complete_traj = dict()
+        self.robot_pose = Pose()
+        self.subs = rospy.Subscriber(
+            topic, PeopleTracker, self.pt_callback, None, 30
         )
-        self._retrieve_logs()
-        if not self.from_people_trajectory:
-            self._validate_trajectories()
-        rospy.loginfo("Data is ready...")
+        rospy.Subscriber(
+            "/robot_pose", Pose, self.pose_callback, None, 10
+        )
+        rospy.loginfo("Taking data from %s..." % topic)
 
-    def _validate_trajectories(self):
-        rospy.loginfo("Validating data...")
-        untraj = []
-        mframe = 0
-        for uuid in self.traj:
-            self.traj[uuid].validate_poses()
-            mframe += self.traj[uuid].pps
-            if self.traj[uuid].length < 0.1 and uuid not in untraj:
-                untraj.append(uuid)
+    # get robot position
+    def pose_callback(self, pose):
+        self.robot_pose = pose
 
-        mframe = round(mframe/len(self.traj))
-        self.average_pps = mframe
-        mframe *= 5
+    # extract PeopleTracker message to obtain trajectories
+    def pt_callback(self, msg):
+        for i, uuid in enumerate(msg.uuids):
+            if uuid not in self._temp_traj:
+                self._temp_traj[uuid] = Trajectory(uuid)
+            self._temp_traj[uuid].append_pose(
+                msg.poses[i], msg.header, self.robot_pose, True
+            )
 
-        for uuid in self.traj:
-            if len(self.traj[uuid].humrobpose) < mframe and uuid not in untraj:
-                untraj.append(uuid)
+        self.traj.update({
+            uuid: traj
+            for uuid, traj in self._temp_traj.iteritems()
+            if len(traj.humrobpose) >= 20}
+        )
+        self.check_completeness()
 
-        rospy.loginfo("Deleting noisy data...")
-        for i, uuid in enumerate(untraj):
-            del self.traj[uuid]
+    # check complete trajectories from _temp_traj and validate
+    # those complete trajectories
+    def check_completeness(self):
+        cur_time = rospy.Time.now()
+        for uuid, t in self.traj.items():
+            delta = cur_time - t.humrobpose[-1][0].header.stamp
+            if delta.secs >= 5:
+                temp = self._validate_trajectories({uuid: t})
+                if temp != {}:
+                    self.complete_traj[uuid] = temp[uuid]
+
+                del self.traj[uuid]
+                del self._temp_traj[uuid]
+
+
+class OfflineTrajectories(Trajectories):
+
+    def __init__(self, query=None, size=10000):
+        self.query = query
+        self.size = size
+        self.start_secs = -1
+        self.client = pymongo.MongoClient(
+            rospy.get_param("mongodb_host", "localhost"),
+            rospy.get_param("mongodb_port", 62345)
+        )
+        # calling superclass
+        Trajectories.__init__(self)
+
+        self.from_people_trajectory = self._retrieve_logs()
+
+        if self.from_people_trajectory is None:
+            rospy.loginfo("Too much data. Needs re-running.")
+
+        elif not self.from_people_trajectory:
+            rospy.loginfo("Validating data...")
+            self.traj = self._validate_trajectories(self.traj)
+            rospy.loginfo("Data is ready...")
 
     # construct trajectories based on data from people_perception collection
-    def _construct_from_people_perception(self):
+    def _construct_from_people_perception(self, logs):
         rospy.loginfo("Constructing data from people perception...")
-        logs = self._client.message_store.people_perception.find()
         for log in logs:
             for i, uuid in enumerate(log['uuids']):
                 if uuid not in self.traj:
-                    t = Trajectory(uuid)
-                    t.append_pose(log['people'][i],
-                                  log['header']['stamp']['secs'],
-                                  log['header']['stamp']['nsecs'],
-                                  log['robot'])
-                    self.traj[uuid] = t
-                else:
-                    t = self.traj[uuid]
-                    t.append_pose(log['people'][i],
-                                  log['header']['stamp']['secs'],
-                                  log['header']['stamp']['nsecs'],
-                                  log['robot'])
+                    self.traj[uuid] = Trajectory(uuid)
+                header = Header(
+                    log['header']['seq'],
+                    rospy.Time(log['header']['stamp']['secs'],
+                               log['header']['stamp']['nsecs']),
+                    log['header']['frame_id']
+                )
+                human_pose = Pose(
+                    Point(log['people'][i]['position']['x'],
+                          log['people'][i]['position']['y'],
+                          log['people'][i]['position']['z']),
+                    Quaternion(log['people'][i]['orientation']['x'],
+                               log['people'][i]['orientation']['y'],
+                               log['people'][i]['orientation']['z'],
+                               log['people'][i]['orientation']['w'])
+                )
+                robot_pose = Pose(
+                    Point(log['robot']['position']['x'],
+                          log['robot']['position']['y'],
+                          log['robot']['position']['z']),
+                    Quaternion(log['robot']['orientation']['x'],
+                               log['robot']['orientation']['y'],
+                               log['robot']['orientation']['z'],
+                               log['robot']['orientation']['w']))
+                self.traj[uuid].append_pose(human_pose, header, robot_pose)
+
                 if self.start_secs == -1 or \
                         log['header']['stamp']['secs'] < self.start_secs:
                     self.start_secs = log['header']['stamp']['secs']
@@ -74,8 +137,11 @@ class Trajectories(object):
         rospy.loginfo("Constructing data from people trajectory...")
         for log in logs:
             t = Trajectory(str(log['uuid']))
-            t.length = log['trajectory_length']
+            t.length = [0.0 for i in range(len(log['robot']))]
+            t.length[-1] = log['trajectory_length']
             t.sequence_id = log['sequence_id']
+            t._meta = log['_meta']
+
             robot_pose = [
                 Pose(
                     Point(i['position']['x'],
@@ -103,6 +169,13 @@ class Trajectories(object):
                                    i['pose']['orientation']['w'])))
                 for i in log['trajectory']
             ]
+
+            t.trajectory_displacement = math.hypot(
+                (human_pose[0].pose.position.x - human_pose[-1].pose.position.x),
+                (human_pose[0].pose.position.y - human_pose[-1].pose.position.y)
+                )
+            t.displacement_pose_ratio = t.trajectory_displacement / float(len(human_pose))
+
             t.humrobpose = zip(human_pose, robot_pose)
             self.traj[log['uuid']] = t
             traj_start = log['trajectory'][0]['header']['stamp']['secs']
@@ -111,21 +184,26 @@ class Trajectories(object):
 
     # retrieve trajectory from mongodb
     def _retrieve_logs(self):
-        rospy.loginfo("Retrieving data from mongodb...")
-        people_traj = self._client.message_store.people_trajectory.find()
-        if people_traj.count() > 0:
-            uuid = [
-                people_traj[random.randint(0, people_traj.count()-1)]['uuid']
-                for i in range(5)
-            ]
-            temp = [{"uuids": i} for i in uuid]
-            logs = self._client.message_store.people_perception.find(
-                {"$or": temp},
-                {"uuids": 1}
-            )
-            if logs.count() > 0:
-                self._construct_from_people_trajectory(people_traj)
-                self.from_people_trajectory = True
-                return
+        rospy.loginfo("Getting trajectories from database with query %s" % self.query)
+        total_traj = self.client.message_store.people_trajectory.find(self.query).count()
+        rospy.loginfo("Number of trajs returned = %s " % total_traj)
+        if int(total_traj) > self.size:
+            rospy.logwarn("Total trajectories retrieved is greater than %d" % self.size)
+            rospy.loginfo("Limiting the retrieved trajectories to %d..." % self.size)
+        people_traj = self.client.message_store.people_trajectory.find(self.query).limit(self.size)
 
-        self._construct_from_people_perception()
+        if people_traj.count() > 0:
+            self._construct_from_people_trajectory(people_traj)
+            # if data comes from people_trajectory db then the data
+            # has been validated
+            return True
+
+        rospy.loginfo("No data in people trajectory collection, looking data in people perception collection...")
+        total_poses = self.client.message_store.people_perception.find(self.query).count()
+        if int(total_poses) > self.size * 100:
+            rospy.logwarn("Total poses retrieved is greater than %d" % (self.size * 100))
+            rospy.loginfo("Limiting the retrieved poses to %d..." % (self.size * 100))
+        logs = self.client.message_store.people_perception.find(self.query).limit(self.size * 100)
+
+        self._construct_from_people_perception(logs)
+        return False

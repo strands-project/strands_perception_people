@@ -2,6 +2,75 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2016-02-01)
+------------------
+
+1.2.1 (2016-01-28)
+------------------
+
+1.2.0 (2015-11-11)
+------------------
+* Adding missing tf include
+* Renaming directories in bayes_people_tracker. Before this the header files were not installed correctly.
+  Also creating a a new cals dedictaed to creating the human marker for rviz. Will be used in people_tracker_filter.
+* Merge pull request `#169 <https://github.com/strands-project/strands_perception_people/issues/169>`_ from cdondrup/velo_message
+  Adding the velocity of detect people to PeopleTracker message
+* Adding mygrate.py and missing install targets.
+* Adding rule to migrate rosbags to new message format
+* Adding velocities of detected people as a geometry_msgs/Vector3 to PeopleTracker message
+* Contributors: Christian Dondrup, Marc Hanheide
+
+1.1.8 (2015-09-03)
+------------------
+
+1.1.6 (2015-06-24)
+------------------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Contributors: Jenkins
+
+1.1.5 (2015-05-22)
+------------------
+
+1.1.4 (2015-05-10)
+------------------
+
+1.1.3 (2015-04-10)
+------------------
+
+1.1.2 (2015-04-07)
+------------------
+
+1.1.1 (2015-04-03)
+------------------
+
+1.0.0 (2015-03-10)
+------------------
+* Nicer print
+* Adding ability to switch between Extended and Unscented Kalman Filter
+* Making simple_tracking template based.
+* Changed config file structure and made necessary changes to the code.
+* Adding pose, pose_array and people publishers to connection callback.
+* * Publishing a pose array for all detected people to have more generic output
+  * Added missing bayes tracker parameters to launch files and READMEs
+  * Starting the mdl tracker is now optional when using the robot launch file. `with_mdl_tracker=true` starts the mdl tracker in addition to the bayes tracker. Default is `false`
+* forgot (again) to change default detector.yaml in bayes_people_tracker
+* adding visualization to rviz via nav_msgs/Path
+* Contributors: Christian Dondrup, Ferdian Jovan
+
+0.1.4 (2015-03-06)
+------------------
+* Publishin people_msgs/People and adding orientation.
+* forgot to undo my config for detectors.yaml in bayes_people_tracker
+* provide online stitching poses into trajectories
+* add online trajectory construction from /people_tracker/positions
+* Contributors: Christian Dondrup, Ferdian Jovan
+
+0.1.3 (2015-02-25)
+------------------
+
 0.1.1 (2015-02-18)
 ------------------
 

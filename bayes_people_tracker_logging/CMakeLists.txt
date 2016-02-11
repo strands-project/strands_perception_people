@@ -23,6 +23,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
     FILES
     Logging.msg
+    PeopleTrackerLogging.msg
 )
 
 generate_messages(
@@ -38,7 +39,7 @@ generate_messages(
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     bayes_people_tracker
     geometry_msgs
     mongodb_store
@@ -53,6 +54,7 @@ catkin_package(
 
 install(PROGRAMS
   scripts/save_locations.py
+  scripts/migrate.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

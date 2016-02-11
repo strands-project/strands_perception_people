@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
     bayes_tracking
     geometry_msgs
     message_generation
+    people_msgs
     roscpp
     std_msgs
     tf
@@ -49,7 +50,7 @@ include_directories(
 )
 
 add_executable(bayes_people_tracker
-  src/people_tracker/people_tracker.cpp
+  src/bayes_people_tracker/people_tracker.cpp
 )
 
 add_dependencies(bayes_people_tracker ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
@@ -80,5 +81,9 @@ install(DIRECTORY launch
 )
 
 install(DIRECTORY config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(DIRECTORY share
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

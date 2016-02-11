@@ -453,7 +453,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
     Camera camera = createCamera(GP, vo, info);
 
     // Get detections from upper body
-    Vector<double> single_detection(9);
+    Vector<double> single_detection(10);
     Vector<Vector< double > > detected_bounding_boxes;
 
     for(int i = 0; i < upper->pos_x.size(); i++)
@@ -467,15 +467,21 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         single_detection(6) = upper->width[i];
         single_detection(7) = upper->height[i] * 3;
         single_detection(8) = upper->median_depth[i];
+        single_detection(9) = (double) upper->header.seq; // saving the seq. nr.
         detected_bounding_boxes.pushBack(single_detection);
     }
 
     get_image((unsigned char*)(&color->data[0]),info->width,info->height,cim);
-    ///////////////////////////////////////////TRACKING///////////////////////////
 
+
+
+    /////////////////////////////////// TRACKING METHOD //////////////////////////
     tracker.process_tracking_oneFrame(HyposAll, *det_comb, cnt, detected_bounding_boxes, cim, camera);
-    Vector<Hypo> hyposMDL = tracker.getHyposMDL();
+    //////////////////////////////////////////////////////////////////////////////
 
+
+
+    Vector<Hypo> hyposMDL = tracker.getHyposMDL();
 
     MdlPeopleTrackerArray allHypoMsg;
     allHypoMsg.header = upper->header;
@@ -504,6 +510,13 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         oneHypoMsg.score = hyposMDL(i).getScoreMDL();
         oneHypoMsg.speed = hyposMDL(i).getSpeed();
         hyposMDL(i).getDir(dir);
+
+
+        for(int j=0; j < hyposMDL(i).getUbdSeqNr().size(); j++){
+        	oneHypoMsg.index.push_back(hyposMDL(i).getUbdIndex().at(j));
+        	oneHypoMsg.seq.push_back(hyposMDL(i).getUbdSeqNr().at(j));
+        }
+
 
         oneHypoMsg.dir.push_back(dir(0));
         oneHypoMsg.dir.push_back(dir(1));

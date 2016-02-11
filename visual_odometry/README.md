@@ -5,7 +5,7 @@ This package calculates the visual odometry using depth and mono images.
 Parameters:
 * `queue_size` _default = 20_: The synchronisation queue size
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
-* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `depth_image` _default = /depth/image_rect_: `camera_namespace` + `depth_image` = depth image topic
 * `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
 * `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
 * `motion_parameters` _default = /visual_odometry/motion_matrix_: The visual odometry

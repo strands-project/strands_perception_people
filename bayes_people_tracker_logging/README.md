@@ -13,3 +13,9 @@ Run with:
 Parameters:
 * `log`: _Default: true_ This convenience parameter allows to start the whole system without logging the data
 
+## Updating old database entries
+
+This assumes that your `mongodb_store` is running.
+
+With version >1.1.8 the message type of the people tracker has been changed to include the velocities of humans as a Vector3. To update old database entries just run `rosrun bayes_people_tracker_logging migrate.py` which will update entries in place. Please be careful and create a copy of the `people_perception` collection in the message store before running this.
+

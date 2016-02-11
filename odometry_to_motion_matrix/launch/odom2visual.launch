@@ -6,7 +6,7 @@
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
 
-    <node pkg="odometry_to_motion_matrix" type="odom2visual" name="odom2visual" output="log">
+    <node pkg="odometry_to_motion_matrix" type="odom2visual" name="odom2visual" output="log" respawn="true">
         <param name="odom" value="$(arg odom)" type="string"/>
         <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>
     </node>

@@ -132,7 +132,7 @@ int main(int argc, char **argv)
     private_node_handle_.param("queue_size", queue_size, int(5));
 
     private_node_handle_.param("camera_namespace", cam_ns, string("/head_xtion"));
-    private_node_handle_.param("depth_image", topic_depth_image, string("/depth/image_rect_meters"));
+    private_node_handle_.param("depth_image", topic_depth_image, string("/depth/image_rect"));
     topic_depth_image = cam_ns + topic_depth_image;
     private_node_handle_.param("camera_info_rgb", topic_camera_info, string("/rgb/camera_info"));
     topic_camera_info = cam_ns + topic_camera_info;

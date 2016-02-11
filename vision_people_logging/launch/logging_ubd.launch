@@ -1,0 +1,12 @@
+<launch>
+    <arg name="manager_topic" default=""/>
+
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER)" user="$(arg user)" default="true"/>
+    <node pkg="vision_people_logging" type="save_ubd.py" name="save_ubd" output="log" respawn="true">
+        <param name="manager_topic" value="$(arg manager_topic)"/>
+    </node>
+
+</launch>

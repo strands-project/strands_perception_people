@@ -2,6 +2,66 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2016-02-01)
+------------------
+
+1.2.1 (2016-01-28)
+------------------
+
+1.2.0 (2015-11-11)
+------------------
+
+1.1.8 (2015-09-03)
+------------------
+
+1.1.6 (2015-06-24)
+------------------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Fixing error length problem in get_trajectory_message function, making visualisation adaptive to the length of poses (preventing error),
+  Add the option to choose trajectories from a specific map.
+* Contributors: Ferdian Jovan, Jenkins
+
+1.1.5 (2015-05-22)
+------------------
+
+1.1.4 (2015-05-10)
+------------------
+* forgot to add launch folder
+* add launch file, add logging_manager permission, add restriction to post trajectories longer than 1 pose.
+* add logging manager, fix fluctuating cpu usage
+* Contributors: Ferdian Jovan
+
+1.1.3 (2015-04-10)
+------------------
+
+1.1.2 (2015-04-07)
+------------------
+
+1.1.1 (2015-04-03)
+------------------
+
+1.0.0 (2015-03-10)
+------------------
+* keep visualization for 1 min
+* forgot (again) to change default detector.yaml in bayes_people_tracker
+* adding visualization to rviz via nav_msgs/Path
+* Contributors: Ferdian Jovan
+
+0.1.4 (2015-03-06)
+------------------
+* provide online stitching poses into trajectories
+* Merge branch 'indigo-devel' of https://github.com/strands-project/strands_perception_people into indigo-devel
+* add online trajectory construction from /people_tracker/positions
+* Contributors: Ferdian Jovan
+
+0.1.3 (2015-02-25)
+------------------
+* polish code, change message that is stored, remove store_to_database option
+* Contributors: Ferdian Jovan
+
 0.1.2 (2015-02-20)
 ------------------
 * Fixing my sed mistakes and the install targets for human_trajectory.

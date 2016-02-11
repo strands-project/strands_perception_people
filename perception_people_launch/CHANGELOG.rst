@@ -2,6 +2,68 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2016-02-01)
+------------------
+* Adding people_tracker_filter to run dependencies of meta and launch package.
+* Contributors: Christian Dondrup
+
+1.2.1 (2016-01-28)
+------------------
+* Changing default topic name for use with openni2
+* Contributors: Christian Dondrup
+
+1.2.0 (2015-11-11)
+------------------
+* Adding new parameters to readme file.
+* Adding people tracker filter to overall launch file. Is started by default using the map provided on `/map`.
+  If not subscribed to, will not use any CPU.
+* Contributors: Christian Dondrup
+
+1.1.8 (2015-09-03)
+------------------
+* Adding parameter description to README
+* Fixing config file location
+* Adding laser filters to the launch file to get rid of false psoitives by the leg detector.
+* Contributors: Christian Dondrup
+
+1.1.6 (2015-06-24)
+------------------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Contributors: Jenkins
+
+1.1.5 (2015-05-22)
+------------------
+
+1.1.4 (2015-05-10)
+------------------
+
+1.1.3 (2015-04-10)
+------------------
+* Adding logging manager topic to overall launch file
+* Contributors: Christian Dondrup
+
+1.1.2 (2015-04-07)
+------------------
+
+1.1.1 (2015-04-03)
+------------------
+
+1.0.0 (2015-03-10)
+------------------
+* * Publishing a pose array for all detected people to have more generic output
+  * Added missing bayes tracker parameters to launch files and READMEs
+  * Starting the mdl tracker is now optional when using the robot launch file. `with_mdl_tracker=true` starts the mdl tracker in addition to the bayes tracker. Default is `false`
+* Contributors: Christian Dondrup
+
+0.1.4 (2015-03-06)
+------------------
+
+0.1.3 (2015-02-25)
+------------------
+
 0.1.1 (2015-02-18)
 ------------------
 

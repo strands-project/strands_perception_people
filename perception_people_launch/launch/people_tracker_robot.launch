@@ -8,49 +8,45 @@
     <arg name="ptu_state" default="/ptu/state" />
     <arg name="camera_namespace" default="/head_xtion" />
     <arg name="rgb_image" default="/rgb/image_rect_color" />
-    <arg name="depth_image" default="/depth/image_rect_meters" />
+    <arg name="depth_image" default="/depth/image_rect" />
     <arg name="mono_image" default="/rgb/image_mono" />
     <arg name="camera_info_rgb" default="/rgb/camera_info" />
     <arg name="camera_info_depth" default="/depth/camera_info" />
-    /*<arg name="odom" default="/odom" />*/
+    <arg name="odom" default="/odom" />
     <arg name="ground_plane" default="/ground_plane" />
     <arg name="upper_body_detections" default="/upper_body_detector/detections" />
     <arg name="upper_body_bb_centres" default="/upper_body_detector/bounding_box_centres" />
     <arg name="upper_body_markers" default="/upper_body_detector/marker_array" />
     <arg name="upper_body_image" default="/upper_body_detector/image" />
     <arg name="visual_odometry" default="/visual_odometry/motion_matrix" />
-    <arg name="people_array" default="/mdl_people_tracker/people_array" />
-    <arg name="people_markers" default="/mdl_people_tracker/marker_array" />
-    <arg name="people_poses" default="/mdl_people_tracker/pose_array" />
-    <arg name="people_image" default="/mdl_people_tracker/image" />
+    <arg name="mdl_people_array" default="/mdl_people_tracker/people_array" />
+    <arg name="mdl_people_markers" default="/mdl_people_tracker/marker_array" />
+    <arg name="mdl_people_poses" default="/mdl_people_tracker/pose_array" />
+    <arg name="mdl_people_image" default="/mdl_people_tracker/image" />
     <arg name="tf_target_frame" default="/map" />
-    <arg name="pd_positions" default="/people_tracker/positions" />
-    <arg name="pd_marker" default="/people_tracker/marker_array" />
+    <arg name="bayes_people_param_file" default="$(find bayes_people_tracker)/config/detectors.yaml" />
+    <arg name="bayes_people_positions" default="/people_tracker/positions" />
+    <arg name="bayes_people_pose" default="/people_tracker/pose" />
+    <arg name="bayes_people_pose_array" default="/people_tracker/pose_array" />
+    <arg name="bayes_people_people" default="/people_tracker/people" />
+    <arg name="bayes_people_marker" default="/people_tracker/marker_array" />
     <arg name="scan" default="/scan" />
+    <arg name="with_mdl_tracker" default="false"/>
     <arg name="log" default="false" />
+    <arg name="manager_topic" default="" />
+    <arg name="with_laser_filter" default="true"/>
+    <arg name="with_tracker_filter_map" default="false" />
+    <arg name="tracker_filter_positions" default="/people_tracker_filter/positions" />
+    <arg name="tracker_filter_pose" default="/people_tracker_filter/pose" />
+    <arg name="tracker_filter_pose_array" default="/people_tracker_filter/pose_array" />
+    <arg name="tracker_filter_people" default="/people_tracker_filter/people" />
+    <arg name="tracker_filter_marker" default="/people_tracker_filter/marker_array" />
 
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
-    <!-- Visual Odometry 
-    <include file="$(find visual_odometry)/launch/visual_odometry.launch">
-        <arg name="machine" value="$(arg machine)"/>
-        <arg name="user" value="$(arg user)"/>
-        <arg name="queue_size" value="$(arg vo_queue_size)"/>
-        <arg name="camera_namespace" value="$(arg camera_namespace)"/>
-        <arg name="motion_parameters" value="$(arg visual_odometry)"/>
-    </include> -->
-
-    <!-- Odometry -->
-    <include file="$(find odometry_to_motion_matrix)/launch/odom2visual.launch">
-        <arg name="machine" value="$(arg machine)"/>
-        <arg name="user" value="$(arg user)"/>
-        <arg name="odom" value="$(arg odom)"/>
-        <arg name="motion_parameters" value="$(arg visual_odometry)"/>
-    </include>
-
     <!-- Ground Plane - fixed -->
     <include file="$(find ground_plane_estimation)/launch/ground_plane_fixed.launch">
         <arg name="machine" value="$(arg machine)"/>
@@ -77,32 +73,46 @@
         <arg name="ground_plane" value="$(arg ground_plane)"/>
     </include>
 
-    <!-- Pedestrian Tracking -->
-    <include file="$(find mdl_people_tracker)/launch/mdl_people_tracker.launch">
-        <arg name="machine" value="$(arg machine)"/>
-        <arg name="user" value="$(arg user)"/>
-        <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
-        <arg name="queue_size" value="$(arg pt_queue_size)"/>
-        <arg name="camera_namespace" value="$(arg camera_namespace)"/>
-        <arg name="rgb_image" value="$(arg rgb_image)"/>
-        <arg name="camera_info_rgb" value="$(arg camera_info_rgb)"/>
-        <arg name="ground_plane" value="$(arg ground_plane)"/>
-        <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
-        <arg name="visual_odometry" value="$(arg visual_odometry)"/>
-        <arg name="people_array" value="$(arg people_array)"/>
-        <arg name="people_image" value="$(arg people_image)"/>
-        <arg name="people_markers" value="$(arg people_markers)"/>
-        <arg name="people_poses" value="$(arg people_poses)"/>
-        <arg name="target_frame" value="$(arg tf_target_frame)"/>
-    </include>
+    <group if="$(arg with_mdl_tracker)">
+        <!-- Odometry -->
+        <include file="$(find odometry_to_motion_matrix)/launch/odom2visual.launch">
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="user" value="$(arg user)"/>
+            <arg name="odom" value="$(arg odom)"/>
+            <arg name="motion_parameters" value="$(arg visual_odometry)"/>
+        </include>
+
+        <!-- Pedestrian Tracking -->
+        <include file="$(find mdl_people_tracker)/launch/mdl_people_tracker.launch">
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="user" value="$(arg user)"/>
+            <arg name="load_params_from_file" value="$(arg load_params_from_file)"/>
+            <arg name="queue_size" value="$(arg pt_queue_size)"/>
+            <arg name="camera_namespace" value="$(arg camera_namespace)"/>
+            <arg name="rgb_image" value="$(arg rgb_image)"/>
+            <arg name="camera_info_rgb" value="$(arg camera_info_rgb)"/>
+            <arg name="ground_plane" value="$(arg ground_plane)"/>
+            <arg name="upper_body_detections" value="$(arg upper_body_detections)"/>
+            <arg name="visual_odometry" value="$(arg visual_odometry)"/>
+            <arg name="people_array" value="$(arg mdl_people_array)"/>
+            <arg name="people_image" value="$(arg mdl_people_image)"/>
+            <arg name="people_markers" value="$(arg mdl_people_markers)"/>
+            <arg name="people_poses" value="$(arg mdl_people_poses)"/>
+            <arg name="target_frame" value="$(arg tf_target_frame)"/>
+        </include>
+    </group>
 
     <!-- People Tracker -->
     <include file="$(find bayes_people_tracker)/launch/people_tracker.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
+        <arg name="param_file" value="$(arg bayes_people_param_file)"/>
         <arg name="target_frame" value="$(arg tf_target_frame)"/>
-        <arg name="positions" value="$(arg pd_positions)"/>
-        <arg name="marker" value="$(arg pd_marker)"/>
+        <arg name="positions" value="$(arg bayes_people_positions)"/>
+        <arg name="pose" value="$(arg bayes_people_pose)"/>
+        <arg name="pose_array" value="$(arg bayes_people_pose_array)"/>
+        <arg name="people" value="$(arg bayes_people_people)"/>
+        <arg name="marker" value="$(arg bayes_people_marker)"/>
     </include>
 
     <!-- To PoseArray -->
@@ -112,15 +122,65 @@
     </include>
     
     <!-- Leg Detector -->
-    <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" output="screen">
-        <param name="fixed_frame" type="string" value="odom" />
-    </node>
+    <group if="$(arg with_laser_filter)">
+        <node pkg="laser_filters" type="scan_to_scan_filter_chain" respawn="true" name="laser_filter">
+            <rosparam command="load" file="$(find map_laser)/filters.yaml" />
+        </node>
+        <node pkg="map_laser" type="filter.py" name="map_laser_filter" respawn="true" output="screen"/>
+        <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=/base_scan_filter $(find leg_detector)/config/trained_leg_detector.yaml" respawn="true" output="screen">
+            <param name="fixed_frame" type="string" value="odom" />
+        </node>
+    </group>
+    <group unless="$(arg with_laser_filter)">
+        <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=$(arg scan) $(find leg_detector)/config/trained_leg_detector.yaml" respawn="true" output="screen">
+            <param name="fixed_frame" type="string" value="odom" />
+        </node>
+    </group>
+
+    <!-- People Tracker Filter -->
+    <group if="$(arg with_tracker_filter_map)">
+        <arg name="tracker_filter_map"/>
+        <include file="$(find people_tracker_filter)/launch/filter.launch">
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="user" value="$(arg user)"/>
+            <arg name="with_ppl_map" value="$(arg with_tracker_filter_map)"/>
+            <arg name="map" value="$(arg tracker_filter_map)"/>
+            <arg name="positions" value="$(arg bayes_people_positions)"/>
+            <arg name="pose" value="$(arg bayes_people_pose)"/>
+            <arg name="pose_array" value="$(arg bayes_people_pose_array)"/>
+            <arg name="people" value="$(arg bayes_people_people)"/>
+            <arg name="filtered_positions" value="$(arg tracker_filter_positions)"/>
+            <arg name="filtered_pose" value="$(arg tracker_filter_pose)"/>
+            <arg name="filtered_pose_array" value="$(arg tracker_filter_pose_array)"/>
+            <arg name="filtered_people" value="$(arg tracker_filter_people)"/>
+            <arg name="filtered_marker" value="$(arg tracker_filter_marker)"/>
+        </include>
+    </group>
+    <group unless="$(arg with_tracker_filter_map)">
+        <include file="$(find people_tracker_filter)/launch/filter.launch">
+            <arg name="machine" value="$(arg machine)"/>
+            <arg name="user" value="$(arg user)"/>
+            <arg name="with_ppl_map" value="$(arg with_tracker_filter_map)"/>
+            <arg name="positions" value="$(arg bayes_people_positions)"/>
+            <arg name="pose" value="$(arg bayes_people_pose)"/>
+            <arg name="pose_array" value="$(arg bayes_people_pose_array)"/>
+            <arg name="people" value="$(arg bayes_people_people)"/>
+            <arg name="filtered_positions" value="$(arg tracker_filter_positions)"/>
+            <arg name="filtered_pose" value="$(arg tracker_filter_pose)"/>
+            <arg name="filtered_pose_array" value="$(arg tracker_filter_pose_array)"/>
+            <arg name="filtered_people" value="$(arg tracker_filter_people)"/>
+            <arg name="filtered_marker" value="$(arg tracker_filter_marker)"/>
+        </include>
+    </group>
+    
     
     <!-- Logging -->
     <include file="$(find bayes_people_tracker_logging)/launch/logging.launch">
         <arg name="machine" value="$(arg machine)"/>
         <arg name="user" value="$(arg user)"/>
         <arg name="log" value="$(arg log)"/>
+        <arg name="manager_topic" value="$(arg manager_topic)"/>
+        <arg name="positions" value="$(arg tracker_filter_positions)"/>
     </include>
 
 </launch> 

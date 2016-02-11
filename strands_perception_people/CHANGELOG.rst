@@ -2,6 +2,54 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2016-02-01)
+------------------
+* Adding people_tracker_filter to run dependencies of meta and launch package.
+* Contributors: Christian Dondrup
+
+1.2.1 (2016-01-28)
+------------------
+
+1.2.0 (2015-11-11)
+------------------
+
+1.1.8 (2015-09-03)
+------------------
+
+1.1.6 (2015-06-24)
+------------------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Contributors: Jenkins
+
+1.1.5 (2015-05-22)
+------------------
+
+1.1.4 (2015-05-10)
+------------------
+
+1.1.3 (2015-04-10)
+------------------
+* Adding [vision_people_logging] to metapackage
+* Contributors: Christian Dondrup
+
+1.1.2 (2015-04-07)
+------------------
+
+1.1.1 (2015-04-03)
+------------------
+
+1.0.0 (2015-03-10)
+------------------
+
+0.1.4 (2015-03-06)
+------------------
+
+0.1.3 (2015-02-25)
+------------------
+
 0.1.1 (2015-02-18)
 ------------------
 * Merge pull request `#132 <https://github.com/strands-project/strands_perception_people/issues/132>`_ from cdondrup/opencv_warco

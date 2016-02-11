@@ -2,6 +2,64 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.3.0 (2016-02-01)
+------------------
+
+1.2.1 (2016-01-28)
+------------------
+
+1.2.0 (2015-11-11)
+------------------
+* Logging component logs the filtered output now.
+* Adding mygrate.py and missing install targets.
+* Contributors: Christian Dondrup
+
+1.1.8 (2015-09-03)
+------------------
+
+1.1.6 (2015-06-24)
+------------------
+* 1.1.5
+* updated changelogs
+* 1.1.4
+* updated changelogs
+* Contributors: Jenkins
+
+1.1.5 (2015-05-22)
+------------------
+
+1.1.4 (2015-05-10)
+------------------
+
+1.1.3 (2015-04-10)
+------------------
+* Merge branch 'indigo-devel' of http://github.com/strands-project/strands_perception_people into topolog
+  Conflicts:
+  bayes_people_tracker_logging/launch/logging.launch
+* Adjusting code and loaunch files of logging nodes for proper use of manager topic.
+* Adding topological information to ppl logging
+  Closes `#113 <https://github.com/strands-project/strands_perception_people/issues/113>`_
+  Needs testing
+* Contributors: Christian Dondrup
+
+1.1.2 (2015-04-07)
+------------------
+* Copy and paste error
+  d'oh
+* Contributors: Christian Dondrup
+
+1.1.1 (2015-04-03)
+------------------
+
+1.0.0 (2015-03-10)
+------------------
+
+0.1.4 (2015-03-06)
+------------------
+
+0.1.3 (2015-02-25)
+------------------
+
 0.1.1 (2015-02-18)
 ------------------
 

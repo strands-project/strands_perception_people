@@ -10,7 +10,7 @@
     <include file="$(find ground_plane_estimation)/launch/ground_plane_fixed.launch"/>
     <include file="$(find upper_body_detector)/launch/upper_body_detector.launch"/>
 
-    <node pkg="strands_head_orientation" type="store_detections" name="store_detections" output="screen">
+    <node pkg="strands_head_orientation" type="store_detections" name="store_detections" output="screen" respawn="true">
         <param name="queue_size" value="$(arg queue_size)" type="int"/>
         <param name="camera_namespace" value="$(arg camera_namespace)" type="string"/>
         <param name="upper_body_detections" value="$(arg upper_body_detections)" type="string"/>
