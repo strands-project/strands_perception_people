@@ -1,9 +1,28 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package people_tracker_emulator
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package wheelchair_detector
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Forthcoming
 -----------
+* Added install target.
+* Fixed a typo in the package.xml
+* Fixed version
+* Added some more info to the README file.
+* Added a quick readme for the wheelchair detector.
+* Initial commit of a wheelchair detection dummy node.
+  This node currently only published a pose array for every scan filled with dummy detections.
+  It is only here for interface defenitions and integration purposes.
+* Contributors: Alexander Hermans
+
+* Added install target.
+* Fixed a typo in the package.xml
+* Fixed version
+* Added some more info to the README file.
+* Added a quick readme for the wheelchair detector.
+* Initial commit of a wheelchair detection dummy node.
+  This node currently only published a pose array for every scan filled with dummy detections.
+  It is only here for interface defenitions and integration purposes.
+* Contributors: Alexander Hermans
 
 1.3.0 (2016-02-01)
 ------------------
@@ -13,20 +32,12 @@ Forthcoming
 
 1.2.0 (2015-11-11)
 ------------------
-* Merge pull request `#169 <https://github.com/strands-project/strands_perception_people/issues/169>`_ from cdondrup/velo_message
-  Adding the velocity of detect people to PeopleTracker message
-* Adding option to create new uuid in emulator via service call.
-* Smoothing velocity and ensuring the same publishing rate as for the people tracker.
-* Using new PeopleTracker message in emulator + code clean-up
-* Contributors: Christian Dondrup, Marc Hanheide
 
 1.1.8 (2015-09-03)
 ------------------
 
 1.1.7 (2015-08-25)
 ------------------
-* Adding an emulator for the bayes people tracker
-* Contributors: Christian Dondrup
 
 1.1.6 (2015-06-24)
 ------------------
