@@ -119,7 +119,5 @@ add_dependencies(rwth_upper_body_skeleton_random_walk_node rwth_upper_body_skele
 ## Mark cpp header files for installation
  install(DIRECTORY launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(DIRECTORY config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 
