@@ -1,8 +1,5 @@
 <launch>
 
-<include file ="$(find ground_plane_estimation)/launch/ground_plane_fixed.launch"/>
-<include file ="$(find upper_body_detector)/launch/upper_body_detector.launch"/>
-
 <arg name="model_path" default="$(find rwth_upper_body_skeleton_random_walk)/Model/" />
 <arg name="depth_image_msg" default="/head_xtion/depth/image_rect_meters" />
 <arg name="rgb_image_msg" default="/head_xtion/rgb/image_rect_color" />

@@ -14,7 +14,8 @@ Use the following launchfile for launching:
 roslaunch rwth_upper_body_skeleton_random_walk fixed.launch 
 
 ```
-The above launch files also starts ground plane estimator and and upper body detector. The skeleton detector requires the output of the upper body detector as a starting point for rough person segmentation from background and will not work if upper bodies are not detected.
+
+The skeleton detector requires the output of the upper body detector as a starting point for rough person segmentation from background and will not work if upper bodies are not detected.
 
 
 Run
@@ -25,7 +26,8 @@ Dependencies
 
 This node needs `upper_body_detector/upper_body_detector.launch` to run,
 which in turn needs `ground_plane_estimation/ground_plane_fixed.launch`.
-However, both of the dependies are launched by the above launch file.
+
+
 
 Parameters
 ----------
