@@ -36,37 +36,7 @@ unsigned bone_colors[8][3] = {{0,0,255},{0,0,255},{255,0,255},{255,0,0},{0,255,0
 FOREST f(9,640,480);
 
 
-void frames_to_file(const cv::Mat &im,std::vector<float> &bounding_box)
-{
-    ROS_INFO("Writing frame : %d", (int) im_counter);
-    //counter++;
-    size_t N;
-    char filepath[200];
-    std::ofstream myfile;
 
-    //cv::Mat out;
-    //cv::cvtColor(im, out, CV_RGB2BGR);
-    im_counter++;
-    sprintf(filepath,"/home/mmp/catkin_ws/data/images/image_%d.txt",im_counter);
-    //cv::imwrite(filepath,im);
-    myfile.open (filepath);
-    for (unsigned row = 0; row < im.rows; row++)
-     {
-	for (unsigned col = 0; col < im.cols; col++)
-		{
-        		myfile << im.at<float>(row,col);
-			myfile << "\n";
-		}
-		
-      }
-    myfile.close();
-
-    sprintf(filepath,"/home/mmp/catkin_ws/data/images/bbox_%d.txt",im_counter);
-    myfile.open (filepath);
-    for (unsigned row = 0 ; row < 5; row++)
-    	myfile << bounding_box[row] << "\n";
-    myfile.close();
-}
 
  void render_bbox_with_skeleton(QImage& image,
                     int r, int g, int b, int lineWidth,
@@ -132,31 +102,6 @@ void frames_to_file(const cv::Mat &im,std::vector<float> &bounding_box)
 
 }
          
-
-
-void predictions_to_file(std::vector<std::vector<float> > &joints)
-{
-    ROS_INFO("Writing frame : %d", (int) counter);
-    //counter++;
-    size_t N;
-    char filepath[200];
-    std::ofstream myfile;
-    
-    sprintf(filepath,"/home/mmp/catkin_ws/data/images/video_5/prediction_%d.txt",counter);
-    myfile.open (filepath);
-    N = 9;
-    for (unsigned row = 0; row < N; row++)
-     {
-	
-        myfile << joints[row][0] << " " << joints[row][1] << " " << joints[row][2];
-	myfile << "\n";
-      }
-    myfile.close();
-
-    
-}
-
-
 
 
 void convert_to_2d(std::vector<std::vector<float> > &_3d_positions, std::vector<unsigned short> &_2d_positions)
@@ -230,7 +175,6 @@ void callback(const sensor_msgs::ImageConstPtr& depth , const sensor_msgs::Image
             std::vector<unsigned short> _2d_positions(18);
             
             convert_to_2d(max_scoring_joints, _2d_upper_body_skeletons[i]);
-            //predictions_to_file(max_scoring_joints); 
             upper_body_for_skeleton.push_back(i);  
             total_skeleton++;
             pub_3d_positions.publish(sk);
