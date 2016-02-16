@@ -35,18 +35,7 @@ unsigned bone_colors[8][3] = {{0,0,255},{0,0,255},{255,0,255},{255,0,0},{0,255,0
 
 FOREST f(9,640,480);
 
-//struct body_pose_inputs
-//{
-//    float depth_image[307200];
-//    float depths[50000];
-//    unsigned pixels_x[50000];
-//    unsigned pixels_y[50000];
-  //  unsigned start_x, end_x;
-  //  unsigned end_x, end_y; 
-//};
 
-
-//for debugging only
 void frames_to_file(const cv::Mat &im,std::vector<float> &bounding_box)
 {
     ROS_INFO("Writing frame : %d", (int) im_counter);
@@ -174,7 +163,6 @@ void convert_to_2d(std::vector<std::vector<float> > &_3d_positions, std::vector<
 {
 		
 	
-       // std::cout << "\n";
         unsigned _2d_counter = 0;
     	for (unsigned j = 0 ; j < 9 ; j = j + 1)
 	 {
@@ -182,16 +170,10 @@ void convert_to_2d(std::vector<std::vector<float> > &_3d_positions, std::vector<
 	    	unsigned short c2 = 640/2;
               unsigned row = (530 * _3d_positions[j][0])/_3d_positions[j][2] + c2;
 		unsigned col = (-530 *_3d_positions[j][1])/_3d_positions[j][2] + c1;
-		// myfile << srv.response.upper_body_skeleton_joint_positions[j];
-	//	 myfile << "," << srv.response.upper_body_skeleton_joint_positions[j+1];
-        //         myfile << "," << srv.response.upper_body_skeleton_joint_positions[j+2];
-        //         myfile <<"\n";
 		_2d_positions[_2d_counter++] = row;
 		_2d_positions[_2d_counter++] = col;
 
-                //myfile << row << "," << col << "\n";
-	}
-//	myfile.close();
+      }
  
 }
 
@@ -203,14 +185,10 @@ void convert_to_2d(std::vector<std::vector<float> > &_3d_positions, std::vector<
 void callback(const sensor_msgs::ImageConstPtr& depth , const sensor_msgs::ImageConstPtr& color, const upper_body_detector ::UpperBodyDetector::ConstPtr &upper)
 {
    
-    // reading the depth image from sensor in open_cv
     detection = 0;
     cv_bridge:: CvImageConstPtr cv_ptr;
-  //  cv_bridge:: CvImageConstPtr cv_ptr_color;
     cv_ptr = cv_bridge::toCvShare(depth);
-  //  cv_ptr_color = cv_bridge::toCvShare(color);
-  //  const cv::Mat &im_color = cv_ptr_color->image; 
-
+ 
     const cv::Mat &im = cv_ptr->image; 
     cv::Size s = cv_ptr->image.size();
     int rows = s.height;
@@ -227,8 +205,6 @@ void callback(const sensor_msgs::ImageConstPtr& depth , const sensor_msgs::Image
    std::vector<unsigned> upper_body_for_skeleton;
   
 
-   //ROS_INFO("N : %d",total_upper_bodies);
-   //std::cout << "\n";
   
    for (unsigned i =0 ; i < total_upper_bodies ; i++)
    	{ 
@@ -239,27 +215,12 @@ void callback(const sensor_msgs::ImageConstPtr& depth , const sensor_msgs::Image
                  continue;
             }
             
-    	   // size_t N = rows*cols;
-           // float depth_image[307200];	
-           // for (unsigned pixel = 0 ; pixel < N ; pixel++)
-           //       depth_image[pixel] = 0;
-           // float depths[20000];
-           // unsigned pixels_x[20000];
-           // unsigned pixels_y[20000];
-          
+    	  
             std::vector<float > bounding_box(5);    
             bounding_box[0] = upper->pos_x[i]; bounding_box[1] = upper->pos_y[i]; 
             bounding_box[2] = upper->width[i]; bounding_box[3] = upper->height[i];
             bounding_box[4] = upper->median_depth[i];
 
-            //pixels_x[0] = 0;
-	    //pixels_y[0] = 0;
-	    //depths[0] = 0;
-
-	    
-            //preprocessing(cv_ptr,bounding_box,depths,pixels_x,pixels_y,depth_image);
-           // if (counter == 116)
-           //     frames_to_file(im,bounding_box); 
             std::vector<std::vector<float> > max_scoring_joints(9,std::vector<float>(3));
             compute_upper_body_pose(im, f, bounding_box ,max_scoring_joints);
             for (unsigned joint = 0 ; joint < 9 ; joint++)
@@ -301,21 +262,21 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   //upper_body_skeleton_client = n.serviceClient<rwth_upper_body_skeleton_detector::GetUpperBodySkeleton>("/rwth_upper_body_skeleton_detector/get_upper_body_skeleton");
   image_transport::ImageTransport it(n); 
-  std::string forest_path;
+  std::string model_path;
   std::string depth_image_msg;
   std::string rgb_image_msg;
   std::string upper_body_msg;
   std::string pub_topic_pos; 
   
   ros::NodeHandle private_node_handle_("~");
-  private_node_handle_.param("forest_path", forest_path,std::string(""));
+  private_node_handle_.param("model_path", model_path,std::string(""));
   private_node_handle_.param("depth_image_msg", depth_image_msg,std::string(""));
   private_node_handle_.param("rgb_image_msg", rgb_image_msg,std::string(""));
   private_node_handle_.param("upper_body_msg", upper_body_msg,std::string(""));
   ROS_INFO("Starting upper_body_skeleton_detector....");
 
    //loading the forest
-  f.load_forest(forest_path); 
+  f.load_forest(model_path); 
 
 
   
