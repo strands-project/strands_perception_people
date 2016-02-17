@@ -120,4 +120,6 @@ add_dependencies(rwth_upper_body_skeleton_random_walk_node rwth_upper_body_skele
  install(DIRECTORY launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-
+install(DIRECTORY Model 
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
