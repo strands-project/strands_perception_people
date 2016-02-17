@@ -1,9 +1,28 @@
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package vision_people_logging
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Changelog for package rwth_upper_body_skeleton_random_walk
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Forthcoming
 -----------
+* rectified version number in right place
+* modified file
+* modified file
+* modified file
+* modified files
+* modified files
+* added install targets, Model and README file
+* added the ros node for upper body skeleton
+* Contributors: urafi, urfi
+
+* rectified version number in right place
+* modified file
+* modified file
+* modified file
+* modified files
+* modified files
+* added install targets, Model and README file
+* added the ros node for upper body skeleton
+* Contributors: urafi, urfi
 
 1.3.1 (2016-02-11)
 ------------------
@@ -13,8 +32,6 @@ Forthcoming
 
 1.2.1 (2016-01-28)
 ------------------
-* Changing default topic name for use with openni2
-* Contributors: Christian Dondrup
 
 1.2.0 (2015-11-11)
 ------------------
@@ -22,17 +39,11 @@ Forthcoming
 1.1.8 (2015-09-03)
 ------------------
 
+1.1.7 (2015-08-25)
+------------------
+
 1.1.6 (2015-06-24)
 ------------------
-* Revert "Fixing the wrong translation and rotation for the tf transformation"
-  This reverts commit decbc5566227adbc334df91046991d23df4bf643.
-* 1.1.5
-* updated changelogs
-* Fixing the wrong translation and rotation for the tf transformation
-* 1.1.4
-* updated changelogs
-* Fixing the wrong translation and rotation for the tf transformation
-* Contributors: Ferdian Jovan, Jenkins
 
 1.1.5 (2015-05-22)
 ------------------
@@ -42,9 +53,6 @@ Forthcoming
 
 1.1.3 (2015-04-10)
 ------------------
-* Changes according to comments by @lucasb-eyer
-* Adjusting code and loaunch files of logging nodes for proper use of manager topic.
-* Contributors: Christian Dondrup
 
 1.1.2 (2015-04-07)
 ------------------
@@ -54,10 +62,6 @@ Forthcoming
 
 1.1.0 (2015-04-02)
 ------------------
-* Increase slop because UBD publishes at 10hz.
-* Make use of the logging manager in `vision_people_logging`.
-* Added node for logging UpperBodyDetections (UBDs).
-* Contributors: lucasb-eyer
 
 1.0.0 (2015-03-10)
 ------------------
