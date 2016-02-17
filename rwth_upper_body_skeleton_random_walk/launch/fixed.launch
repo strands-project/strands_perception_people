@@ -1,0 +1,17 @@
+<launch>
+
+<arg name="model_path" default="$(find rwth_upper_body_skeleton_random_walk)/Model/" />
+<arg name="depth_image_msg" default="/head_xtion/depth/image_rect_meters" />
+<arg name="rgb_image_msg" default="/head_xtion/rgb/image_rect_color" />
+<arg name="upper_body_msg" default="/upper_body_detector/detections" />
+
+<node pkg="rwth_upper_body_skeleton_random_walk" type="rwth_upper_body_skeleton_random_walk_node" name="upper_body_skeleton_random_walk" output="screen">
+
+<param name="model_path" value="$(arg model_path)" type="string"/>
+<param name="depth_image_msg" value="$(arg depth_image_msg)" type="string"/>
+<param name="rgb_image_msg" value="$(arg rgb_image_msg)" type="string"/>
+<param name="upper_body_msg" value="$(arg upper_body_msg)" type="string"/>
+
+</node>
+
+</launch>
