@@ -25,7 +25,10 @@ class TrajectoryManager(object):
         self._with_logman = rospy.get_param("~with_logging_manager", "false")
 
         rospy.loginfo("Connecting to mongodb...")
-        self._store_client = MessageStoreProxy(collection="people_trajectory")
+        # self._store_client = MessageStoreProxy(collection="people_trajectory")
+        self._store_client = MessageStoreProxy(
+            collection=rospy.get_param("~collection_name", "people_trajectory")
+        )
 
         rospy.loginfo("Connecting to topological_map...")
         self._sub_topo = rospy.Subscriber(

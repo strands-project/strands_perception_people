@@ -3,6 +3,7 @@
     <arg name="path_visualisation" default="false"/>
     <arg name="online_construction" default="true"/>
     <arg name="tracker_topic" default="/people_tracker/positions"/>
+    <arg name="collection_name" default="people_trajectory"/>
     <arg name="logging_manager_topic" default="/logging_manager/log_stamped"/>
     <arg name="map_info" default=""/>
     <arg name="max_trajectories" default="10000"/>
@@ -18,6 +19,7 @@ name="human_trajectories" output="screen" respawn="true">
         <param name="path_visualisation" value="$(arg path_visualisation)" type="bool"/>
         <param name="online_construction" value="$(arg online_construction)" type="bool"/>
         <param name="tracker_topic" value="$(arg tracker_topic)" type="string"/>
+        <param name="collection_name" value="$(arg collection_name)" type="string"/>
         <param name="logging_manager_topic" value="$(arg logging_manager_topic)" type="string"/>
         <param name="map_info" value="$(arg map_info)" type="string"/>
         <param name="max_trajectories" value="$(arg max_trajectories)" type="int"/>

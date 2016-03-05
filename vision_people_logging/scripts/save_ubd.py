@@ -52,7 +52,7 @@ class SaveLocations():
             return
 
         # UBD publishes an empty message even when there's no detection.
-        if len(ubd_cent.poses) == 0:
+        if len(ubd_cent.poses) == 0 or len(ubd.median_depth) == 0:
             return
 
         self.counter += len(ubd_cent.poses)
