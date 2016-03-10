@@ -6,7 +6,7 @@ import DeepFried2 as df
 
 def slot(nin, nout, fs, bn=True):
     kw = {'bias': False if bn else df.init.const(0)}
-    conv = df.SpatialConvolution(nin, nout, (1,fs), border='valid', init=df.init.ortho_svd(), **kw)
+    conv = df.SpatialConvolutionCUDNN(nin, nout, (1,fs), border='valid', init=df.init.ortho_svd(), **kw)
     bn = df.BatchNormalization(nout)
     nl = df.ReLU()
     do = df.Dropout(0.25)
@@ -19,11 +19,11 @@ def mknet(bn, win_res):
     net.add(df.Reshape(-1, 1, 1, win_res))
     net.add(*slot(  1, 64, 5, bn))
     net.add(*slot( 64, 64, 5, bn))
-    net.add(df.SpatialMaxPooling((1,2)))
+    net.add(df.PoolingCUDNN((1,2)))
 
     net.add(*slot( 64, 128, 5, bn))
     net.add(*slot(128, 128, 3, bn))
-    net.add(df.SpatialMaxPooling((1,2)))
+    net.add(df.PoolingCUDNN((1,2)))
 
     net.add(*slot(128, 256, 5, bn))
     # Is now (X, 256, 1, 3)
