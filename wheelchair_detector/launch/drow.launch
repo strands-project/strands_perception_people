@@ -4,6 +4,7 @@
     <arg name="walker_detection_topic" default="/walker_detections"/>
     <arg name="class_agnostic_detection_topic" default="/mobility_aid_detections"/>
     <arg name="detection_threshold" default="0.5"/>
+    <arg name="use_cudnn" default="false" />
     <arg name="network_param_file" default="$(find wheelchair_detector)/resources/net-wcnet.npz"/>
 
     <arg name="machine" default="localhost"/>
@@ -17,6 +18,7 @@
         <param name="walker_detection_topic" value="$(arg walker_detection_topic)" type="string"/>
         <param name="class_agnostic_detection_topic" value="$(arg class_agnostic_detection_topic)" type="string"/>
         <param name="detection_threshold" value="$(arg detection_threshold)" type="double"/>
+        <param name="use_cudnn" value="$(arg use_cudnn)" type="bool"/>
         <param name="network_param_file" value="$(arg network_param_file)" type="string"/>
     </node>
 

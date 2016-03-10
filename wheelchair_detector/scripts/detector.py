@@ -72,8 +72,9 @@ def detector():
 
     #Load the network
     global network
+    use_cudnn = rospy.get_param(ns + 'use_cudnn', True)
     network_file = rospy.get_param(ns + 'network_param_file')
-    network = net.load_net_from_file(network_file)
+    network = net.load_net_from_file(network_file, cudnn=use_cudnn)
 
     #Create a publisher for the detections
     global publishers
