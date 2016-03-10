@@ -72,7 +72,8 @@ def detector():
 
     #Load the network
     global network
-    network = net.load_net_from_file('/work/beyer/trained-models/net-wcnet.npz')
+    network_file = rospy.get_param(ns + 'network_param_file')
+    network = net.load_net_from_file(network_file)
 
     #Create a publisher for the detections
     global publishers
