@@ -7,18 +7,18 @@ As input only a laser scan is needed (of type `LaserScan`). Currently there are 
 
 
 ## Params
-* `laser_topic` default: `\scan` the input laser scan.
+* `laser_topic` default: `/scan` the input laser scan.
 * `wheelchair_detection_topic` default: `/wheelchair_detections` the topics wheelchair detections will be published on.
 * `walker_detection_topic` default: `/walker_detections` the topics walker detections will be published on.
-* `class_agnostic_detection_topic` default: `'/mobility_aid_detections` the topic where both types of mobility aid detections will be published to jointly.
-* `threshold` default = `0.5` the detection threshold. This will increase the precision at the cost of recall and vice versa.
-* `use_cudnn`, default = `false` determines if we use cudnn for the convolutions. With is faster, but harder to setup. (see dependencies)
+* `class_agnostic_detection_topic` default: `/mobility_aid_detections` the topic where both types of mobility aid detections will be published to jointly.
+* `threshold` default: `0.5` the detection threshold. This will increase the precision at the cost of recall and vice versa.
+* `use_cudnn`, default: `false` determines if we use cudnn for the convolutions. With is faster, but harder to setup. (see dependencies)
 * `network_param_file` no default, the path to the network parameter file.
 
 ## Dependencies
 * A decent GPU (the ones on our side pcs will do :D)
 * CUDA (tested with 7.5 download here https://developer.nvidia.com/cuda-downloads)
-* CUDNN (HIGHLY RECOMMENDED, but optional. You need to register for this. download the archive, put it somewhere and export the correct paths for theano to find http://deeplearning.net/software/theano/library/sandbox/cuda/dnn.html)
+* CUDNN (Recommended, but optional. You need to register for this. download the archive, put it somewhere and export the correct paths for theano to find http://deeplearning.net/software/theano/library/sandbox/cuda/dnn.html This might result in a lower power consumption.)
 
 
 ## Running the detector
@@ -32,10 +32,10 @@ Once in order to get the model and setup the env do the following:
 * `$ pip install --upgrade git+git://github.com/Theano/Theano.git`
 * `$ pip install git+https://github.com/lucasb-eyer/DeepFried2.git`
 * `$ cd scripts`
-* `$ source get_network_parameter_file.sh`
+* `$ sh get_network_parameter_file.sh`
 
 
-In order to launch the node, you will need to source the environment and launch the node:
+In order to launch the node, you will need to source the environment before launching the node:
 * `$ roscd wheelchair_detector`
 * `$ source ros_dl_env/bin/activate`
 * `$ THEANO_FLAGS='cuda.root=/usr/local/cuda/,floatX=float32,device=gpu0' roslaunch wheelchair_detector drow.launch`
