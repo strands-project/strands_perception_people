@@ -85,7 +85,6 @@ def detector():
 
     #Subscribe to the laser scanner.
     rospy.Subscriber(laser_topic, sensor_msgs.msg.LaserScan, callback)
-    print('Wheelchair detector started.\nATTENTION! Funtionality is still missing.\nCurrently only random detections are published.')
 
     rospy.spin()
 
