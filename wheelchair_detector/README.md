@@ -8,17 +8,11 @@ As input only a laser scan is needed (of type `LaserScan`). Currently there are 
 
 ## Params
 * `laser_topic` default: `\scan` the input laser scan.
-*
-
-    wheelchair_detection_topic = rospy.get_param(ns + 'wheelchair_detection_topic', '/wheelchair_detections')
-    walker_detection_topic = rospy.get_param(ns + 'walker_detection_topic', '/walker_detections')
-    class_agnostic_detection_topic = rospy.get_param(ns + 'class_agnostic_detection_topic', '/mobility_aid_detections')
-    global threshold
-    threshold = rospy.get_param(ns + 'detection_threshold', 0.5)
-
-    #Load the network
-    global network
-    network_file = rospy.get_param(ns + 'network_param_file')
+* `wheelchair_detection_topic` default: `/wheelchair_detections` the topics wheelchair detections will be published on.
+* `walker_detection_topic` default: `/walker_detections` the topics walker detections will be published on.
+* `class_agnostic_detection_topic` default: `'/mobility_aid_detections` the topic where both types of mobility aid detections will be published to jointly.
+* `threshold` default = `0.5` the detection threshold. This will increase the precision at the cost of recall and vice versa.
+* `network_param_file` no default, the path to the network parameter file.
 
 ## Dependencies
 * A decent GPU
@@ -30,18 +24,20 @@ As input only a laser scan is needed (of type `LaserScan`). Currently there are 
 In order to run the detector, we need to setup a virtual environment, install some software and download the network model.
 
 Once in order to get the model and setup the env do the following:
-    * `$ roscd wheelchair_detector`
-    * `$ virtualenv --system-site-packages ros_dl_env`
-    * `$ pip install Theano`
-    * `$ pip install git+https://github.com/lucasb-eyer/DeepFried2.git`
-    * `$ cd scripts`
-    * `$ source get_network_parameter_file.sh`
+* `$ roscd wheelchair_detector`
+* `$ sudo apt-get install gfortran` needed to compile scipy which is a dependency of theano.
+* `$ virtualenv --system-site-packages ros_dl_env`
+* `$ source ros_dl_env/bin/activate`
+* `$ pip install Theano`
+* `$ pip install git+https://github.com/lucasb-eyer/DeepFried2.git`
+* `$ cd scripts`
+* `$ source get_network_parameter_file.sh`
 
 
 In order to launch the node, you will need to source the environment and launch the node:
-    * `$ roscd wheelchair_detector`
-    * `$ source ros_dl_env/bin/activate`
-    * `$ roslaunch wheelchair_detector drow.launch`
+* `$ roscd wheelchair_detector`
+* `$ source ros_dl_env/bin/activate`
+* `$ roslaunch wheelchair_detector drow.launch`
 
 ## TODO
 * Find a cleaner way to install Theano and DeepFried2 and add depenencies to CUDA and CUDNN.
