@@ -49,8 +49,8 @@
   <run_depend>rospy</run_depend>
   <run_depend>geometry_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
-  <run_depend>python-theano</run_depend>
-  <run_depend>python-deepfried2</run_depend>
+  <run_depend>theano</run_depend>
+  <run_depend>deepfried2</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
