@@ -18,7 +18,7 @@ As input only a laser scan is needed (of type `LaserScan`). Currently there are 
 ## Dependencies
 * A decent GPU (the ones on our side pcs will do :D)
 * CUDA (tested with 7.5 download here https://developer.nvidia.com/cuda-downloads)
-* CUDNN (Recommended, but optional. You need to register for this. download the archive, put it somewhere and export the correct paths for theano to find http://deeplearning.net/software/theano/library/sandbox/cuda/dnn.html This might result in a lower power consumption.)
+* CUDNN (HIGHLY RECOMMENDED. Without this the detector will not go beyond 4fps, while with it, it has no problems keeping up with the laser frequency. You need to register for this, download the archive, put it somewhere and export the correct paths for theano to find http://deeplearning.net/software/theano/library/sandbox/cuda/dnn.html)
 
 
 ## Running the detector
