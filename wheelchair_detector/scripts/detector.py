@@ -85,7 +85,7 @@ def detector():
     publishers.append(rospy.Publisher(walker_detection_topic, geometry_msgs.msg.PoseArray, queue_size=10)) #walkers
 
     #Subscribe to the laser scanner.
-    rospy.Subscriber(laser_topic, sensor_msgs.msg.LaserScan, callback)
+    rospy.Subscriber(laser_topic, sensor_msgs.msg.LaserScan, callback, queue_size=1)
 
     rospy.spin()
 
