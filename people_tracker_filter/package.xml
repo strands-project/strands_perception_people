@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>people_tracker_filter</name>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
   <description>The people_tracker_filter package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
