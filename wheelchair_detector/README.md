@@ -12,7 +12,7 @@ As input only a laser scan is needed (of type `LaserScan`). Currently there are 
 * `walker_detection_topic` default: `/walker_detections` the topics walker detections will be published on.
 * `class_agnostic_detection_topic` default: `/mobility_aid_detections` the topic where both types of mobility aid detections will be published to jointly.
 * `threshold` default: `0.5` the detection threshold. This will increase the precision at the cost of recall and vice versa.
-* `use_cudnn`, default: `false` determines if we use cudnn for the convolutions. With is faster, but harder to setup. (see dependencies)
+* `use_cudnn`, default: `false` determines if we force cudnn for the convolutions. With is faster, but harder to setup. (see dependencies)
 * `network_param_file` no default, the path to the network parameter file.
 
 ## Dependencies
@@ -22,27 +22,17 @@ As input only a laser scan is needed (of type `LaserScan`). Currently there are 
 
 
 ## Running the detector
-In order to run the detector, we need to setup a virtual environment, install some software and download the network model.
-
-Once in order to get the model and setup the env do the following:
+In order to run the detector, make sure all dependencies are installed and download the network model from our server.
 * `$ roscd wheelchair_detector`
-* `$ sudo apt-get install gfortran` needed to compile scipy which is a dependency of theano.
-* `$ virtualenv --system-site-packages ros_dl_env`
-* `$ source ros_dl_env/bin/activate`
-* `$ pip install --upgrade git+git://github.com/Theano/Theano.git`
-* `$ pip install git+https://github.com/lucasb-eyer/DeepFried2.git`
 * `$ cd scripts`
 * `$ sh get_network_parameter_file.sh`
+The launch file is configured in such a way that it will look for the network in the resources folder, but you can put it anywhere you like it to be as long as you change the launch file accordingly.
 
-
-In order to launch the node, you will need to source the environment before launching the node:
-* `$ roscd wheelchair_detector`
-* `$ source ros_dl_env/bin/activate`
+In order to launch the node, you will need to provide the theano flags:
 * `$ THEANO_FLAGS='cuda.root=/usr/local/cuda/,floatX=float32,device=gpu0' roslaunch wheelchair_detector drow.launch`
+If you have cuda somewhere else, make sure to adapt the flag. All of these can also be set in a [theano config](http://deeplearning.net/software/theano/library/config.html) once instead.
 
 ## TODO
-* Find a cleaner way to install Theano and DeepFried2 and add depenencies to CUDA and CUDNN.
 * Make the voting parameters public. This is especially important for lasers with a larger FoV.
 * Add a project page with training code, data, etc.
 * Change the name to DROW?
-* Make a proper setup.py to take care of some of the above issues.
