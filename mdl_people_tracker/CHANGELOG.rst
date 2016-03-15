@@ -2,6 +2,9 @@
 Changelog for package mdl_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.4.0 (2016-02-17)
 ------------------
 
