@@ -2,6 +2,13 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.0 (2016-03-15)
+------------------
+* Merge pull request `#189 <https://github.com/strands-project/strands_perception_people/issues/189>`_ from Pandoro/indigo-devel
+  Adding functionality to the DROW detector
+* Updated README and package xmls.
+* Contributors: Alexander Hermans, Marc Hanheide
+
 1.4.0 (2016-02-17)
 ------------------
 

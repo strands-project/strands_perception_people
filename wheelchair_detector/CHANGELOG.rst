@@ -2,6 +2,29 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.0 (2016-03-15)
+------------------
+* Merge pull request `#189 <https://github.com/strands-project/strands_perception_people/issues/189>`_ from Pandoro/indigo-devel
+  Adding functionality to the DROW detector
+* Updated README and package xmls.
+* obviously the wrong names!
+* Adding dependencies
+* Updated readme wrt. to CUDNN
+* Changes to skip messages and not queue them if the detector is too slow.
+* Readme fixes.
+* Updated readme.
+* Made cudnn optional.
+* Furthes fixes to the README.
+* Updated the README.
+* Added the launch file.
+* Added script to get the model.
+* Removed old message.
+* made the network parameter file a parameter.
+* Added gitignore.
+* Fixed definition of network to use CUDNN pooling and convs.
+* Initial push towards functionality.
+* Contributors: Alexander Hermans, Marc Hanheide
+
 1.4.0 (2016-02-17)
 ------------------
 

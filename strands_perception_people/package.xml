@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>strands_perception_people</name>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
   <description>The strands_perception_people metapackage</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
@@ -27,6 +27,7 @@
   <run_depend>human_trajectory</run_depend>
   <run_depend>people_tracker_emulator</run_depend>
   <run_depend>people_tracker_filter</run_depend>
+  <run_depend>wheelchair_detector</run_depend>
 
   <export>
     <metapackage/>
