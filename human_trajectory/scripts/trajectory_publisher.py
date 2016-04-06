@@ -52,7 +52,8 @@ class TrajectoryManager(object):
             )
             self._publish_rate = rospy.Rate(1 / self._publish_interval)
             self.trajs = OnlineTrajectories(
-                rospy.get_param("~tracker_topic", "/people_tracker/positions")
+                rospy.get_param("~tracker_topic", "/people_tracker/positions"),
+                rospy.get_param("~ubd_topic", "/upper_body_detector/bounding_box_centres"),
             )
         else:
             self._publish_rate = rospy.Rate(1)

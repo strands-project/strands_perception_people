@@ -1,42 +1,94 @@
 #!/usr/bin/env python
 
+import tf
 import rospy
 import math
 import pymongo
-from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+import message_filters
 from std_msgs.msg import Header
+import scipy.spatial.distance as dist_calc
 from bayes_people_tracker.msg import PeopleTracker
 from human_trajectory.trajectory import Trajectory
+from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion, PoseArray
 
 
-class Trajectories(object):
+class OnlineTrajectories(object):
 
-    def __init__(self):
+    def __init__(self, tracker_topic, ubd_topic):
         self.traj = dict()
-
-    # delete trajs that appear less than 5 secs or have length less than 0.1
-    def _validate_trajectories(self, traj):
-        for uuid, t in traj.items():
-            t.validate_all_poses()
-            if t.length[-1] < 0.1 or len(t.humrobpose) < 20:
-                del traj[uuid]
-        return traj
-
-
-class OnlineTrajectories(Trajectories):
-
-    def __init__(self, topic):
-        Trajectories.__init__(self)
+        self.ubd_uuids = list()
         self._temp_traj = dict()
         self.complete_traj = dict()
         self.robot_pose = Pose()
-        self.subs = rospy.Subscriber(
-            topic, PeopleTracker, self.pt_callback, None, 30
-        )
+        self._tfl = tf.TransformListener()
+        # self.subs = rospy.Subscriber(
+        #     topic, PeopleTracker, self.pt_callback, None, 30
+        # )
+        subs = [
+            message_filters.Subscriber(tracker_topic, PeopleTracker),
+            message_filters.Subscriber(ubd_topic, PoseArray),
+        ]
+        message_filters.ApproximateTimeSynchronizer(
+            subs, queue_size=5, slop=0.15
+        ).registerCallback(self.cb)
+
         rospy.Subscriber(
             "/robot_pose", Pose, self.pose_callback, None, 10
         )
-        rospy.loginfo("Taking data from %s..." % topic)
+        rospy.loginfo("Taking data from %s, validating with %s..." % (topic, ubd_topic))
+
+    # delete trajs that appear fewer than in 20 frames or have length less than
+    # 10 cm unless they have ubd
+    def _validate_trajectories(self, traj):
+        for uuid, t in traj.items():
+            t.validate_all_poses()
+            if (t.length[-1] < 0.1 and uuid not in self.ubd_uuids) or len(t.humrobpose) < 20:
+                del traj[uuid]
+        return traj
+
+    # get people position and ubd uuid
+    def cb(self, people, ubd_cent):
+        ubd_poses = self.pose_of_map_frame(ubd_cent)
+        for i, uuid in enumerate(people.uuids):
+            if uuid not in self._temp_traj:
+                self._temp_traj[uuid] = Trajectory(uuid)
+            self._temp_traj[uuid].append_pose(
+                people.poses[i], people.header, self.robot_pose, True
+            )
+            if uuid not in self.ubd_uuids:
+                for ubd_pose in ubd_poses:
+                    dist = dist_calc.euclidean(
+                        [ubd_pose.x, ubd_pose.y],
+                        [people.poses[i].position.x, people.poses[i].position.y]
+                    )
+                    if dist < 0.3:
+                        self.ubd_uuids.append(uuid)
+                        break
+
+        self.traj.update({
+            uuid: traj
+            for uuid, traj in self._temp_traj.iteritems()
+            if len(traj.humrobpose) >= 20
+        })
+        self.ubd_uuids = [uuid for uuid in self.traj.keys()]
+        self.check_completeness()
+
+    def pose_of_map_frame(self, pose_arr):
+        transformed_pose_arr = list()
+        try:
+            fid = pose_arr.header.frame_id
+            for cpose in pose_arr.poses:
+                ctime = self._tfl.getLatestCommonTime(fid, "/map")
+                pose_stamped = PoseStamped(Header(1, ctime, fid), cpose)
+                # Get the translation for this camera's frame to the world.
+                # And apply it to all current detections.
+                tpose = self.tfl.transformPose("/map", pose_stamped)
+                transformed_pose_arr.append(tpose.pose.position)
+        except tf.Exception as e:
+            rospy.logwarn(e)
+            # In case of a problem, just give empty world coordinates.
+            return []
+        return transformed_pose_arr
 
     # get robot position
     def pose_callback(self, pose):
@@ -73,9 +125,10 @@ class OnlineTrajectories(Trajectories):
                 del self._temp_traj[uuid]
 
 
-class OfflineTrajectories(Trajectories):
+class OfflineTrajectories(object):
 
     def __init__(self, query=None, size=10000):
+        self.traj = dict()
         self.query = query
         self.size = size
         self.start_secs = -1
@@ -95,6 +148,14 @@ class OfflineTrajectories(Trajectories):
             rospy.loginfo("Validating data...")
             self.traj = self._validate_trajectories(self.traj)
             rospy.loginfo("Data is ready...")
+
+    # delete trajs that appear less than 5 secs or have length less than 0.1
+    def _validate_trajectories(self, traj):
+        for uuid, t in traj.items():
+            t.validate_all_poses()
+            if t.length[-1] < 0.1 or len(t.humrobpose) < 20:
+                del traj[uuid]
+        return traj
 
     # construct trajectories based on data from people_perception collection
     def _construct_from_people_perception(self, logs):
