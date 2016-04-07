@@ -20,7 +20,7 @@ name="$(arg collection_name)" output="screen" respawn="true">
         <param name="path_visualisation" value="$(arg path_visualisation)" type="bool"/>
         <param name="online_construction" value="$(arg online_construction)" type="bool"/>
         <param name="tracker_topic" value="$(arg tracker_topic)" type="string"/>
-        <param name="ubd_topic" value="$(arg tracker_topic)" type="string"/>
+        <param name="ubd_topic" value="$(arg ubd_topic)" type="string"/>
         <param name="collection_name" value="$(arg collection_name)" type="string"/>
         <param name="logging_manager_topic" value="$(arg logging_manager_topic)" type="string"/>
         <param name="map_info" value="$(arg map_info)" type="string"/>

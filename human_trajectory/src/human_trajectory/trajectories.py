@@ -35,7 +35,7 @@ class OnlineTrajectories(object):
         rospy.Subscriber(
             "/robot_pose", Pose, self.pose_callback, None, 10
         )
-        rospy.loginfo("Taking data from %s, validating with %s..." % (topic, ubd_topic))
+        rospy.loginfo("Taking data from %s, validating with %s..." % (tracker_topic, ubd_topic))
 
     # delete trajs that appear fewer than in 20 frames or have length less than
     # 10 cm unless they have ubd
@@ -82,10 +82,10 @@ class OnlineTrajectories(object):
                 pose_stamped = PoseStamped(Header(1, ctime, fid), cpose)
                 # Get the translation for this camera's frame to the world.
                 # And apply it to all current detections.
-                tpose = self.tfl.transformPose("/map", pose_stamped)
+                tpose = self._tfl.transformPose("/map", pose_stamped)
                 transformed_pose_arr.append(tpose.pose.position)
-        except tf.Exception as e:
-            rospy.logwarn(e)
+        except tf.Exception:
+            rospy.logwarn("Transformation from %s to /map can not be done at the moment" % pose_arr.header.frame_id)
             # In case of a problem, just give empty world coordinates.
             return []
         return transformed_pose_arr
@@ -136,9 +136,6 @@ class OfflineTrajectories(object):
             rospy.get_param("mongodb_host", "localhost"),
             rospy.get_param("mongodb_port", 62345)
         )
-        # calling superclass
-        Trajectories.__init__(self)
-
         self.from_people_trajectory = self._retrieve_logs()
 
         if self.from_people_trajectory is None:

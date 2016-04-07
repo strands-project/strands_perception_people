@@ -7,41 +7,7 @@ from visualization_msgs.msg import Marker, InteractiveMarkerControl
 from geometry_msgs.msg import Point
 from interactive_markers.interactive_marker_server import InteractiveMarker
 from human_trajectory.trajectories import OfflineTrajectories
-
-
-def trapezoidal_shaped_func(a, b, c, d, x):
-    min_val = min(min((x - a)/(b - a), float(1.0)), (d - x)/(d - c))
-    return max(min_val, float(0.0))
-
-
-def r_func(x):
-    a = -0.125
-    b = 0.125
-    c = 0.375
-    d = 0.625
-    x = 1.0 - x
-    value = trapezoidal_shaped_func(a, b, c, d, x)
-    return value
-
-
-def g_func(x):
-    a = 0.125
-    b = 0.375
-    c = 0.625
-    d = 0.875
-    x = 1.0 - x
-    value = trapezoidal_shaped_func(a, b, c, d, x)
-    return value
-
-
-def b_func(x):
-    a = 0.375
-    b = 0.625
-    c = 0.875
-    d = 1.125
-    x = 1.0 - x
-    value = trapezoidal_shaped_func(a, b, c, d, x)
-    return value
+from std_msgs.msg import ColorRGBA
 
 
 def average_velocity(traj):
@@ -86,6 +52,7 @@ class TrajectoryVisualization(object):
 
         rospy.loginfo("Total Trajectories: " + str(len(self.trajs.traj)))
         rospy.loginfo("Printed trajectories: " + str(counter))
+        rospy.loginfo("Trajectory direction goes from blue to grenn")
 
     def _update_cb(self, feedback):
         return
@@ -94,6 +61,14 @@ class TrajectoryVisualization(object):
         int_marker = self.create_trajectory_marker(traj)
         self._server.insert(int_marker, self._update_cb)
         self._server.applyChanges()
+
+    def set_line_color(self, **args):
+        color = ColorRGBA()
+        color.r = 0.0
+        color.g = float(args["index"]) / float(args["length"]) 
+        color.b = 1.0 - float(args["index"]) / float(args["length"]) 
+        color.a = 1.0 
+        return color
 
     def create_trajectory_marker(self, traj):
         # create an interactive marker for our server
@@ -107,11 +82,6 @@ class TrajectoryVisualization(object):
         line_marker.type = Marker.LINE_STRIP
         line_marker.scale.x = 0.05
 
-        line_marker.color.r = r_func(average_velocity(traj))
-        line_marker.color.g = g_func(average_velocity(traj))
-        line_marker.color.b = b_func(average_velocity(traj))
-        line_marker.color.a = 1.0
-
         line_marker.points = []
         while len(traj.humrobpose) / self._modulo > 5000:
             self._modulo += 1
@@ -124,6 +94,9 @@ class TrajectoryVisualization(object):
                     0.0
                 )
                 line_marker.points.append(p)
+                line_marker.colors.append(
+                    self.set_line_color(index=i, length=len(traj.humrobpose))
+                )
 
         self._modulo = 3
 
