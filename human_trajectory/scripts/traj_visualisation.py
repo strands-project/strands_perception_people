@@ -77,6 +77,10 @@ class TrajectoryVisualization(object):
         int_marker.name = traj.uuid
 
         int_marker.pose = traj.humrobpose[0][0].pose
+        int_marker.pose.orientation.x = 0
+        int_marker.pose.orientation.y = 0
+        int_marker.pose.orientation.z = 0
+        int_marker.pose.orientation.w = 1
 
         line_marker = Marker()
         line_marker.type = Marker.LINE_STRIP

@@ -42,7 +42,9 @@ class OnlineTrajectories(object):
     def _validate_trajectories(self, traj):
         for uuid, t in traj.items():
             t.validate_all_poses()
-            if (t.length[-1] < 0.1 and uuid not in self.ubd_uuids) or len(t.humrobpose) < 20:
+            length_ratio = t.length[-1] / float(len(t.humrobpose)) 
+            # 0.03 based on how fast a person moves within frames
+            if (length_ratio < 0.03 and uuid not in self.ubd_uuids):
                 del traj[uuid]
         return traj
 
@@ -70,7 +72,7 @@ class OnlineTrajectories(object):
             for uuid, traj in self._temp_traj.iteritems()
             if len(traj.humrobpose) >= 20
         })
-        self.ubd_uuids = [uuid for uuid in self.traj.keys()]
+        self.ubd_uuids = [uuid for uuid in self.ubd_uuids if uuid in self.traj.keys()]
         self.check_completeness()
 
     def pose_of_map_frame(self, pose_arr):
