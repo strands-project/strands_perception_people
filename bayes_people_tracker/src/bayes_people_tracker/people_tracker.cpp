@@ -111,7 +111,7 @@ void PeopleTracker::trackingThread() {
             std::vector<std::string> uuids;
             std::vector<double> distances;
             std::vector<double> angles;
-            double min_dist = 10000.0d;
+            double min_dist = 10000.0;
             double angle;
 
             for(std::map<long, std::vector<geometry_msgs::Pose> >::const_iterator it = ppl.begin();
