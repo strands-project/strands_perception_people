@@ -34,7 +34,7 @@ class TrajectoryManager(object):
         self._sub_topo = rospy.Subscriber(
             "/topological_map", TopologicalMap, self.map_callback, None, 10
         )
-        rospy.loginfo("Creating human_trajectory/trajectories topic...")
+        rospy.loginfo("Creating /%s/trajectories topic..." % name)
         self._pub = rospy.Publisher(
             name+'/trajectories/complete', Trajectories, queue_size=10
         )
