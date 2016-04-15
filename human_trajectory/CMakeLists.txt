@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(human_trajectory)
 
 find_package(catkin REQUIRED COMPONENTS
+  tf
+  message_filters
   geometry_msgs
   rospy
   std_msgs
@@ -32,7 +34,7 @@ generate_messages(
 ## catkin specific configuration ##
 ###################################
 catkin_package(
-  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs bayes_people_tracker topological_logging_manager
+  CATKIN_DEPENDS geometry_msgs rospy std_msgs message_runtime mongodb_store strands_navigation_msgs bayes_people_tracker topological_logging_manager tf message_filters
 )
 
 ###########
