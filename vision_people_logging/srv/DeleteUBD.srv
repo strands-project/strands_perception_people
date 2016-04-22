@@ -1,0 +1,4 @@
+time start_time
+time stop_time
+---
+bool is_deleted

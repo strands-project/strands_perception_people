@@ -23,6 +23,11 @@ add_message_files(
     LoggingUBD.msg
 )
 
+add_service_files(
+  FILES
+  DeleteUBD.srv
+)
+
 generate_messages(
   DEPENDENCIES
     geometry_msgs
@@ -49,6 +54,7 @@ catkin_package(
 
 install(PROGRAMS
   scripts/save_ubd.py
+  scripts/ubd_service.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
