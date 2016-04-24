@@ -16,12 +16,10 @@ class VisionLoggingService(object):
         ).message_store.upper_bodies
 
     def del_srv_cb(self, srv):
-        start_time = datetime.datetime.fromtimestamp(srv.start_time.secs)
-        stop_time = datetime.datetime.fromtimestamp(srv.stop_time.secs)
-        query = {
-            "_meta.inserted_at": {
-                "$gte": start_time,
-                "$lt": stop_time
+        query ={
+            "header.stamp.secs": {
+                "$gte": srv.start_time.secs,
+                "$lt": srv.stop_time.secs
             }
         }
         count = self._ubd_db.find(query).count()
@@ -36,6 +34,7 @@ class VisionLoggingService(object):
                 "No entries have been found, nothing to delete"
             )
             response = False
+        rospy.sleep(0.1)
         return DeleteUBDResponse(response)
 
 
