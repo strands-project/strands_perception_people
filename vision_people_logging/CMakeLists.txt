@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   upper_body_detector
 )
 
+ catkin_python_setup()
+
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
@@ -24,8 +26,8 @@ add_message_files(
 )
 
 add_service_files(
-  FILES
-  DeleteUBD.srv
+  DIRECTORY srv
+  FILES DeleteUBD.srv FindUBD.srv CaptureUBD.srv
 )
 
 generate_messages(
@@ -53,8 +55,8 @@ catkin_package(
 #############
 
 install(PROGRAMS
-  scripts/save_ubd.py
   scripts/ubd_service.py
+  src/vision_people_logging/save_ubd.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
