@@ -29,29 +29,35 @@ class VisionLoggingService(object):
 
     def capture_srv_cb(self, srv):
         rospy.loginfo("Got a request to capture a snapshot of UBD")
-        count = len(self.save_ubd.obj_id)
+        count = len(self.save_ubd.obj_ids)
         self.save_ubd.is_stored = True
-        while len(self.save_ubd.obj_id) <= count:
+        st = rospy.Time.now()
+        et = rospy.Time.now()
+        while len(self.save_ubd.obj_ids) <= count and (et - st).secs < 5:
+            rospy.loginfo("Trying to capture a snapshot of UBD...")
             rospy.sleep(0.05)
+            et = rospy.Time.now()
         self.save_ubd.is_stored = False
-        if len(self.save_ubd.obj_id) - count > 1:
+        if len(self.save_ubd.obj_ids) - count > 1:
             rospy.logwarn(
-                "%d snapshots have been captured" % (len(self.save_ubd.obj_id) - count)
+                "%d snapshots have been captured" % (len(self.save_ubd.obj_ids) - count)
             )
+        elif len(self.save_ubd.obj_ids) - count == 0:
+            rospy.loginfo("No snapshot has been captured")
         rospy.sleep(0.1)
         return CaptureUBDResponse(
-            self.save_ubd.obj_id[count:len(self.save_ubd.obj_id)]
+            self.save_ubd.obj_ids[count:len(self.save_ubd.obj_ids)]
         )
 
     def find_srv_cb(self, srv):
         rospy.loginfo("Got a request to query UBD from db...")
         logs = list()
-        if len(srv.obj_id) > 0:
-            for _id in srv.obj_id:
+        if len(srv.obj_ids) > 0:
+            for _id in srv.obj_ids:
                 log = self.msg_store.query_id(_id, LoggingUBD._type)
                 if log is not None:
                     logs.append(log[0])
-        else:
+        elif srv.start_time is not None or srv.stop_time is not None:
             query = {
                 "header.stamp.secs": {
                     "$gte": srv.start_time.secs,
@@ -59,22 +65,29 @@ class VisionLoggingService(object):
                 }
             }
             logs = self.msg_store.query(LoggingUBD._type, query)
-            rospy.loginfo("Found %d entries..." % len(logs))
+            rospy.loginfo("Found %d entry(ies)..." % len(logs))
             logs = [log[0] for log in logs]
         rospy.sleep(0.1)
         return FindUBDResponse(logs)
 
     def del_srv_cb(self, srv):
-        rospy.loginfo("Got a request to UBD entries from db...")
-        if len(srv.obj_id) > 0:
+        rospy.loginfo("Got a request to delete UBD entries from db...")
+        if len(srv.obj_ids) > 0:
             count = list()
-            for _id in srv.obj_id:
+            for _id in srv.obj_ids:
                 count.append(self.msg_store.delete(_id))
             count = [i for i in count if i]
-            rospy.logwarn(
-                "%d entries have been deleted based on %s" % (len(count), str(srv.obj_id))
-            )
-        else:
+            response = True
+            if len(count) > 0:
+                rospy.logwarn(
+                    "%d entry(ies) have been deleted based on %s" % (len(count), str(srv.obj_ids))
+                )
+            else:
+                rospy.loginfo(
+                    "No entry has been found, nothing to delete"
+                )
+                response = False
+        elif srv.start_time is not None or srv.stop_time is not None:
             query = {
                 "header.stamp.secs": {
                     "$gte": srv.start_time.secs,
@@ -85,12 +98,12 @@ class VisionLoggingService(object):
             response = True
             if count > 0:
                 rospy.logwarn(
-                    "%d entries from upper_bodies collection will be deleted" % count
+                    "%d entry(ies) from upper_bodies collection will be deleted" % count
                 )
                 self._ubd_db.remove(query)
             else:
                 rospy.loginfo(
-                    "No entries have been found, nothing to delete"
+                    "No entry has been found, nothing to delete"
                 )
                 response = False
         rospy.sleep(0.1)

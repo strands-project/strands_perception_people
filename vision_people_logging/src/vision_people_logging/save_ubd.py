@@ -21,7 +21,7 @@ class SaveUBD():
         self.tfl = tf.TransformListener()
         self.msg_store = MessageStoreProxy(collection=collname)
         self.is_stored = is_stored
-        self.obj_id = list()
+        self.obj_ids = list()
         self.counter = 0
 
         # Always get the robot's position.
@@ -69,7 +69,7 @@ class SaveUBD():
         if self.is_stored:
             rospy.logdebug("{} Upper Body/ies detected. Logging to {} collection.".format(len(ubd_cent.poses), self.collname))
             _id = self.msg_store.insert(log, meta={"people": "upper_bodies"})
-            self.obj_id.append(_id)
+            self.obj_ids.append(_id)
 
     def cut_all(self, ubd, image, hfact=3):
         b = CvBridge()
