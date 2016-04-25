@@ -24,8 +24,14 @@ class VisionLoggingService(object):
             rospy.get_param("mongodb_host", "localhost"),
             rospy.get_param("mongodb_port", 62345)
         ).message_store.upper_bodies
-        self.msg_store = MessageStoreProxy(collection="upper_bodies")
+        self._msg_store = MessageStoreProxy(collection="upper_bodies")
+        self._pub = rospy.Publisher(name+'/log', LoggingUBD, queue_size=10)
         self.save_ubd = SaveUBD(is_stored=False)
+
+    def publish_captured_log(self):
+        while not rospy.is_shutdown():
+            self._pub.publish(self.save_ubd.log)
+            rospy.sleep(0.1)
 
     def capture_srv_cb(self, srv):
         rospy.loginfo("Got a request to capture a snapshot of UBD")
@@ -54,7 +60,7 @@ class VisionLoggingService(object):
         logs = list()
         if len(srv.obj_ids) > 0:
             for _id in srv.obj_ids:
-                log = self.msg_store.query_id(_id, LoggingUBD._type)
+                log = self._msg_store.query_id(_id, LoggingUBD._type)
                 if log is not None:
                     logs.append(log[0])
         elif srv.start_time is not None or srv.stop_time is not None:
@@ -64,7 +70,7 @@ class VisionLoggingService(object):
                     "$lt": srv.stop_time.secs
                 }
             }
-            logs = self.msg_store.query(LoggingUBD._type, query)
+            logs = self._msg_store.query(LoggingUBD._type, query)
             rospy.loginfo("Found %d entry(ies)..." % len(logs))
             logs = [log[0] for log in logs]
         rospy.sleep(0.1)
@@ -75,7 +81,7 @@ class VisionLoggingService(object):
         if len(srv.obj_ids) > 0:
             count = list()
             for _id in srv.obj_ids:
-                count.append(self.msg_store.delete(_id))
+                count.append(self._msg_store.delete(_id))
             count = [i for i in count if i]
             response = True
             if len(count) > 0:
@@ -112,5 +118,6 @@ class VisionLoggingService(object):
 
 if __name__ == '__main__':
     rospy.init_node('vision_logging_service')
-    VisionLoggingService(rospy.get_name())
+    vls = VisionLoggingService(rospy.get_name())
+    vls.publish_captured_log()
     rospy.spin()
