@@ -13,14 +13,17 @@ import tf
 import std_msgs.msg
 
 
-class SaveLocations():
-    def __init__(self, collname="upper_bodies"):
+class SaveUBD():
+    def __init__(self, collname="upper_bodies", is_stored=True):
         self.collname = collname
-        rospy.loginfo("Intialising UBD logging")
+        rospy.loginfo("Initialising UBD logging")
         self.robot_pose = geometry_msgs.msg.Pose()
         self.tfl = tf.TransformListener()
         self.msg_store = MessageStoreProxy(collection=collname)
+        self.is_stored = is_stored
+        self.obj_ids = list()
         self.counter = 0
+        self.log = LoggingUBD()
 
         # Always get the robot's position.
         rospy.Subscriber("/robot_pose", geometry_msgs.msg.Pose, self.posecb, None, 1)
@@ -41,10 +44,8 @@ class SaveLocations():
         ts = message_filters.ApproximateTimeSynchronizer(subs, queue_size=5, slop=0.15)
         ts.registerCallback(self.cb)
 
-
     def posecb(self, pose):
         self.robot_pose = pose
-
 
     def cb(self, ubd, ubd_cent, rgb, d, *mgr):
         # Check for perission, if necessary:
@@ -52,23 +53,25 @@ class SaveLocations():
             return
 
         # UBD publishes an empty message even when there's no detection.
-        if len(ubd_cent.poses) == 0:
+        if (len(ubd_cent.poses) == 0) and (len(ubd.median_depth) == 0):
             return
 
-        self.counter += len(ubd_cent.poses)
-        rospy.logdebug("{} Upper Body/ies detected. Logging to {} collection.".format(len(ubd_cent.poses), self.collname))
+        if self.is_stored:
+            self.counter += len(ubd_cent.poses)
 
-        log = LoggingUBD()
-        log.header = ubd.header
-        log.robot = self.robot_pose
-        log.ubd_pos = self.to_world_all(ubd_cent)
+            log = LoggingUBD()
+            log.header = ubd.header
+            log.robot = self.robot_pose
+            log.ubd_pos = self.to_world_all(ubd_cent)
 
-        log.ubd = ubd
-        log.ubd_rgb = list(self.cut_all(ubd, rgb))
-        log.ubd_d = list(self.cut_all(ubd, d))
+            log.ubd = ubd
+            log.ubd_rgb = list(self.cut_all(ubd, rgb))
+            log.ubd_d = list(self.cut_all(ubd, d))
 
-        self.msg_store.insert(log, meta={"people": "upper_bodies"})
-
+            rospy.logdebug("{} Upper Body/ies detected. Logging to {} collection.".format(len(ubd_cent.poses), self.collname))
+            _id = self.msg_store.insert(log, meta={"people": "upper_bodies"})
+            self.obj_ids.append(_id)
+            self.log = log
 
     def cut_all(self, ubd, image, hfact=3):
         b = CvBridge()
@@ -79,7 +82,8 @@ class SaveLocations():
             y2, x2 = y+hfact*h, x+w
             y1, x1 = max(y, 0), max(x, 0)
             tmp = img[y1:y2, x1:x2]
-            rospy.logdebug("Before: {}x{}@{},{} ; After: {}x{}".format(w,hfact*h, x, y, tmp.shape[1], tmp.shape[0]))
+            if self.is_stored:
+                rospy.logdebug("Before: {}x{}@{},{} ; After: {}x{}".format(w, hfact*h, x, y, tmp.shape[1], tmp.shape[0]))
             yield b.cv2_to_imgmsg(img[y1:y2, x1:x2])
 
     def to_world_all(self, pose_arr):
@@ -102,8 +106,9 @@ class SaveLocations():
 
         return transformed_pose_arr
 
+
 if __name__ == '__main__':
     rospy.init_node('save_ubd')
-    sl = SaveLocations()
+    sl = SaveUBD()
     rospy.spin()
     rospy.loginfo("Stored a total of {} UBDs to database.".format(sl.counter))

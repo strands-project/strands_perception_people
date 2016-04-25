@@ -1,0 +1,5 @@
+string[] obj_ids        # in the case where you know the ObjectId from mongodb
+time start_time     # start time when upper body was recorded, used when obj_id is empty
+time stop_time      # stop time when upper body was recorded, used when obj_id is empty
+---
+bool is_deleted
