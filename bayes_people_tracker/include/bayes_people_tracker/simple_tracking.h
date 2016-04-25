@@ -28,6 +28,7 @@
 #include <bayes_tracking/models.h>
 #include <bayes_tracking/ekfilter.h>
 #include <bayes_tracking/ukfilter.h>
+#include <bayes_tracking/pfilter.h>
 #include <cstdio>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -40,9 +41,9 @@ using namespace Models;
 
 // rule to detect lost track
 template<class FilterType>
-bool MTRK::isLost(const FilterType* filter) {
-    // track lost if var(x)+var(y) > 1
-    if (filter->X(0,0) + filter->X(2,2) > sqr(1.0))
+bool MTRK::isLost(const FilterType* filter, double varLimit = 1.0) {
+    // track lost if var(x)+var(y) > varLimit
+    if (filter->X(0,0) + filter->X(2,2) > sqr(varLimit))
         return true;
     return false;
 }
@@ -79,20 +80,23 @@ template<typename FilterType>
 class SimpleTracking
 {
 public:
-    SimpleTracking() {
+    SimpleTracking(double vLimit = 1.0) {
         time = getTime();
         observation = new FM::Vec(2);
+        varLimit = vLimit;
     }
 
     void createConstantVelocityModel(double vel_noise_x, double vel_noise_y) {
         cvm = new CVModel(vel_noise_x, vel_noise_y);
     }
 
-    void addDetectorModel(std::string name, association_t alg, double pos_noise_x, double pos_noise_y) {
+    void addDetectorModel(std::string name, association_t alg, double pos_noise_x, double pos_noise_y, unsigned int seqSize = 5, double seqTime = 0.2) {
         ROS_INFO("Adding detector model for: %s.", name.c_str());
         detector_model det;
         det.alg = alg;
         det.ctm = new CartesianModel(pos_noise_x, pos_noise_y);
+        det.seqSize = seqSize;
+        det.seqTime = seqTime;
         detectors[name] = det;
     }
 
@@ -103,16 +107,16 @@ public:
         time += dt;
         if(track_time) *track_time = time;
 
-        for(typename std::map<std::string, detector_model>::const_iterator it = detectors.begin();
-            it != detectors.end();
-            ++it) {
-            // prediction
-            cvm->update(dt);
-            mtrk.template predict<CVModel>(*cvm);
+        // prediction
+        cvm->update(dt);
+        mtrk.template predict<CVModel>(*cvm);
 
-            // process observations (if available) and update tracks
-            mtrk.process(*(it->second.ctm), it->second.alg);
-        }
+//        for(typename std::map<std::string, detector_model>::const_iterator it = detectors.begin();
+//            it != detectors.end();
+//            ++it) {
+//            // process observations (if available) and update tracks
+//            mtrk.process(*(it->second.ctm), it->second.alg,  it->second.seqSize,  it->second.seqTime);
+//        }
 
         for (int i = 0; i < mtrk.size(); i++) {
             double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
@@ -155,7 +159,7 @@ public:
         cvm->update(dt);
         mtrk.template predict<CVModel>(*cvm);
 
-        mtrk.process(*(det.ctm), det.alg);
+//        mtrk.process(*(det.ctm), det.alg);
 
         std::vector<geometry_msgs::Point>::iterator li, liEnd = obsv.end();
         for (li = obsv.begin(); li != liEnd; li++) {
@@ -163,19 +167,24 @@ public:
             (*observation)[1] = li->y;
             mtrk.addObservation(*observation, obsv_time);
         }
+
+        mtrk.process(*(det.ctm), det.alg, det.seqSize,  det.seqTime, varLimit);
     }
 
 private:
 
-    FM::Vec *observation;           // observation [x, y]
+    FM::Vec *observation;             // observation [x, y]
     double dt, time;
     boost::mutex mutex;
-    CVModel *cvm;                   // CV model
+    CVModel *cvm;                     // CV model
     MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
+    double varLimit;                  // upper limit for the variance of estimation position
 
     typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
         association_t alg;          // Data association algorithm
+        unsigned int seqSize;       // Minimum number of observations for new track creation
+        double seqTime;             // Minimum interval between observations for new track creation
     } detector_model;
     std::map<std::string, detector_model> detectors;
 
