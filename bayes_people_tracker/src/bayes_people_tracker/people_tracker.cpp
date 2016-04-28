@@ -51,36 +51,36 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     ROS_INFO_STREAM("Found filter type: " << filter);
     if (filter == "EKF")
     {
-        if (n.hasParam("var_limit"))
+        if (n.hasParam("std_limit"))
         {
-            double varLimit;
-            n.getParam("var_limit", varLimit);
-            ROS_INFO("var_limit: %f ",varLimit);
-            ekf = new SimpleTracking<EKFilter>(varLimit);
+            double stdLimit;
+            n.getParam("std_limit", stdLimit);
+            ROS_INFO("std_limit: %f ",stdLimit);
+            ekf = new SimpleTracking<EKFilter>(stdLimit);
         } else {
             ekf = new SimpleTracking<EKFilter>();
         }
     }
     else if (filter == "UKF")
     {
-        if (n.hasParam("var_limit"))
+        if (n.hasParam("std_limit"))
         {
-            double varLimit;
-            n.getParam("var_limit", varLimit);
-            ROS_INFO("var_limit: %f ",varLimit);
-            ukf = new SimpleTracking<UKFilter>(varLimit);
+            double stdLimit;
+            n.getParam("std_limit", stdLimit);
+            ROS_INFO("std_limit: %f ",stdLimit);
+            ukf = new SimpleTracking<UKFilter>(stdLimit);
         } else {
             ukf = new SimpleTracking<UKFilter>();
         }
     }
     else if (filter == "PF")
     {
-        if (n.hasParam("var_limit"))
+        if (n.hasParam("std_limit"))
         {
-            double varLimit;
-            n.getParam("var_limit", varLimit);
-            ROS_INFO("var_limit: %f ",varLimit);
-            pf = new SimpleTracking<PFilter>(varLimit);
+            double stdLimit;
+            n.getParam("std_limit", stdLimit);
+            ROS_INFO("std_limit: %f ",stdLimit);
+            pf = new SimpleTracking<PFilter>(stdLimit);
         } else {
             pf = new SimpleTracking<PFilter>();
         }

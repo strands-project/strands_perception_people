@@ -41,9 +41,9 @@ using namespace Models;
 
 // rule to detect lost track
 template<class FilterType>
-bool MTRK::isLost(const FilterType* filter, double varLimit = 1.0) {
-    // track lost if var(x)+var(y) > varLimit
-    if (filter->X(0,0) + filter->X(2,2) > sqr(varLimit))
+bool MTRK::isLost(const FilterType* filter, double stdLimit = 1.0) {
+    // track lost if var(x)+var(y) > stdLimit^2
+    if (filter->X(0,0) + filter->X(2,2) > sqr(stdLimit))
         return true;
     return false;
 }
@@ -80,10 +80,10 @@ template<typename FilterType>
 class SimpleTracking
 {
 public:
-    SimpleTracking(double vLimit = 1.0) {
+    SimpleTracking(double sLimit = 1.0) {
         time = getTime();
         observation = new FM::Vec(2);
-        varLimit = vLimit;
+        stdLimit = sLimit;
     }
 
     void createConstantVelocityModel(double vel_noise_x, double vel_noise_y) {
@@ -168,7 +168,7 @@ public:
             mtrk.addObservation(*observation, obsv_time);
         }
 
-        mtrk.process(*(det.ctm), det.alg, det.seqSize,  det.seqTime, varLimit);
+        mtrk.process(*(det.ctm), det.alg, det.seqSize,  det.seqTime, stdLimit);
     }
 
 private:
@@ -178,7 +178,7 @@ private:
     boost::mutex mutex;
     CVModel *cvm;                     // CV model
     MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
-    double varLimit;                  // upper limit for the variance of estimation position
+    double stdLimit;                  // upper limit for the variance of estimation position
 
     typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
