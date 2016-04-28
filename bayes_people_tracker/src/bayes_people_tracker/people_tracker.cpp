@@ -386,6 +386,7 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
             }
         } else {
             ekf->addObservation(detector, ppl, pta->header.stamp.toSec());
+        }
     }
 }
 
