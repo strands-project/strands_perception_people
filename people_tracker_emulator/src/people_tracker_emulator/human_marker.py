@@ -71,17 +71,18 @@ def createHead(m_id, action, pose, target_frame):
     return createMarker(m_id, Marker.SPHERE, action, pose, scale, color, target_frame)
 
 
-def createBody(m_id, action, pose, target_frame):
+def createBody(m_id, action, pose, target_frame, color=None):
     pose = deepcopy(pose)
     scale = Vector3()
     scale.x = 0.35
     scale.y = 0.35
     scale.z = 0.7
-    color = ColorRGBA()
-    color.a = 1.0
-    color.r = 139.0/255.0
-    color.g = 0.0/255.0
-    color.b = 0.0/255.0
+    if color == None:
+        color = ColorRGBA()
+        color.a = 1.0
+        color.r = 139.0/255.0
+        color.g = 0.0/255.0
+        color.b = 0.0/255.0
     pose.position.z = 1.1
     return createMarker(m_id, Marker.CYLINDER, action, pose, scale, color, target_frame)
 
@@ -121,18 +122,19 @@ def createLegs(m_idl, m_idr, action, pose, target_frame):
     )
     return legs
 
-def createArms(m_idl, m_idr, action, pose, target_frame):
+def createArms(m_idl, m_idr, action, pose, target_frame, color=None):
     pose = deepcopy(pose)
     arms = []
     scale = Vector3()
     scale.x = 0.1
     scale.y = 0.1
     scale.z = 0.7
-    color = ColorRGBA()
-    color.a = 1.0
-    color.r = 139.0/255.0
-    color.g = 0.0/255.0
-    color.b = 0.0/255.0
+    if color == None:
+        color = ColorRGBA()
+        color.a = 1.0
+        color.r = 139.0/255.0
+        color.g = 0.0/255.0
+        color.b = 0.0/255.0
     arms.append(
         createMarker(
             m_idl,
@@ -157,15 +159,15 @@ def createArms(m_idl, m_idr, action, pose, target_frame):
     )
     return arms;
 
-def createHuman(m_id, pose, target_frame):
+def createHuman(m_id, pose, target_frame, color=None):
     human = []
     m_id += 1
     human.append(createHead(m_id, Marker.ADD, pose, target_frame))
     m_id += 1
-    human.append(createBody(m_id, Marker.ADD, pose, target_frame))
+    human.append(createBody(m_id, Marker.ADD, pose, target_frame, color=color))
     legs = createLegs(m_id+1, m_id+2, Marker.ADD, pose, target_frame)
     m_id += 3
     human.extend(legs)
-    arms = createArms(m_id+1, m_id+2, Marker.ADD, pose, target_frame)
+    arms = createArms(m_id+1, m_id+2, Marker.ADD, pose, target_frame, color=color)
     human.extend(arms)
     return human
