@@ -6,8 +6,8 @@ import sensor_msgs.msg
 
 import numpy as np
 
-import net
-import laser_utils
+from wheelchair_detector import net
+from wheelchair_detector import laser_utils
 
 
 def callback(scan):
