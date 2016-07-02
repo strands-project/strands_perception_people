@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>odometry_to_motion_matrix</name>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <description>The odometry_to_motion_matrix package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>

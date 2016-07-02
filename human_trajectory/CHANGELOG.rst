@@ -2,8 +2,8 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.5.1 (2016-07-02)
+------------------
 * merge with indigo-devel strands
 * unimportant fixing
 * modify CMake and package definition

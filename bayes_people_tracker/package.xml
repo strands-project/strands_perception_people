@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>bayes_people_tracker</name>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <description>The bayes_people_tracker package</description>
 
   <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>

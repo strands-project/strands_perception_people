@@ -2,8 +2,8 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.5.1 (2016-07-02)
+------------------
 * Wheelchair fixing (`#202 <https://github.com/strands-project/strands_perception_people/issues/202>`_)
   * Moved several files and configured the CMakeLists.txt to correctly install everything.
   * Added missing python files through the setup.py
