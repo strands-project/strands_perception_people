@@ -3,7 +3,7 @@
     <arg name="wheelchair_detection_topic" default="/wheelchair_detections"/>
     <arg name="walker_detection_topic" default="/walker_detections"/>
     <arg name="class_agnostic_detection_topic" default="/mobility_aid_detections"/>
-    <arg name="detection_threshold" default="0.5"/>
+    <arg name="detection_threshold" default="0.9"/>
     <arg name="use_cudnn" default="false" />
     <arg name="network_param_file" default="$(find wheelchair_detector)/resources/net-wcnet.npz"/>
 
