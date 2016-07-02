@@ -163,7 +163,8 @@ install(PROGRAMS
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 add_custom_command(
   OUTPUT net-wcnet.npz
-  COMMAND wget https://omnomnom.vision.rwth-aachen.de/strands/data/drow-models/net-wcnet.npz
+  COMMAND mkdir -p resources
+  COMMAND wget https://omnomnom.vision.rwth-aachen.de/strands/data/drow-models/net-wcnet.npz -O resources/net-wcnet.npz
   COMMENT "downloaded model"
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
@@ -171,9 +172,8 @@ add_custom_command(
 add_custom_target(run ALL
     DEPENDS net-wcnet.npz)
 
-install(FILES
-  net-wcnet.npz
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/resources/
+install(DIRECTORY resources
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 #############
