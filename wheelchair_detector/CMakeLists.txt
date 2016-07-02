@@ -13,7 +13,7 @@ find_package(catkin REQUIRED)
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -161,11 +161,20 @@ install(PROGRAMS
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+add_custom_command(
+  OUTPUT net-wcnet.npz
+  COMMAND mkdir -p resources
+  COMMAND wget https://omnomnom.vision.rwth-aachen.de/strands/data/drow-models/net-wcnet.npz -O resources/net-wcnet.npz
+  COMMENT "downloaded model"
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
+
+add_custom_target(run ALL
+    DEPENDS net-wcnet.npz)
+
+install(DIRECTORY resources
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
