@@ -2,8 +2,8 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.5.2 (2016-07-02)
+------------------
 * Update package.xml
 * Contributors: Marc Hanheide
 
