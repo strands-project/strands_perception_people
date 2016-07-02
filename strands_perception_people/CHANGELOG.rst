@@ -2,6 +2,9 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.5.1 (2016-07-02)
 ------------------
 

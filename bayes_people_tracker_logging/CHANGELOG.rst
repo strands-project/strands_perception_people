@@ -2,6 +2,9 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.5.1 (2016-07-02)
 ------------------
 

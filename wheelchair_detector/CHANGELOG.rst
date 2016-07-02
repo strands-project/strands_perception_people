@@ -2,6 +2,11 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update package.xml
+* Contributors: Marc Hanheide
+
 1.5.1 (2016-07-02)
 ------------------
 * Wheelchair fixing (`#202 <https://github.com/strands-project/strands_perception_people/issues/202>`_)
