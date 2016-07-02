@@ -2,6 +2,11 @@
 Changelog for package people_tracker_emulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Python human marker generation now allows to specify a list of colours one for each person.
+* Contributors: Christian Dondrup
+
 1.5.0 (2016-03-15)
 ------------------
 

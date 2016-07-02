@@ -2,6 +2,18 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Wheelchair fixing (`#202 <https://github.com/strands-project/strands_perception_people/issues/202>`_)
+  * Moved several files and configured the CMakeLists.txt to correctly install everything.
+  * Added missing python files through the setup.py
+  * Automatically downloads the model and install it.
+  * Updated to default detection threshold to a better value
+  * Further cleaned the way the model is installed.
+  This will overwrite the model file instead of creating several copies.
+  Furthermore the file is found properly based on the launch file when the ws is sourced.
+* Contributors: Alexander Hermans
+
 1.5.0 (2016-03-15)
 ------------------
 * Merge pull request `#189 <https://github.com/strands-project/strands_perception_people/issues/189>`_ from Pandoro/indigo-devel
