@@ -2,6 +2,20 @@
 Changelog for package vision_people_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+* ready to be tested (again)
+* tested on Bob and worked
+* add several services for UBD logging
+* fixing bugs
+* add delete service feature for vision logging for TSC deployment
+* make trajectory package able to pick sitting people
+* add or cond for save_ubd, add argument for human_trajectory.launch
+* Contributors: Ferdian Jovan, Rares
+
 1.5.0 (2016-03-15)
 ------------------
 

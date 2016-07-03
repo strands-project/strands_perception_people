@@ -2,6 +2,17 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+* added mobility aid detection config (`#201 <https://github.com/strands-project/strands_perception_people/issues/201>`_)
+  to replace `#200 <https://github.com/strands-project/strands_perception_people/issues/200>`_
+* Compilation fix for OS X.
+  Removed unnecessary d suffix for double.
+* Contributors: Marc Hanheide, Nick Hawes
+
 1.5.0 (2016-03-15)
 ------------------
 

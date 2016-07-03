@@ -2,6 +2,21 @@
 Changelog for package human_trajectory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+* merge with indigo-devel strands
+* unimportant fixing
+* modify CMake and package definition
+* fixing calculation and has been tested on betty
+* fixing bug with people sitting feature
+* make trajectory package able to pick sitting people
+* modify launch file
+* add or cond for save_ubd, add argument for human_trajectory.launch
+* Contributors: Ferdian Jovan, Rares Ambrus, STRANDS, ferdianjovan
+
 1.5.0 (2016-03-15)
 ------------------
 
