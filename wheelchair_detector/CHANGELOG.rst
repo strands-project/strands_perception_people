@@ -2,6 +2,11 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added missing launch file.
+* Contributors: Pandoro
+
 1.5.2 (2016-07-02)
 ------------------
 * Update package.xml

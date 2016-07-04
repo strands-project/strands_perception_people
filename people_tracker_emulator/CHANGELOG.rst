@@ -2,6 +2,9 @@
 Changelog for package people_tracker_emulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.5.2 (2016-07-02)
 ------------------
 
