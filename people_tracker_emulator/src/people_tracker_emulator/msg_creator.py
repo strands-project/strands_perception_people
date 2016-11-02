@@ -31,7 +31,7 @@ def marker_array_from_people_tracker_msg(poses, target_frame, color=None):
     marker_array = MarkerArray()
     for i, pose in enumerate(poses):
         c = color[i] if isinstance(color,list) else None
-        human = hm.createHuman(i, pose, target_frame, color=c)
+        human = hm.createHuman(i*10, pose, target_frame, color=c)
         marker_array.markers.extend(human)
     return marker_array
 
