@@ -11,8 +11,8 @@
     <arg name="user" default=""/>
 
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
-    
-    <node pkg="wheelchair_detector" type="detector.py" name="detector" output="log" respawn="true">
+
+    <node pkg="wheelchair_detector" type="detector.py" name="wheelchair_detector" output="log" respawn="true">
         <param name="laser_topic" value="$(arg laser_topic)" type="string"/>
         <param name="wheelchair_detection_topic" value="$(arg wheelchair_detection_topic)" type="string"/>
         <param name="walker_detection_topic" value="$(arg walker_detection_topic)" type="string"/>
