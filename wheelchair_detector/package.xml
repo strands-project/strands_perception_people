@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>wheelchair_detector</name>
-  <version>1.5.3</version>
+  <version>1.5.4</version>
   <description>The wheelchair_detector package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
