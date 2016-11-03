@@ -2,6 +2,9 @@
 Changelog for package rwth_upper_body_skeleton_random_walk
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.5.3 (2016-07-04)
 ------------------
 

@@ -2,6 +2,17 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adding the wheelchair detector to the tracker launch file. (`#211 <https://github.com/strands-project/strands_perception_people/issues/211>`_)
+  * Made wheelchair detector name more descriptive.
+  * Adds the wheelchair detector to the standard tracker launch file.
+  Turned off by default enabled by using with_wheelchair_detector:=true.
+  If it is used, a machine has to be specifieD: wheelchair_machine:=<machine name>.
+  There is no proper default here since the machine needs to be specifically
+  configured with CUDA and cudnn.
+* Contributors: Alexander Hermans
+
 1.5.3 (2016-07-04)
 ------------------
 * Added missing launch file.

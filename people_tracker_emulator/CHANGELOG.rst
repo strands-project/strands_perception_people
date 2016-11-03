@@ -2,6 +2,12 @@
 Changelog for package people_tracker_emulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixing marker generation for several people (`#205 <https://github.com/strands-project/strands_perception_people/issues/205>`_)
+  The markers' ids where wrong which is why only one person had an upper body... This works now and displays the detected people correctly.
+* Contributors: Christian Dondrup
+
 1.5.3 (2016-07-04)
 ------------------
 
