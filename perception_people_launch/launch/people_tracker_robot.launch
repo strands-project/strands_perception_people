@@ -78,10 +78,10 @@
 
     <group if="$(arg with_mdl_tracker)">
         <!-- Odometry -->
-        <include file="$(find odometry_to_motion_matrix)/launch/odom2visual.launch">
+        <include file="$(find odometry_to_motion_matrix)/launch/tf2visual.launch">
             <arg name="machine" value="$(arg machine)"/>
             <arg name="user" value="$(arg user)"/>
-            <arg name="odom" value="$(arg odom)"/>
+            <arg name="camera_namespace" value="$(arg camera_namespace)"/>
             <arg name="motion_parameters" value="$(arg visual_odometry)"/>
         </include>
 
