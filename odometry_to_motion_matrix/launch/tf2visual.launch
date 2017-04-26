@@ -1,0 +1,13 @@
+<launch>
+    <arg name="camera_namespace" default="/head_xtion" />
+    <arg name="motion_parameters" default="/visual_odometry/motion_matrix" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+
+    <node pkg="odometry_to_motion_matrix" type="tf2visual" name="tf2visual" output="screen">
+        <param name="motion_parameters" value="$(arg motion_parameters)" type="string"/>
+        <param name="sensor_frame_id" value="$(arg camera_namespace)_rgb_optical_frame"/>
+    </node>
+</launch> 

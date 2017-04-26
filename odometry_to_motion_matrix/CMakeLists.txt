@@ -46,6 +46,13 @@ target_link_libraries(odom2visual
   ${catkin_LIBRARIES}
 )
 
+add_executable(tf2visual src/odom2visual/tf2visual.cpp)
+add_dependencies(tf2visual ${catkin_EXPORTED_TARGETS})
+target_link_libraries(tf2visual
+  ${catkin_LIBRARIES}
+)
+
+
 #############
 ## Install ##
 #############
