@@ -43,6 +43,8 @@
 #include "visual_odometry/VisualOdometry.h"
 #include "mdl_people_tracker/MdlPeopleTracker.h"
 #include "mdl_people_tracker/MdlPeopleTrackerArray.h"
+#include "mdl_people_tracker/TrackedPerson2d.h"
+#include "mdl_people_tracker/TrackedPersons2d.h"
 
 
 using namespace std;
@@ -54,7 +56,7 @@ using namespace ground_plane_estimation;
 //using namespace strands_ground_hog;
 using namespace visual_odometry;
 
-ros::Publisher pub_message, pub_markers, pub_pose;
+ros::Publisher pub_message, pub_markers, pub_pose, pub_tracked_persons_2d;
 image_transport::Publisher pub_image;
 
 tf::TransformListener* listener;
@@ -69,6 +71,7 @@ Vector< Hypo > HyposAll;
 Detections *det_comb;
 Tracker tracker;
 int cnt = 0;
+unsigned long track_seq = 0;
 double startup_time = 0.0;
 std::string startup_time_str = "", target_frame;
 
@@ -485,6 +488,13 @@ void callbackWithoutHOG(const ImageConstPtr &color,
 
     MdlPeopleTrackerArray allHypoMsg;
     allHypoMsg.header = upper->header;
+
+    // also prepare tracks in 2d format (as direct input for further analysis)
+    mdl_people_tracker::TrackedPersons2d trackedPersons2d;
+    trackedPersons2d.header.stamp = upper->header.stamp;
+    trackedPersons2d.header.seq = ++track_seq;
+    trackedPersons2d.header.frame_id = color->header.frame_id;
+
     Vector<Vector<double> > trajPts;
     Vector<double> dir;
     for(int i = 0; i < hyposMDL.getSize(); i++)
@@ -522,6 +532,42 @@ void callbackWithoutHOG(const ImageConstPtr &color,
         oneHypoMsg.dir.push_back(dir(1));
         oneHypoMsg.dir.push_back(dir(2));
         allHypoMsg.people.push_back(oneHypoMsg);
+
+	// also publish in 2d format
+        int curr_idx = trajPts.getSize()-1;
+        // init one tracked person
+        mdl_people_tracker::TrackedPerson2d trackedPerson2d;
+        trackedPerson2d.track_id = hyposMDL(i).getHypoID();
+        trackedPerson2d.person_height = hyposMDL(i).getHeight();
+
+        // prepare position tracked person 2d
+        Vector<double> posInCamera = AncillaryMethods::fromWorldToCamera(trajPts(curr_idx), camera);
+        Vector<double> bbox_topleftCornerInCam = posInCamera;
+        Vector<double> bbox_bottomrightCornerInCam = posInCamera;
+        bbox_topleftCornerInCam.pushBack(1);
+        bbox_bottomrightCornerInCam.pushBack(1);
+        bbox_topleftCornerInCam(0) -= Globals::pedSizeWVis/2.0;
+        bbox_bottomrightCornerInCam(0) += Globals::pedSizeWVis/2.0;
+        Vector<double> bbox_topleftCornerInWorld = AncillaryMethods::fromCameraToWorld(bbox_topleftCornerInCam, camera);
+        Vector<double> bbox_bottomrightCornerInWorld = AncillaryMethods::fromCameraToWorld(bbox_bottomrightCornerInCam, camera);
+        bbox_topleftCornerInWorld *= 1/bbox_topleftCornerInWorld(3);
+        bbox_topleftCornerInWorld.resize(3);
+        bbox_bottomrightCornerInWorld *= 1/bbox_bottomrightCornerInWorld(3);
+        bbox_bottomrightCornerInWorld.resize(3);
+        bbox_topleftCornerInWorld(1) -= hyposMDL(i).getHeight();
+        Vector<double> bbox_topleftCornerInImage;
+        Vector<double> bbox_bottomrightCornerInImage;
+        camera.WorldToImage(bbox_topleftCornerInWorld, Globals::WORLD_SCALE, bbox_topleftCornerInImage);
+        camera.WorldToImage(bbox_bottomrightCornerInWorld, Globals::WORLD_SCALE, bbox_bottomrightCornerInImage);
+
+        trackedPerson2d.x = bbox_topleftCornerInImage(0);
+        trackedPerson2d.y = bbox_topleftCornerInImage(1);
+        trackedPerson2d.w = bbox_bottomrightCornerInImage(0) - bbox_topleftCornerInImage(0);
+        trackedPerson2d.h = bbox_bottomrightCornerInImage(1) - bbox_topleftCornerInImage(1);
+        trackedPerson2d.depth = posInCamera(2);
+
+        trackedPersons2d.boxes.push_back(trackedPerson2d);
+
     }
 
     if(pub_image.getNumSubscribers()) {
@@ -542,6 +588,7 @@ void callbackWithoutHOG(const ImageConstPtr &color,
     }
 
     pub_message.publish(allHypoMsg);
+    pub_tracked_persons_2d.publish(trackedPersons2d);
     cnt++;
 
     if(pub_markers.getNumSubscribers() || pub_pose.getNumSubscribers()){
@@ -682,7 +729,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
                      message_filters::Subscriber<VisualOdometry> &sub_vo,
                      image_transport::SubscriberFilter &sub_col,
                      image_transport::ImageTransport &it){
-    if(!pub_message.getNumSubscribers() && !pub_image.getNumSubscribers() && !pub_markers.getNumSubscribers() && !pub_pose.getNumSubscribers()) {
+    if(!pub_message.getNumSubscribers() && !pub_image.getNumSubscribers() && !pub_markers.getNumSubscribers() && !pub_pose.getNumSubscribers() && !pub_tracked_persons_2d.getNumSubscribers()) {
         ROS_DEBUG("Tracker: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
@@ -729,6 +776,7 @@ int main(int argc, char **argv)
     string pub_image_topic;
     string pub_marker_topic;
     string pub_pose_topic;
+    string pub_topic_tracked_persons_2d;
 
     // Initialize node parameters from launch file or command line.
     // Use a private node handle so that multiple instances of the node can be run simultaneously
@@ -835,6 +883,9 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("people_poses", pub_pose_topic, string("/mdl_people_tracker/pose_array"));
     pub_pose = n.advertise<geometry_msgs::PoseArray>(pub_pose_topic.c_str(), 10, con_cb, con_cb);
+
+    private_node_handle_.param("tracked_persons_2d", pub_topic_tracked_persons_2d, string("mdl_people_tracker/tracked_persons_2d"));
+    pub_tracked_persons_2d = n.advertise<mdl_people_tracker::TrackedPersons2d>(pub_topic_tracked_persons_2d, 10, con_cb, con_cb);
 
     ros::spin();
     return 0;
