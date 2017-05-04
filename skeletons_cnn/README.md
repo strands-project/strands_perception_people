@@ -1,15 +1,27 @@
 ## Skeletons CNN
 
-This package predicts 2D the upper body skeletons of multiple persons and requires the persons to be tracked before hand by the mdl tracker.
+This package predicts 2D skeletons of multiple persons and requires the persons to be tracked before hand by the bayes ppl tracker.
+
+Mandatory :
+
+ Download and extract the model from https://drive.google.com/open?id=0B_UCKnAjgo-cV0pHbktvY3ZMN0U in the pose_model folder.
 
 Dependencies :
 
-The current version has the follwoing dependencies.
+It has the follwoing dependencies.
 
-1) GTX 1050 GPU
-2) Cuda 8.0
-3) cudnn 5.1
-4) Tensor flow 1.0.1. Install Tensor flow with Virtual Environment as follows:
+1) A mid range gpu e.g GTX 1050 Ti
+2) Download and install cuda 8.0 for Linux Ubuntu 14.04 64-bit from this page: https://developer.nvidia.com/cuda-downloads
+3) Install CuDNN
+
+    Go to https://developer.nvidia.com/cuDNN and use the Download button (you have to register and login to download. no way around that.)
+    Download cuDNN 5.1 for Linux. You will download a file cudnn-8.0-linux-x64-v5.1.tgz then use the commands:
+    
+    i ) tar -xvf cudnn-7.0-linux-x64-v3.0-prod.tgz
+    ii) sudo cp cuda/include/*.h /usr/local/cuda/include
+    iii) sudo cp cuda/lib64/*.so* /usr/local/cuda/lib64
+
+4)  Install Tensor flow 1.0.1 with Virtual Environment as follows:
 
  i) Install pip and virtualenv by issuing the following command:
 
@@ -69,7 +81,11 @@ Running the package:
 
 Skeletons:Msg :
  
-    It outputs the following msg 
+    It outputs the following  skeleton.msg with the following format
+    Header header
+    int32 userID
+    joint[] joints
+    time time
 
 
 
