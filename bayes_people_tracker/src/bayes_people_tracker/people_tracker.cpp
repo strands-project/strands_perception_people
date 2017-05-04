@@ -1,8 +1,7 @@
-#include "people_tracker/people_tracker.h"
+#include "bayes_people_tracker/people_tracker.h"
 
 PeopleTracker::PeopleTracker() :
-    detect_seq(0),
-    marker_seq(0)
+    detect_seq(0)
 {
     ros::NodeHandle n;
 
@@ -112,7 +111,7 @@ void PeopleTracker::trackingThread() {
             std::vector<std::string> uuids;
             std::vector<double> distances;
             std::vector<double> angles;
-            double min_dist = 10000.0d;
+            double min_dist = 10000.0;
             double angle;
 
             for(std::map<long, std::vector<geometry_msgs::Pose> >::const_iterator it = ppl.begin();
@@ -176,7 +175,31 @@ void PeopleTracker::publishDetections(
     result.angles = angles;
     result.min_distance = min_dist;
     result.min_distance_angle = angle;
+
+    people_msgs::People people;
+    people.header = result.header;
+    for(int i = 0; i < ppl.size(); i++) {
+        // Just running one loop for people_msgs and adding velocities to people_tracker message
+        // Adding velocities as a vector to PeopleTracker message
+        geometry_msgs::Vector3 v;
+        v.x = vels[i].position.x;
+        v.y = vels[i].position.y;
+        result.velocities.push_back(v);
+
+        // Creating and adding Person message
+        people_msgs::Person person;
+        person.position = ppl[i].position;
+        person.velocity = vels[i].position;
+        person.name = uuids[i];
+        person.tags.push_back(uuids[i]);
+        person.tagnames.push_back("uuid");
+        person.reliability = 1.0;
+        people.people.push_back(person);
+    }
+
+    // Publishing both messages
     publishDetections(result);
+    publishDetections(people);
 
     geometry_msgs::PoseStamped pose;
     pose.header = result.header;
@@ -187,20 +210,6 @@ void PeopleTracker::publishDetections(
     poses.header = result.header;
     poses.poses = ppl;
     publishDetections(poses);
-
-    people_msgs::People people;
-    people.header = result.header;
-    for(int i = 0; i < ppl.size(); i++) {
-        people_msgs::Person person;
-        person.position = ppl[i].position;
-        person.velocity = vels[i].position;
-        person.name = uuids[i];
-        person.tags.push_back(uuids[i]);
-        person.tagnames.push_back("uuid");
-        person.reliability = 1.0;
-        people.people.push_back(person);
-    }
-    publishDetections(people);
 }
 
 void PeopleTracker::publishDetections(bayes_people_tracker::PeopleTracker msg) {
@@ -223,7 +232,7 @@ void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, 
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < poses.size(); i++) {
-        std::vector<visualization_msgs::Marker> human = createHuman(i*10, poses[i]);
+        std::vector<visualization_msgs::Marker> human = pm.createHuman(i*10, poses[i], target_frame);
         marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
     }
     pub.publish(marker_array);

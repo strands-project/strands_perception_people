@@ -25,13 +25,16 @@ class TrajectoryManager(object):
         self._with_logman = rospy.get_param("~with_logging_manager", "false")
 
         rospy.loginfo("Connecting to mongodb...")
-        self._store_client = MessageStoreProxy(collection="people_trajectory")
+        # self._store_client = MessageStoreProxy(collection="people_trajectory")
+        self._store_client = MessageStoreProxy(
+            collection=rospy.get_param("~collection_name", "people_trajectory")
+        )
 
         rospy.loginfo("Connecting to topological_map...")
         self._sub_topo = rospy.Subscriber(
             "/topological_map", TopologicalMap, self.map_callback, None, 10
         )
-        rospy.loginfo("Creating human_trajectory/trajectories topic...")
+        rospy.loginfo("Creating %s/trajectories topic..." % name)
         self._pub = rospy.Publisher(
             name+'/trajectories/complete', Trajectories, queue_size=10
         )
@@ -49,7 +52,8 @@ class TrajectoryManager(object):
             )
             self._publish_rate = rospy.Rate(1 / self._publish_interval)
             self.trajs = OnlineTrajectories(
-                rospy.get_param("~tracker_topic", "/people_tracker/positions")
+                rospy.get_param("~tracker_topic", "/people_tracker/positions"),
+                rospy.get_param("~ubd_topic", "/upper_body_detector/bounding_box_centres"),
             )
         else:
             self._publish_rate = rospy.Rate(1)

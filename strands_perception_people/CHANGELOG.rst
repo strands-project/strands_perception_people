@@ -2,6 +2,42 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.4 (2016-11-03)
+------------------
+
+1.5.3 (2016-07-04)
+------------------
+
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+
+1.5.0 (2016-03-15)
+------------------
+* Merge pull request `#189 <https://github.com/strands-project/strands_perception_people/issues/189>`_ from Pandoro/indigo-devel
+  Adding functionality to the DROW detector
+* Updated README and package xmls.
+* Contributors: Alexander Hermans, Marc Hanheide
+
+1.4.0 (2016-02-17)
+------------------
+
+1.3.1 (2016-02-11)
+------------------
+
+1.3.0 (2016-02-01)
+------------------
+* Adding people_tracker_filter to run dependencies of meta and launch package.
+* Contributors: Christian Dondrup
+
+1.2.1 (2016-01-28)
+------------------
+
+1.2.0 (2015-11-11)
+------------------
+
 1.1.8 (2015-09-03)
 ------------------
 

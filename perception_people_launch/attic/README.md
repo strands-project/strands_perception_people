@@ -17,7 +17,7 @@ Parameters:
 * `ptu_state` _default = /ptu/state_: The ptu state topic
 * `camera_namespace` _default = /head_xtion_: The camera namespace.
 * `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
-* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `depth_image` _default = /depth/image_rect_: `camera_namespace` + `depth_image` = depth image topic
 * `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
 * `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
 * `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic
@@ -55,7 +55,7 @@ Parameters:
 * `pt_queue_size` _default = 10_: The people tracking sync queue size
 * `camera_namespace` _default = /camera_: The camera namespace.
 * `rgb_image` _default = /rgb/image_rect_color_: `camera_namespace` + `rgb_image` = rgb image topic
-* `depth_image` _default = /depth/image_rect_meters_: `camera_namespace` + `depth_image` = depth image topic
+* `depth_image` _default = /depth/image_rect_: `camera_namespace` + `depth_image` = depth image topic
 * `mono_image` _default = /rgb/image_mono_: `camera_namespace` + `mono_image` = mono image topic
 * `camera_info_rgb` _default = /rgb/camera_info_: `camera_namespace` + `camera_info_rgb` = rgb camera info topic
 * `camera_info_depth` _default = /depth/camera_info_: `camera_namespace` + `camera_info_depth` = depth camera info topic

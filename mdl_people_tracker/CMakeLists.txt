@@ -36,6 +36,8 @@ add_message_files(
   FILES
   MdlPeopleTracker.msg
   MdlPeopleTrackerArray.msg
+  TrackedPerson2d.msg
+  TrackedPersons2d.msg
 )
 
 generate_messages(

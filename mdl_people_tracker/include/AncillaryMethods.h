@@ -95,6 +95,7 @@ public:
 
 
     static Vector<double> fromWorldToCamera(Vector<double>& posInWorld, Camera& cam);
+    static Vector<double> fromCameraToWorld(Vector<double>& posInCamera, Camera& cam);
 
     ///////////////// Segmentation part /////////////////////////////////////////
     static Matrix<double> conv1D(Matrix<double> &im, Vector<double> &kernel, bool dirFlag);

@@ -2,6 +2,52 @@
 Changelog for package perception_people_launch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.4 (2016-11-03)
+------------------
+* Adding the wheelchair detector to the tracker launch file. (`#211 <https://github.com/strands-project/strands_perception_people/issues/211>`_)
+  * Made wheelchair detector name more descriptive.
+  * Adds the wheelchair detector to the standard tracker launch file.
+  Turned off by default enabled by using with_wheelchair_detector:=true.
+  If it is used, a machine has to be specifieD: wheelchair_machine:=<machine name>.
+  There is no proper default here since the machine needs to be specifically
+  configured with CUDA and cudnn.
+* Contributors: Alexander Hermans
+
+1.5.3 (2016-07-04)
+------------------
+
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+
+1.5.0 (2016-03-15)
+------------------
+
+1.4.0 (2016-02-17)
+------------------
+
+1.3.1 (2016-02-11)
+------------------
+
+1.3.0 (2016-02-01)
+------------------
+* Adding people_tracker_filter to run dependencies of meta and launch package.
+* Contributors: Christian Dondrup
+
+1.2.1 (2016-01-28)
+------------------
+* Changing default topic name for use with openni2
+* Contributors: Christian Dondrup
+
+1.2.0 (2015-11-11)
+------------------
+* Adding new parameters to readme file.
+* Adding people tracker filter to overall launch file. Is started by default using the map provided on `/map`.
+  If not subscribed to, will not use any CPU.
+* Contributors: Christian Dondrup
+
 1.1.8 (2015-09-03)
 ------------------
 * Adding parameter description to README

@@ -938,3 +938,31 @@ Vector<double> AncillaryMethods::fromWorldToCamera(Vector<double>& posInWorld, C
     Vector<double> posInCam = RT*(posInWorld-t);
     return posInCam;
 }
+
+Vector<double> AncillaryMethods::fromCameraToWorld(Vector<double>& posInCamera, Camera& cam)
+{
+    Matrix<double> rotMat = cam.get_R();
+
+    Vector<double> posCam = cam.get_t();
+
+    Matrix<double> trMat(4,4,0.0);
+    trMat(3,3) = 1;
+    trMat(0,0) = rotMat(0,0);
+    trMat(0,1) = rotMat(0,1);
+    trMat(0,2) = rotMat(0,2);
+    trMat(1,0) = rotMat(1,0);
+    trMat(1,1) = rotMat(1,1);
+    trMat(1,2) = rotMat(1,2);
+    trMat(2,0) = rotMat(2,0);
+    trMat(2,1) = rotMat(2,1);
+    trMat(2,2) = rotMat(2,2);
+
+    posCam *= Globals::WORLD_SCALE;
+
+    trMat(3,0) = posCam(0);
+    trMat(3,1) = posCam(1);
+    trMat(3,2) = posCam(2);
+
+    Vector<double> posInWorld = trMat*posInCamera;
+    return posInWorld;
+}

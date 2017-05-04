@@ -2,6 +2,42 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.4 (2016-11-03)
+------------------
+
+1.5.3 (2016-07-04)
+------------------
+
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+
+1.5.0 (2016-03-15)
+------------------
+
+1.4.0 (2016-02-17)
+------------------
+
+1.3.1 (2016-02-11)
+------------------
+
+1.3.0 (2016-02-01)
+------------------
+
+1.2.1 (2016-01-28)
+------------------
+* Making the bbox red again.
+* Changing default topic name for use with openni2
+* Contributors: Christian Dondrup
+
+1.2.0 (2015-11-11)
+------------------
+* Make UBD viz padding-aware and not share ROS buffer.
+* UBD viz only works for rgb8 images.
+* Contributors: lucasb-eyer
+
 1.1.8 (2015-09-03)
 ------------------
 

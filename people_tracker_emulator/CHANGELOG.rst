@@ -2,6 +2,47 @@
 Changelog for package people_tracker_emulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.5.4 (2016-11-03)
+------------------
+* Fixing marker generation for several people (`#205 <https://github.com/strands-project/strands_perception_people/issues/205>`_)
+  The markers' ids where wrong which is why only one person had an upper body... This works now and displays the detected people correctly.
+* Contributors: Christian Dondrup
+
+1.5.3 (2016-07-04)
+------------------
+
+1.5.2 (2016-07-02)
+------------------
+
+1.5.1 (2016-07-02)
+------------------
+* Python human marker generation now allows to specify a list of colours one for each person.
+* Contributors: Christian Dondrup
+
+1.5.0 (2016-03-15)
+------------------
+
+1.4.0 (2016-02-17)
+------------------
+
+1.3.1 (2016-02-11)
+------------------
+
+1.3.0 (2016-02-01)
+------------------
+
+1.2.1 (2016-01-28)
+------------------
+
+1.2.0 (2015-11-11)
+------------------
+* Merge pull request `#169 <https://github.com/strands-project/strands_perception_people/issues/169>`_ from cdondrup/velo_message
+  Adding the velocity of detect people to PeopleTracker message
+* Adding option to create new uuid in emulator via service call.
+* Smoothing velocity and ensuring the same publishing rate as for the people tracker.
+* Using new PeopleTracker message in emulator + code clean-up
+* Contributors: Christian Dondrup, Marc Hanheide
+
 1.1.8 (2015-09-03)
 ------------------
 

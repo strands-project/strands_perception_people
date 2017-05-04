@@ -84,4 +84,8 @@ roslaunch bayes_people_tracker people_tracker.launch
 
 This is the recommended way of launching it since this will also read the config file and set the right parameters for the detectors.
 
+## Updating old bag files
+
+With version >1.1.8 the message type of the people tracker has been changed to include the velocities of humans as a Vector3. To update old rosbag files just run `rosbag check` this should tell you that there is a rule file to update this bag. Then run `rosbag fix` to update your old bag file and change the message type to the new version. The velocities will all be `0` but apart from that everything should work as intended.
+
 [1] N. Bellotto and H. Hu, “Computationally efficient solutions for tracking people with a mobile robot: an experimental evaluation of bayesian filters,” Autonomous Robots, vol. 28, no. 4, pp. 425–438, 2010.

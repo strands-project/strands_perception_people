@@ -7,7 +7,7 @@
     <arg name="pt_queue_size" default="10" />
     <arg name="camera_namespace" default="/camera" />
     <arg name="rgb_image" default="/rgb/image_rect_color" />
-    <arg name="depth_image" default="/depth/image_rect_meters" />
+    <arg name="depth_image" default="/depth/image_rect" />
     <arg name="mono_image" default="/rgb/image_mono" />
     <arg name="camera_info_rgb" default="/rgb/camera_info" />
     <arg name="camera_info_depth" default="/depth/camera_info" />
