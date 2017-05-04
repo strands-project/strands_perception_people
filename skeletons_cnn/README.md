@@ -78,6 +78,7 @@ Running the package:
 
    ii) Open a new terminal and activate the virtual environment for tensor flow <br />
          source ~/tensorflow/bin/activate # bash, sh, ksh, or zsh
+
    iii) Launch the skeletons package inside the virtual environment as follows <br />
         roslaunch skeletons_cnn pose_cnn.launch 
 
