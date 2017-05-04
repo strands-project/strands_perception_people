@@ -65,20 +65,20 @@ Required Topics :
 
 It needs the following topics as inputs
 
-RGB Image Topic : /head_xtion/rgb/image_rect_color
-Tracked Persons Topic: /mdl_people_tracker/tracked_persons_2d
-TODO : Depth Image Topic: /head_xtion/depth/image_rect
+RGB Image Topic : /head_xtion/rgb/image_rect_color <br />
+Tracked Persons Topic: /mdl_people_tracker/tracked_persons_2d <br />
+TODO : Depth Image Topic: /head_xtion/depth/image_rect <br />
   
 
 
 Running the package:
  
-   i)  Launch the bayes people tracker with mdl tracker as follows
+   i)  Launch the bayes people tracker with mdl tracker as follows <br />
        perception_people_launch people_tracker_robot.launch with_mdl_tracker:=true 
 
-   ii) Open a new terminal and activate the virtual environment for tensor flow 
+   ii) Open a new terminal and activate the virtual environment for tensor flow <br />
          source ~/tensorflow/bin/activate # bash, sh, ksh, or zsh
-   iii) Launch the skeletons package inside the virtual environment as follows
+   iii) Launch the skeletons package inside the virtual environment as follows <br />
         roslaunch skeletons_cnn pose_cnn.launch 
 
 
