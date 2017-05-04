@@ -65,29 +65,33 @@ Required Topics :
 
 It needs the following topics as inputs
 
-RGB Image Topic :
-Tracked Persons Topic:
-Depth Image Topic:
+RGB Image Topic : /head_xtion/rgb/image_rect_color
+Tracked Persons Topic: /mdl_people_tracker/tracked_persons_2d
+TODO : Depth Image Topic: /head_xtion/depth/image_rect
   
 
 
 Running the package:
-
-   Open a new terminal and activate the virtual environment for tensor flow 
-         $ source ~/tensorflow/bin/activate # bash, sh, ksh, or zsh
-   Launch the Mdl Person tracker
-   Launch the Skeleton estimator
-
-
-Skeletons:Msg :
  
-    It outputs the following  skeleton.msg with the following format
+   i)  Launch the bayes people tracker with mdl tracker as follows
+       perception_people_launch people_tracker_robot.launch with_mdl_tracker:=true 
+
+   ii) Open a new terminal and activate the virtual environment for tensor flow 
+         source ~/tensorflow/bin/activate # bash, sh, ksh, or zsh
+   iii) Launch the skeletons package inside the virtual environment as follows
+        roslaunch skeletons_cnn pose_cnn.launch 
+
+
+
+skeletons.msg from package skeletons_cnn (in python 'from skeletons_cnn.msg import skeleton'):
+ 
+    It outputs the following skeleton.msg with the following format
     Header header
     int32 userID
     joint[] joints
     time time
 
-
+TODO : The current version publishes 2D skeletons. Will add the depth image topic and convert 2D skeleton to 3D tommorow.
 
 
 
