@@ -1,0 +1,17 @@
+<launch>
+
+<arg name="network_path" default="$(find skeletons_cnn)/pose_model/" />
+<arg name="teaser_batch_path" default="$(find skeletons_cnn)/teaser_images/" />
+<arg name="rgb_image_msg" default="/head_xtion/rgb/image_rect_color" />
+<arg name="people_track_2d_msg" default="/mdl_people_tracker/tracked_persons_2d" />
+
+<node pkg="skeletons_cnn" type="skeletons.py" name="skeletons_cnn" output="screen">
+
+<param name="rgb_image_msg" value="$(arg rgb_image_msg)" type="string"/>
+<param name="people_track_2d_msg" value="$(arg people_track_2d_msg)" type="string"/>
+<param name="network_path" value="$(arg network_path)" type="string"/>
+<param name="teaser_batch_path" value="$(arg teaser_batch_path)" type="string"/>
+
+</node>
+
+</launch> 
