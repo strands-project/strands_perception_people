@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>skeletons_cnn</name>
-  <version>1.0</version>
+  <version>1.0.0</version>
   <description>The skeletons_cnn package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 

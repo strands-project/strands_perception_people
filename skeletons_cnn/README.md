@@ -4,7 +4,7 @@ This package predicts 2D skeletons of multiple persons and requires the persons 
 
 Mandatory :
 
- Download and extract the model from https://drive.google.com/open?id=0B_UCKnAjgo-cV0pHbktvY3ZMN0U in the pose_model folder.
+ Download and extract the model from https://drive.google.com/open?id=0B_UCKnAjgo-cV0pHbktvY3ZMN0U in the skeletons_cnn folder.
 
 Dependencies :
 
