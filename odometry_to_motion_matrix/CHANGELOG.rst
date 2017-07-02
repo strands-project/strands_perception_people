@@ -2,8 +2,8 @@
 Changelog for package odometry_to_motion_matrix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.5.5 (2017-07-02)
+------------------
 * corrects visual odometry motion matrix, based on tf-tree (fixes mdl-tracker)
 * Contributors: sbreuers
 
