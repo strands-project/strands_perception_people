@@ -2,6 +2,9 @@
 Changelog for package wheelchair_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.5.4 (2016-11-03)
 ------------------
 * Adding the wheelchair detector to the tracker launch file. (`#211 <https://github.com/strands-project/strands_perception_people/issues/211>`_)

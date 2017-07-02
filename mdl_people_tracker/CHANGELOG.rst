@@ -2,6 +2,11 @@
 Changelog for package mdl_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added tracked person 2d messages, published by mdl tracker for further analysis components
+* Contributors: sbreuers
+
 1.5.4 (2016-11-03)
 ------------------
 
