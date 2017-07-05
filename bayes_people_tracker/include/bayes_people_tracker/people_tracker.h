@@ -93,6 +93,7 @@ private:
 
     SimpleTracking<EKFilter> *ekf = NULL;
     SimpleTracking<UKFilter> *ukf = NULL;
+    SimpleTracking<PFilter> *pf = NULL;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
 };
 

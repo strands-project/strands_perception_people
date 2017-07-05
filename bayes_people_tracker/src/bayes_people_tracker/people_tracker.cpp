@@ -49,12 +49,44 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     std::string filter;
     n.getParam("filter_type", filter);
     ROS_INFO_STREAM("Found filter type: " << filter);
-    if(filter == "EKF")
-        ekf = new SimpleTracking<EKFilter>();
-    else if(filter == "UKF")
-        ukf = new SimpleTracking<UKFilter>();
+    if (filter == "EKF")
+    {
+        if (n.hasParam("std_limit"))
+        {
+            double stdLimit;
+            n.getParam("std_limit", stdLimit);
+            ROS_INFO("std_limit: %f ",stdLimit);
+            ekf = new SimpleTracking<EKFilter>(stdLimit);
+        } else {
+            ekf = new SimpleTracking<EKFilter>();
+        }
+    }
+    else if (filter == "UKF")
+    {
+        if (n.hasParam("std_limit"))
+        {
+            double stdLimit;
+            n.getParam("std_limit", stdLimit);
+            ROS_INFO("std_limit: %f ",stdLimit);
+            ukf = new SimpleTracking<UKFilter>(stdLimit);
+        } else {
+            ukf = new SimpleTracking<UKFilter>();
+        }
+    }
+    else if (filter == "PF")
+    {
+        if (n.hasParam("std_limit"))
+        {
+            double stdLimit;
+            n.getParam("std_limit", stdLimit);
+            ROS_INFO("std_limit: %f ",stdLimit);
+            pf = new SimpleTracking<PFilter>(stdLimit);
+        } else {
+            pf = new SimpleTracking<PFilter>();
+        }
+    }
     else {
-        ROS_FATAL_STREAM("Filter type " << filter << " is not specified. Unable to create the tracker. Please use either EKF or UKF.");
+        ROS_FATAL_STREAM("Filter type " << filter << " is not specified. Unable to create the tracker. Please use either EKF, UKF or PF.");
         return;
     }
 
@@ -62,9 +94,15 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     n.getParam("cv_noise_params", cv_noise);
     ROS_ASSERT(cv_noise.getType() == XmlRpc::XmlRpcValue::TypeStruct);
     ROS_INFO_STREAM("Constant Velocity Model noise: " << cv_noise);
-    ekf == NULL ?
-        ukf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]) :
+    if (ekf == NULL) {
+        if (ukf == NULL) {
+            pf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+        } else {
+            ukf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+        }
+    } else {
         ekf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+    }
     ROS_INFO_STREAM("Created " << filter << " based tracker using constant velocity prediction model.");
 
     XmlRpc::XmlRpcValue detectors;
@@ -73,15 +111,57 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = detectors.begin(); it != detectors.end(); ++it) {
         ROS_INFO_STREAM("Found detector: " << (std::string)(it->first) << " ==> " << detectors[it->first]);
         try {
-            ekf == NULL ?
-                ukf->addDetectorModel(it->first,
-                    detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-                    detectors[it->first]["cartesian_noise_params"]["x"],
-                    detectors[it->first]["cartesian_noise_params"]["y"]) :
-                ekf->addDetectorModel(it->first,
-                    detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-                    detectors[it->first]["cartesian_noise_params"]["x"],
-                    detectors[it->first]["cartesian_noise_params"]["y"]);
+            if (ekf == NULL) {
+                if (ukf == NULL) {
+                    if (detectors[it->first].hasMember("seq_size") && detectors[it->first].hasMember("seq_time"))
+                    {
+                        int seq_size = detectors[it->first]["seq_size"];
+                        pf->addDetectorModel(it->first,
+                            detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                            detectors[it->first]["cartesian_noise_params"]["x"],
+                            detectors[it->first]["cartesian_noise_params"]["y"],(unsigned int) seq_size, detectors[it->first]["seq_time"]);
+                    }
+                    else
+                    {
+                        pf->addDetectorModel(it->first,
+                            detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                            detectors[it->first]["cartesian_noise_params"]["x"],
+                            detectors[it->first]["cartesian_noise_params"]["y"]);
+                    }
+                } else {
+                    if (detectors[it->first].hasMember("seq_size") && detectors[it->first].hasMember("seq_time"))
+                    {
+                        int seq_size = detectors[it->first]["seq_size"];
+                        ukf->addDetectorModel(it->first,
+                            detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                            detectors[it->first]["cartesian_noise_params"]["x"],
+                            detectors[it->first]["cartesian_noise_params"]["y"],(unsigned int) seq_size,detectors[it->first]["seq_time"]);
+                    }
+                    else
+                    {
+                        ukf->addDetectorModel(it->first,
+                            detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                            detectors[it->first]["cartesian_noise_params"]["x"],
+                            detectors[it->first]["cartesian_noise_params"]["y"]);
+                    }
+                }
+            } else {
+                if (detectors[it->first].hasMember("seq_size") && detectors[it->first].hasMember("seq_time"))
+                {
+                    int seq_size = detectors[it->first]["seq_size"];
+                    ekf->addDetectorModel(it->first,
+                        detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                        detectors[it->first]["cartesian_noise_params"]["x"],
+                        detectors[it->first]["cartesian_noise_params"]["y"],(unsigned int) seq_size,detectors[it->first]["seq_time"]);
+                }
+                else
+                {
+                    ekf->addDetectorModel(it->first,
+                        detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
+                        detectors[it->first]["cartesian_noise_params"]["x"],
+                        detectors[it->first]["cartesian_noise_params"]["y"]);
+                }
+            }
         } catch (std::exception& e) {
             ROS_FATAL_STREAM(""
                     << e.what()
@@ -103,7 +183,16 @@ void PeopleTracker::trackingThread() {
     ros::Rate fps(30);
     double time_sec = 0.0;
     while(ros::ok()) {
-        std::map<long, std::vector<geometry_msgs::Pose> > ppl = ekf == NULL ? ukf->track(&time_sec) : ekf->track(&time_sec);
+        std::map<long, std::vector<geometry_msgs::Pose> > ppl;
+        if (ekf == NULL) {
+            if (ukf == NULL) {
+                ppl = pf->track(&time_sec);
+            } else {
+                ppl = ukf->track(&time_sec);
+            }
+        } else {
+            ppl = ekf->track(&time_sec);
+        }
         if(ppl.size()) {
             geometry_msgs::Pose closest_person_point;
             std::vector<geometry_msgs::Pose> pose;
@@ -289,9 +378,15 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
 
     }
     if(ppl.size()) {
-        ekf == NULL ?
-            ukf->addObservation(detector, ppl, pta->header.stamp.toSec()) :
+        if (ekf == NULL) {
+            if (ukf == NULL) {
+                pf->addObservation(detector, ppl, pta->header.stamp.toSec());
+            } else {
+                ukf->addObservation(detector, ppl, pta->header.stamp.toSec());
+            }
+        } else {
             ekf->addObservation(detector, ppl, pta->header.stamp.toSec());
+        }
     }
 }
 
