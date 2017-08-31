@@ -4,7 +4,7 @@
   <version>1.5.5</version>
   <description>The visual_odometry package</description>
 
-  <maintainer email="cdondrup@lincoln.ac.uk">Christian Dondrup</maintainer>
+  <maintainer email="marc@hanheide.net">Marc Hanheide</maintainer>
 
   <!--Due to fovis-->
   <license>GPL-3</license>
