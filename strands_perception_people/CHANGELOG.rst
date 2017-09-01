@@ -2,8 +2,8 @@
 Changelog for package strands_perception_people
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.6.0 (2017-09-01)
+------------------
 * changed from cdondrup to marc
 * removed warco and head-orientation
 * removed wheelchair_detector for kinetic

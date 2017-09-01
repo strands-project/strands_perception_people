@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>visual_odometry</name>
-  <version>1.5.5</version>
+  <version>1.6.0</version>
   <description>The visual_odometry package</description>
 
   <maintainer email="marc@hanheide.net">Marc Hanheide</maintainer>

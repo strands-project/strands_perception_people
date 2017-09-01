@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>mdl_people_tracker</name>
-  <version>1.5.5</version>
+  <version>1.6.0</version>
   <description>The mdl_people_tracker package</description>
 
   <maintainer email="marc@hanheide.net">Marc Hanheide</maintainer>

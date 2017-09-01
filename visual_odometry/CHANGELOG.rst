@@ -2,8 +2,8 @@
 Changelog for package visual_odometry
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.6.0 (2017-09-01)
+------------------
 * changed from cdondrup to marc
 * Contributors: Marc Hanheide
 

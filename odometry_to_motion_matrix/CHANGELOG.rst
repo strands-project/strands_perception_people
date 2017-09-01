@@ -2,8 +2,8 @@
 Changelog for package odometry_to_motion_matrix
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.6.0 (2017-09-01)
+------------------
 * changed from cdondrup to marc
 * Contributors: Marc Hanheide
 
