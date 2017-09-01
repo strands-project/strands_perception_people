@@ -2,6 +2,11 @@
 Changelog for package people_tracker_emulator
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* changed from cdondrup to marc
+* Contributors: Marc Hanheide
+
 1.5.5 (2017-07-02)
 ------------------
 

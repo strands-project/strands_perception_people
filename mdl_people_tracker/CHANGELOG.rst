@@ -2,6 +2,11 @@
 Changelog for package mdl_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* changed from cdondrup to marc
+* Contributors: Marc Hanheide
+
 1.5.5 (2017-07-02)
 ------------------
 * added tracked person 2d messages, published by mdl tracker for further analysis components
