@@ -17,6 +17,7 @@
 ros::Publisher pt_pub, ma_pub, ps_pub, pa_pub, p_pub;
 nav_msgs::OccupancyGrid ppl_map;
 PeopleMarker pm;
+bool map_received;
 
 typedef uint32_t index_t;
 typedef int16_t coord_t;
@@ -82,6 +83,8 @@ index_t pointIndex (const nav_msgs::MapMetaData& info, const geometry_msgs::Poin
 void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
     ppl_map = *msg;
+    map_received = true;
+    ROS_DEBUG("Map received");
 }
 
 void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
@@ -173,22 +176,34 @@ int main(int argc, char **argv)
 
     ros::NodeHandle n;
     ros::NodeHandle pn("~");
+    ROS_DEBUG("[FILTER] We're in namespace: %s", pn.getNamespace().c_str());
+
 
     std::string map_topic;
+
+    map_received = false;
+
     pn.param("map_topic", map_topic, std::string("/ppl_filter_map"));
+    ROS_DEBUG("Looking for map in topic [%s]",map_topic.c_str());
+
     ros::Subscriber sub = n.subscribe(map_topic, 1, map_callback);
-    while(ppl_map.header.stamp.sec == 0 and ros::ok()){
+    while((!map_received) and ros::ok()){
         ROS_INFO_NAMED(n.getNamespace(), "Waiting for map");
         ros::Duration(1).sleep();
         ros::spinOnce();
     }
-    if(ppl_map.header.stamp.sec != 0) ROS_INFO_NAMED(n.getNamespace(), "Got map");
+
+    if(map_received) ROS_INFO_NAMED(n.getNamespace(), "Got map!");
 
     std::string sub_positions_topic, sub_pose_topic, sub_pose_array_topic, sub_people_topic;
     pn.param("positions", sub_positions_topic, std::string("/people_tracker/positions"));
     pn.param("pose", sub_pose_topic, std::string("/people_tracker/pose"));
     pn.param("pose_array", sub_pose_array_topic, std::string("/people_tracker/pose_array"));
     pn.param("people", sub_people_topic, std::string("/people_tracker/people"));
+
+    //ROS_DEBUG("[FILTER] topics are: %s, %s, %s, %s", sub_people_topic.c_str(), sub_pose_topic.c_str(), sub_pose_array_topic.c_str(), sub_people_topic.c_str());
+
+
     message_filters::Subscriber<bayes_people_tracker::PeopleTracker> pt_sub(n, sub_positions_topic, 1);    pt_sub.unsubscribe();
     message_filters::Subscriber<geometry_msgs::PoseStamped>          ps_sub(n, sub_pose_topic, 1);         ps_sub.unsubscribe();
     message_filters::Subscriber<geometry_msgs::PoseArray>            pa_sub(n, sub_pose_array_topic, 1);   pa_sub.unsubscribe();

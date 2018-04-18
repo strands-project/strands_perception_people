@@ -2,6 +2,11 @@
 Changelog for package upper_body_detector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.6.1 (2018-04-06)
+------------------
+* Merged some ENRICHME branch improvements (but not thermal)
+
+
 1.6.0 (2017-09-01)
 ------------------
 * changed from cdondrup to marc

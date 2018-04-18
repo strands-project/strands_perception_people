@@ -23,6 +23,7 @@ PeopleTracker::PeopleTracker() :
     // while using different parameters.
     ros::NodeHandle private_node_handle("~");
     private_node_handle.param("target_frame", target_frame, std::string("/base_link"));
+    private_node_handle.param("base_frame", base_frame, std::string("/base_link"));
     private_node_handle.param("people_array", pta_topic, std::string("/upper_body_detector/bounding_box_centres"));
     parseParams(private_node_handle);
 
@@ -127,11 +128,11 @@ void PeopleTracker::trackingThread() {
                 poseInTargetCoords.pose = it->second[0];
 
                 //Find closest person and get distance and angle
-                if(strcmp(target_frame.c_str(), BASE_LINK)) {
+                if(strcmp(target_frame.c_str(), base_frame.c_str())) {
                     try{
-                        ROS_DEBUG("Transforming received position into %s coordinate system.", BASE_LINK);
-                        listener->waitForTransform(poseInTargetCoords.header.frame_id, BASE_LINK, poseInTargetCoords.header.stamp, ros::Duration(3.0));
-                        listener->transformPose(BASE_LINK, ros::Time(0), poseInTargetCoords, poseInTargetCoords.header.frame_id, poseInRobotCoords);
+                        ROS_DEBUG("Transforming received position into %s coordinate system.", base_frame.c_str());
+                        listener->waitForTransform(poseInTargetCoords.header.frame_id, base_frame, poseInTargetCoords.header.stamp, ros::Duration(3.0));
+                        listener->transformPose(base_frame, ros::Time(0), poseInTargetCoords, poseInTargetCoords.header.frame_id, poseInRobotCoords);
                     } catch(tf::TransformException ex) {
                         ROS_WARN("Failed transform: %s", ex.what());
                         continue;

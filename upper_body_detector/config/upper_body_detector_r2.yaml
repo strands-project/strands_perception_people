@@ -26,15 +26,15 @@ upper_body_detector:
     freespace_minX: -5
     freespace_minZ: 0
     freespace_maxX: 5
-    freespace_maxZ: 10
-    freespace_threshold: 300
+    freespace_maxZ: 7
+    freespace_threshold: 200
     freespace_max_depth_to_cons: 7
     
     #====================================
     # Detector
     #====================================
     # parameters upper body detector
-    evaluation_NMS_threshold_LM: 0.25 # lowering this parameter will reduce the number of false positives! Keep in mind this is distance!
+    evaluation_NMS_threshold_LM: 0.18 # lowering this parameter will reduce the number of false positives! Keep in mind this is distance!
     evaluation_inc_height_ratio: 0.2  # parameter for increasing the size of ROI which is then scanned by the depth template
     
     # <<< these parameters are only relevant if you want to perform multi-scaling, evaluation_nr_scales > 1
@@ -48,7 +48,7 @@ upper_body_detector:
     
     # scanning corridor, which means for each ROI we scan it with the depth template starting from min_height (in meters) for up to max_height
     max_height: 2.1
-    min_height: 0.85
+    min_height: 0.75
     
     #======================
     # World scale
@@ -58,14 +58,17 @@ upper_body_detector:
     #======================
     # Depth scale
     #======================
-    DEPTH_SCALE: 1.0
+    DEPTH_SCALE: 1000.0
     
     #===========================
     # height and width of images
     #===========================
-    dImWidth: 640
-    dImHeight: 480
+#    dImWidth: 640
+#    dImHeight: 480
     
+    dImWidth: 512
+    dImHeight: 424
+
     #====================================
     # Number of Frames / offset
     #====================================

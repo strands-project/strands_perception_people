@@ -34,7 +34,6 @@
 #include "bayes_people_tracker/asso_exception.h"
 #include "bayes_people_tracker/people_marker.h"
 
-#define BASE_LINK "/base_link"
 
 class PeopleTracker
 {
@@ -83,6 +82,8 @@ private:
     ros::Publisher pub_marker;
     tf::TransformListener* listener;
     std::string target_frame;
+    std::string base_frame;
+
     unsigned long detect_seq;
     double startup_time;
     std::string startup_time_str;

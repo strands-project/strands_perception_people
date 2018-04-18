@@ -15,7 +15,7 @@ class Detector
 public:
     Detector();
 
-    bool visualize_roi;
+    bool visualize_roi=false;
     Matrix<int> roi_image;
     Matrix<int> labeledROIs;
     ////////////////////////////////////////////////////////////////////////
