@@ -86,9 +86,6 @@ void KConnectedComponentLabeler::Process()
 	int	nWest = 0;
 	int	nEast = 0;
 	
-	//int		 * regionLabel = NULL;
-	//int		 * lookUpTable = NULL;
-	//long int * regionArea  = NULL;
         std::vector<int> regionLabel;
         std::vector<long int> regionArea;
         std::vector<int> lookUpTable;
@@ -169,8 +166,6 @@ void KConnectedComponentLabeler::Process()
 
 	if( regionNumber > 0 ) 
 	{
-		//regionLabel  = new int[regionNumber];
-		//regionArea   = new long int[label];
                 regionLabel.reserve(regionNumber);
 		regionArea.reserve(label);
                  
@@ -234,7 +229,6 @@ void KConnectedComponentLabeler::Process()
 			}
 		}
 
-		// int* trueLabelArray = new int[label];
                 std::vector<int> trueLabelArray(label);
 		for(i=0; i<label; i++)
 		{
@@ -296,19 +290,9 @@ void KConnectedComponentLabeler::Process()
             m_Components.pop_back();
 
 
-		//delete trueLabelArray; trueLabelArray = NULL;
-                trueLabelArray.clear();
+	        trueLabelArray.clear();
 	}
 	
-	//delete []lookUpTable;
-	//lookUpTable = NULL;
-
-	//delete []regionArea;
-	//regionArea = NULL;
-
-	//delete []regionLabel;
-	//regionLabel = NULL;
-
         lookUpTable.clear();
         regionArea.clear();
         regionLabel.clear();
