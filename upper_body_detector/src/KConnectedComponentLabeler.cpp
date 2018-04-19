@@ -288,14 +288,7 @@ void KConnectedComponentLabeler::Process()
 
         while( m_Components.size() != m_ObjectNumber )
             m_Components.pop_back();
-
-
-	        trueLabelArray.clear();
 	}
-	
-        lookUpTable.clear();
-        regionArea.clear();
-        regionLabel.clear();
 }
 
 //////// private KNode implementations ////////////////////
