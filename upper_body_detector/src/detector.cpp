@@ -155,14 +155,14 @@ void Detector::ComputeFreespace(const Camera& camera,
 // occ_map.WriteToTXT("after.txt");
  
     int occ_map_length = x_bins*z_bins;
-for(int y = 0; y < occ_map.y_size(); y++)
+for(int z = 0; z < occ_map.y_size(); z++)
     {
         for(int x = 0; x < occ_map.x_size(); x++)
         {
-	    //ROS_INFO("occ_map_binary -> x:%d, y:%i",x,y);
+	    //ROS_INFO("occ_map_binary -> x:%d, z:%i",x,z);
             
-            occ_map_binary(x,y) = (occ_map(x,y) < Globals::freespace_threshold) ? 0 : 1;
-	   // occ_map_binary(x,y) = 0 ;
+            occ_map_binary(x,z) = (occ_map(x,z) < Globals::freespace_threshold) ? 0 : 1;
+	   // occ_map_binary(x,z) = 0 ;
         }
     }
 }
