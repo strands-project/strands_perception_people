@@ -332,7 +332,7 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
         }
     }
     cv::cvtColor(image, image, CV_HSV2RGB);
-    cv_color_ptr = cv_bridge::toCvCopy(color);
+    cv_color_ptr = cv_bridge::toCvCopy(image);
     cv_color_ptr->image = image;
     
     //ROS_INFO("upper_body_detector: detected...");
