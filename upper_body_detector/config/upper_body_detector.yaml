@@ -23,11 +23,11 @@ upper_body_detector:
     freespace_scaleZ: 20 
     freespace_scaleX: 20
     
-    freespace_minX: -5
+    freespace_minX: -3
     freespace_minZ: 0
-    freespace_maxX: 5
-    freespace_maxZ: 10
-    freespace_threshold: 300
+    freespace_maxX: 3
+    freespace_maxZ: 7
+    freespace_threshold: 500
     freespace_max_depth_to_cons: 7
     
     #====================================
@@ -48,7 +48,7 @@ upper_body_detector:
     
     # scanning corridor, which means for each ROI we scan it with the depth template starting from min_height (in meters) for up to max_height
     max_height: 2.1
-    min_height: 0.85
+    min_height: 1.0
     
     #======================
     # World scale
