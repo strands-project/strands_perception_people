@@ -33,7 +33,7 @@ void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     ROS_DEBUG_STREAM("Normal after rotation: " << n.getX() << ", " << n.getY() << ", " << n.getZ());
     GroundPlane gp;
     gp.header.frame_id = _frame_id;
-    gp.header.stamp = ros::Time::now();
+    gp.header.stamp =  msg->header.stamp;
     gp.header.seq = ++_seq;
     ROS_DEBUG_STREAM("Created header:\n" << gp.header);
     gp.n.push_back(n.getX());
