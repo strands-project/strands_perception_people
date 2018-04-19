@@ -4,6 +4,7 @@
 
 Detector::Detector()
 {
+   visualize_roi=false;
 }
 
 void Detector::ProcessFrame(const Camera &camera_origin, const Matrix<double> &depth_map, const PointCloud &point_cloud,
