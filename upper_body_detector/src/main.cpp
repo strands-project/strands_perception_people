@@ -284,31 +284,21 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     for (int r = 0;r < info->height;r++){
         for (int c = 0;c < info->width;c++) {
             
-            float val = 0;
-            if (Globals::DEPTH_SCALE == 1.0)
-            {
-               val = img_depth_.at<float>(r,c);
-            }
-            else
-            {
-               val = img_depth_.at<ushort>(r,c);
-            }
-            float newVal = 0;
-            if (val==val)
-            {
-               newVal = val / Globals::DEPTH_SCALE;
-            }
-            else
-            {
-               newVal = 0;
-            }
-            //float valf = img_depth_.at<float>(r,c);
-            //unsigned int valushort = img_depth_.at<ushort>(r,c);
-            //ROS_INFO("depth map valf:%i, valushort:%i", valf,valushort);
-            //float newVal = (float) img_depth_.at<float>(r,c)/Globals::DEPTH_SCALE;
-  	    //if (newVal!=newVal)
-		//   newVal=-1;
-            matrix_depth(c, r) = newVal;
+	    int inttype = img_depth_.type();
+	    uchar type = inttype & CV_MAT_DEPTH_MASK;
+	    if (type == CV_32F) {
+		matrix_depth(c, r) = img_depth_.at<float>(r,c) / Globals::DEPTH_SCALE;
+	    } else if (type == CV_16U) {
+		float raw_val = img_depth_.at<ushort>(r,c);
+		if (raw_val == 0) { // Please double-check if 0 corresponds to NaN.
+		    matrix_depth(c, r) = nanf();
+		} else {
+		    matrix_depth(c, r) = raw_val / Globals::DEPTH_SCALE;
+		}
+	    } else {
+		ROS_ERROR("Unknown depth-map type, no detections.");
+	    }
+		
         }
     }
 
