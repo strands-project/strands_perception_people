@@ -50,7 +50,7 @@ VisualisationMarkers* vm;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
-cv_bridge::CvImagePtr cv_color_ptr;
+//cv_bridge::CvImagePtr cv_color_ptr;
 
 Matrix<double>* upper_body_template;
 Detector* detector;
@@ -291,7 +291,7 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
 	    } else if (type == CV_16U) {
 		float raw_val = img_depth_.at<ushort>(r,c);
 		if (raw_val == 0) { // Please double-check if 0 corresponds to NaN.
-		    matrix_depth(c, r) = nanf();
+		    matrix_depth(c, r) = nanf("");
 		} else {
 		    matrix_depth(c, r) = raw_val / Globals::DEPTH_SCALE;
 		}
@@ -318,6 +318,9 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     //ROS_INFO("upper_body_detector: processing frame...");
     detector->visualize_roi = true;
     detector->ProcessFrame(camera, matrix_depth, point_cloud, *upper_body_template, detected_bounding_boxes);
+    
+    /*
+    
     cv::Mat image(cv_depth_ptr->image.rows, cv_depth_ptr->image.cols, CV_8UC3);
     int x_pos, y_pos;
     int max_roi = maxOfMatrix(detector->roi_image,x_pos,y_pos);
@@ -332,8 +335,10 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
         }
     }
     cv::cvtColor(image, image, CV_HSV2RGB);
+    
     cv_color_ptr = cv_bridge::toCvCopy(image);
     cv_color_ptr->image = image;
+    */
     
     //ROS_INFO("upper_body_detector: detected...");
 
