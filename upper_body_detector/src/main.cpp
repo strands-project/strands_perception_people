@@ -44,15 +44,89 @@ using namespace ground_plane_estimation;
 
 ros::Publisher pub_message, pub_centres, pub_closest, pub_markers;
 image_transport::Publisher pub_result_image;
+image_transport::Publisher pub_roi;
 
 VisualisationMarkers* vm;
 
 cv::Mat img_depth_;
 cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
+//cv_bridge::CvImagePtr cv_color_ptr;
 
 Matrix<double>* upper_body_template;
 Detector* detector;
 
+
+void PrintMatrix2File(cv::Mat Mat, char filename[])
+{
+    //FILE* pFile;
+    //pFile = fopen(filename, "w");
+    //CvSize Size = cvGetSize(Mat);
+
+    ROS_INFO("image path: %s",filename);
+
+    std::ofstream fs;
+    fs.open(filename);
+    if (fs.is_open())
+    {
+        ROS_INFO("file opened: %s",filename);
+    }
+    else
+    {
+        ROS_INFO("error openning file: %s",filename);
+    }
+    for (int i = 0;i<Mat.rows;i++)
+	{
+        for(int j = 0;j<Mat.cols;j++)
+		{
+            float val = Mat.at<float>(i, j);
+            fs << val << " ";
+//            ROS_INFO("val:%f",val);
+            //CvScalar El = cvGet2D(Mat, i, j);
+            //fprintf(pFile, "%f;" , El.val[0]);
+			//fprintf(pFile, "%f;" , cvmGet(Mat, i, j));
+		}
+        // fprintf(pFile, "\n");
+        fs << std::endl;
+	}
+    //fclose(pFile);
+    fs.close();
+}
+
+void PrintMatrix2File_ushort(cv::Mat Mat, char filename[])
+{
+    //FILE* pFile;
+    //pFile = fopen(filename, "w");
+    //CvSize Size = cvGetSize(Mat);
+
+    ROS_INFO("image path: %s",filename);
+
+    std::ofstream fs;
+    fs.open(filename);
+    if (fs.is_open())
+    {
+        ROS_INFO("file opened: %s",filename);
+    }
+    else
+    {
+        ROS_INFO("error openning file: %s",filename);
+    }
+    for (int i = 0;i<Mat.rows;i++)
+    {
+        for(int j = 0;j<Mat.cols;j++)
+        {
+            int val = Mat.at<ushort>(i, j);
+            fs << val << " ";
+//            ROS_INFO("val:%f",val);
+            //CvScalar El = cvGet2D(Mat, i, j);
+            //fprintf(pFile, "%f;" , El.val[0]);
+            //fprintf(pFile, "%f;" , cvmGet(Mat, i, j));
+        }
+        // fprintf(pFile, "\n");
+        fs << std::endl;
+    }
+    //fclose(pFile);
+    fs.close();
+}
 
 void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
                     int r, int g, int b, int lineWidth)
@@ -74,11 +148,15 @@ void render_bbox_2D(UpperBodyDetector& detections, QImage& image,
         int y =(int) detections.pos_y[i];
         int w =(int) detections.width[i];
         int h =(int) detections.height[i];
+       // ROS_INFO("detection x:%i, y:%i, w:%i, h:%i", x,y,w,h);
 
-        painter.drawLine(x,y, x+w,y);
-        painter.drawLine(x,y, x,y+h);
-        painter.drawLine(x+w,y, x+w,y+h);
-        painter.drawLine(x,y+h, x+w,y+h);
+        if (x+w<image.width() & y+h < image.height())
+        {
+            painter.drawLine(x,y, x+w,y);
+            painter.drawLine(x,y, x,y+h);
+            painter.drawLine(x+w,y, x+w,y+h);
+            painter.drawLine(x,y+h, x+w,y+h);
+        }
     }
 }
 
@@ -137,6 +215,11 @@ bool ReadConfigParams(ros::NodeHandle n)
     // World scale
     //======================================
     success = checkParam(n.getParam(ns+"WORLD_SCALE", Globals::WORLD_SCALE), ns+"WORLD_SCALE") && success;
+
+    //======================================
+    // Depth scale
+    //======================================
+    success = checkParam(n.getParam(ns+"DEPTH_SCALE", Globals::DEPTH_SCALE), ns+"DEPTH_SCALE") && success;
 
     //======================================
     // height and width of images
@@ -198,9 +281,24 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
     img_depth_ = cv_depth_ptr->image;
     Matrix<double> matrix_depth(info->width, info->height);
-    for (int r = 0;r < 480;r++){
-        for (int c = 0;c < 640;c++) {
-            matrix_depth(c, r) = img_depth_.at<float>(r,c);
+    for (int r = 0;r < info->height;r++){
+        for (int c = 0;c < info->width;c++) {
+            
+	    int inttype = img_depth_.type();
+	    uchar type = inttype & CV_MAT_DEPTH_MASK;
+	    if (type == CV_32F) {
+		matrix_depth(c, r) = img_depth_.at<float>(r,c) / Globals::DEPTH_SCALE;
+	    } else if (type == CV_16U) {
+		float raw_val = img_depth_.at<ushort>(r,c);
+		if (raw_val == 0) { // Please double-check if 0 corresponds to NaN.
+		    matrix_depth(c, r) = nanf("");
+		} else {
+		    matrix_depth(c, r) = raw_val / Globals::DEPTH_SCALE;
+		}
+	    } else {
+		ROS_ERROR("Unknown depth-map type, no detections.");
+	    }
+		
         }
     }
 
@@ -217,7 +315,32 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     Camera camera(K,R,t,GP);
     PointCloud point_cloud(camera, matrix_depth);
     Vector<Vector< double > > detected_bounding_boxes;
+    //ROS_INFO("upper_body_detector: processing frame...");
+    detector->visualize_roi = true;
     detector->ProcessFrame(camera, matrix_depth, point_cloud, *upper_body_template, detected_bounding_boxes);
+    
+    /*
+    
+    cv::Mat image(cv_depth_ptr->image.rows, cv_depth_ptr->image.cols, CV_8UC3);
+    int x_pos, y_pos;
+    int max_roi = maxOfMatrix(detector->roi_image,x_pos,y_pos);
+    for(int y = 0; y < cv_depth_ptr->image.rows; y++)
+    {
+        for(int x = 0; x < cv_depth_ptr->image.cols; x++)
+        {   
+            unsigned int roi_clr = 0;
+            if (max_roi > 0)
+                roi_clr = (unsigned int)(detector->roi_image(x,y) / max_roi * 255);
+            image.at<cv::Vec3b>(y, x) = cv::Vec3b(roi_clr, 255, 255);
+        }
+    }
+    cv::cvtColor(image, image, CV_HSV2RGB);
+    
+    cv_color_ptr = cv_bridge::toCvCopy(image);
+    cv_color_ptr->image = image;
+    */
+    
+    //ROS_INFO("upper_body_detector: detected...");
 
     // Generate messages
     UpperBodyDetector detection_msg;
@@ -258,6 +381,29 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     }
 
     // Creating a ros image with the detection results an publishing it
+    /*
+    if(vis) {
+        //ROS_DEBUG("Publishing image");
+        QImage image_rgb(&color->data[0], color->width, color->height, QImage::Format_RGB888); // would opencv be better?
+        render_bbox_2D(detection_msg, image_rgb, 0, 0, 255, 2);
+
+        //ROS_INFO("upper_body_detector: publishing image...");
+
+        sensor_msgs::Image sensor_image;
+        sensor_image.header = color->header;
+        sensor_image.height = image_rgb.height();
+        sensor_image.width  = image_rgb.width();
+        sensor_image.step   = color->step;
+        vector<unsigned char> image_bits(image_rgb.bits(), image_rgb.bits()+sensor_image.height*sensor_image.width*3);
+        sensor_image.data = image_bits;
+        sensor_image.encoding = color->encoding;
+
+        pub_result_image.publish(sensor_image);
+
+        pub_roi.publish(cv_color_ptr->toImageMsg());
+    }
+
+*/
     if(vis && (color->encoding == "rgb8" || color->encoding == "bgr8")) {
         ROS_DEBUG("Publishing image");
 
@@ -279,6 +425,7 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     } else if(vis && color->encoding != "rgb8" && color->encoding != "bgr8") {
         ROS_WARN("Color image not in RGB8 or BGR8 format not supported");
     }
+
 
     // Publishing detections
     pub_message.publish(detection_msg);
@@ -334,6 +481,7 @@ int main(int argc, char **argv)
     string pub_topic_closest;
     string pub_topic_ubd;
     string pub_topic_result_image;
+    string pub_topic_roi;
     string pub_markers_topic;
 
     // Initialize node parameters from launch file or command line.
@@ -429,6 +577,9 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = it.advertise(pub_topic_result_image.c_str(), 1, image_cb, image_cb);
+
+    private_node_handle_.param("upper_body_roi", pub_topic_roi, string("/upper_body_detector/roi"));
+    pub_roi = it.advertise(pub_topic_roi.c_str(), 1, image_cb, image_cb);
 
     // Start ros thread managment
     ros::spin();

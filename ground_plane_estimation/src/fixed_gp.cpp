@@ -14,6 +14,7 @@ ros::Publisher _pub_ground_plane;
 int _seq = 0;
 tf::Vector3 _normal;
 double _distance;
+string _frame_id;
 
 void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     double tilt = 0.0;
@@ -31,8 +32,8 @@ void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     tf::Vector3 n = _normal.rotate(tf::Vector3(1,0,0), tilt); //Rotate about x-axis using ptu tilt angle
     ROS_DEBUG_STREAM("Normal after rotation: " << n.getX() << ", " << n.getY() << ", " << n.getZ());
     GroundPlane gp;
-    gp.header.frame_id = "/head_xtion_depth_optical_frame";
-    gp.header.stamp = msg->header.stamp;
+    gp.header.frame_id = _frame_id;
+    gp.header.stamp =  msg->header.stamp;
     gp.header.seq = ++_seq;
     ROS_DEBUG_STREAM("Created header:\n" << gp.header);
     gp.n.push_back(n.getX());
@@ -62,6 +63,7 @@ int main(int argc, char **argv)
     // Declare variables that can be modified by launch file or command line.
     string pub_topic_gp;
     string sub_ptu_topic;
+   
 
     std::vector<double> read_normal;
     read_normal.push_back(0.0); //Setting default values
@@ -74,7 +76,9 @@ int main(int argc, char **argv)
     ros::NodeHandle private_node_handle_("~");
     private_node_handle_.param("ptu_state", sub_ptu_topic, string("/ptu/state"));
     private_node_handle_.param("distance", _distance, 1.7);
+    private_node_handle_.param("frame_id", _frame_id,string("/head_xtion_depth_optical_frame"));
     private_node_handle_.getParam("normal", read_normal);
+
     _normal.setX(read_normal[0]);
     _normal.setY(read_normal[1]);
     _normal.setZ(read_normal[2]);
