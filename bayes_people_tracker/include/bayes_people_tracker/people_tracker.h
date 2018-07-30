@@ -34,6 +34,7 @@
 #include "bayes_people_tracker/asso_exception.h"
 #include "bayes_people_tracker/people_marker.h"
 
+#define INVALID_ID -1  // For publishing trajectories
 
 class PeopleTracker
 {
@@ -55,7 +56,12 @@ private:
                            std::vector<double> angles,
                            double min_dist,
                            double angle);
-    void createVisualisation(std::vector<geometry_msgs::Pose> points, ros::Publisher& pub);
+  void publishTrajectory(std::vector<geometry_msgs::Pose> poses,
+			 std::vector<geometry_msgs::Pose> vels,
+			 std::vector<geometry_msgs::Pose> vars,
+			 std::vector<long> pids,
+			 ros::Publisher& pub);
+    void createVisualisation(std::vector<geometry_msgs::Pose> points, std::vector<long> pids, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
@@ -79,12 +85,16 @@ private:
     ros::Publisher pub_pose;
     ros::Publisher pub_pose_array;
     ros::Publisher pub_people;
+    ros::Publisher pub_trajectory;
     ros::Publisher pub_marker;
     tf::TransformListener* listener;
     std::string target_frame;
     std::string base_frame;
 
+    double tracker_frequency;
+    bool publish_detections;
     unsigned long detect_seq;
+    unsigned long marker_seq;
     double startup_time;
     std::string startup_time_str;
 
@@ -94,7 +104,9 @@ private:
 
     SimpleTracking<EKFilter> *ekf = NULL;
     SimpleTracking<UKFilter> *ukf = NULL;
+    SimpleTracking<PFilter> *pf = NULL;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
+    std::vector<boost::tuple<long, geometry_msgs::Pose, geometry_msgs::Pose, geometry_msgs::Pose> > previous_poses;
 };
 
 #endif // PEDESTRIANLOCALISATION_H
