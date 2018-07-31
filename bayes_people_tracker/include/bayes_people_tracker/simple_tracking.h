@@ -41,7 +41,7 @@ using namespace Models;
 
 // rule to detect lost track
 template<class FilterType>
-bool MTRK::isLost(const FilterType* filter, double stdLimit = 1.0) {
+bool MTRK::isLost(const FilterType* filter, double stdLimit) {
   //ROS_INFO("var_x: %f, var_y: %f",filter->X(0,0), filter->X(2,2));
   // track lost if var(x)+var(y) > stdLimit^2
   if(filter->X(0,0) + filter->X(2,2) > sqr(stdLimit))
@@ -53,12 +53,12 @@ bool MTRK::isLost(const FilterType* filter, double stdLimit = 1.0) {
 template<class FilterType>
 bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq, observ_model_t om_flag) {
   assert(obsvSeq.size());
-  
+
   if(om_flag == CARTESIAN) {
     double dt = obsvSeq.back().time - obsvSeq.front().time;
     if(dt == 0) return false;
     //assert(dt); // dt must not be null
-    
+
     FM::Vec v((obsvSeq.back().vec - obsvSeq.front().vec) / dt);
 
     FM::Vec x(4);
@@ -77,8 +77,8 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq, observ_model_t o
     filter = new FilterType(4);
     filter->init(x, X);
   }
-  
-  if(om_flag == POLAR) {    
+
+  if(om_flag == POLAR) {
     double dt = obsvSeq.back().time - obsvSeq.front().time;
     if(dt == 0) return false;
     //assert(dt); // dt must not be null
@@ -86,10 +86,10 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq, observ_model_t o
     double y2 = obsvSeq.back().vec[1]*sin(obsvSeq.back().vec[0]);
     double x1 = obsvSeq.front().vec[1]*cos(obsvSeq.front().vec[0]);
     double y1 = obsvSeq.front().vec[1]*sin(obsvSeq.front().vec[0]);
-    
+
     FM::Vec x(4);
     FM::SymMatrix X(4,4);
-    
+
     x[0] = x2;
     x[1] = (x2-x1)/dt;
     x[2] = y2;
@@ -99,11 +99,11 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq, observ_model_t o
     X(1,1) = sqr(1.5);
     X(2,2) = sqr(0.5);
     X(3,3) = sqr(1.5);
-    
+
     filter = new FilterType(4);
     filter->init(x, X);
   }
-  
+
   return true;
 }
 
@@ -178,7 +178,7 @@ public:
             vel.position.x = mtrk[i].filter->x[1];
             vel.position.y = mtrk[i].filter->x[3];
             result[mtrk[i].id].push_back(vel);
-      
+
             var.position.x = mtrk[i].filter->X(0,0);
             var.position.y = mtrk[i].filter->X(2,2);
             result[mtrk[i].id].push_back(var);
@@ -205,8 +205,8 @@ public:
         cvm->update(dt);
         mtrk.template predict<CVModel>(*cvm);
 
-        // mtrk.process(*(det.ctm), det.alg); 
-    
+        // mtrk.process(*(det.ctm), det.alg);
+
     for(std::vector<geometry_msgs::Point>::iterator li = obsv.begin(); li != obsv.end(); ++li) {
       if(det.om_flag == CARTESIAN) {
 	(*observation)[0] = li->x;
@@ -218,7 +218,7 @@ public:
       }
       mtrk.addObservation(*observation, obsv_time);
     }
-    
+
     if(det.om_flag == CARTESIAN) {
       mtrk.process(*(det.ctm), det.om_flag, det.alg, det.seqSize, det.seqTime, stdLimit);
     }

@@ -1,6 +1,6 @@
 #include "bayes_people_tracker/people_tracker.h"
 
-PeopleTracker::PeopleTracker() : detect_seq(0), marker_seq(0) 
+PeopleTracker::PeopleTracker() : detect_seq(0), marker_seq(0)
 {
     ros::NodeHandle n;
 
@@ -196,11 +196,11 @@ void PeopleTracker::trackingThread() {
         } else {
             ppl = ekf->track(&time_sec);
         }
-    
+
         if(ppl.size()) {
             geometry_msgs::Pose closest_person_point;
-            std::vector<geometry_msgs::Pose> pose;
-            std::vector<geometry_msgs::Pose> vel;
+            std::vector<geometry_msgs::Pose> poses;
+            std::vector<geometry_msgs::Pose> vels;
             std::vector<geometry_msgs::Pose> vars;
             std::vector<std::string> uuids;
             std::vector<long> pids;
@@ -211,8 +211,8 @@ void PeopleTracker::trackingThread() {
 
             for(std::map<long, std::vector<geometry_msgs::Pose> >::const_iterator it = ppl.begin();
                 it != ppl.end(); ++it) {
-                pose.push_back(it->second[0]);
-                vel.push_back(it->second[1]);
+                poses.push_back(it->second[0]);
+                vels.push_back(it->second[1]);
                 vars.push_back(it->second[2]);
                 uuids.push_back(generateUUID(startup_time_str, it->first));
                 pids.push_back(it->first);
@@ -246,13 +246,13 @@ void PeopleTracker::trackingThread() {
                 min_dist = polar[0] < min_dist ? polar[0] : min_dist;
             }
       }
-      
+
       if(pub_detect.getNumSubscribers() || pub_pose.getNumSubscribers() || pub_pose_array.getNumSubscribers() || pub_people.getNumSubscribers())
 	publishDetections(time_sec, closest_person_point, poses, vels, uuids, distances, angles, min_dist, angle);
-      
+
             if(pub_marker.getNumSubscribers())
                 createVisualisation(poses, pids, pub_marker);
-      
+
             //if(pub_trajectory.getNumSubscribers())
             publishTrajectory(poses, vels, vars, pids, pub_trajectory);
         }
@@ -333,14 +333,57 @@ void PeopleTracker::publishDetections(people_msgs::People msg) {
     pub_people.publish(msg);
 }
 
-void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, ros::Publisher& pub) {
+void PeopleTracker::publishTrajectory(std::vector<geometry_msgs::Pose> poses,
+                      std::vector<geometry_msgs::Pose> vels,
+                      std::vector<geometry_msgs::Pose> vars,
+                      std::vector<long> pids,
+                      ros::Publisher& pub) {
+ /*** find trajectories ***/
+ for(int i = 0; i < previous_poses.size(); i++) {
+   if(boost::get<0>(previous_poses[i]) != INVALID_ID) {
+     bool last_pose = true;
+     for(int j = 0; j < pids.size(); j++) {
+     if(pids[j] == boost::get<0>(previous_poses[i])) {
+       last_pose = false;
+       break;
+     }
+     }
+     if(last_pose) {
+     geometry_msgs::PoseArray trajectory;
+     geometry_msgs::PoseArray velocity;
+     geometry_msgs::PoseArray variance;
+     trajectory.header.seq = boost::get<0>(previous_poses[i]); // tracking ID
+     trajectory.header.stamp = ros::Time::now();
+     trajectory.header.frame_id = target_frame; // will be reused by P-N experts
+     for(int j = 0; j < previous_poses.size(); j++) {
+       if(boost::get<0>(previous_poses[j]) == trajectory.header.seq) {
+         trajectory.poses.push_back(boost::get<3>(previous_poses[j]));
+         velocity.poses.push_back(boost::get<2>(previous_poses[j]));
+         variance.poses.push_back(boost::get<1>(previous_poses[j]));
+         boost::get<0>(previous_poses[j]) = INVALID_ID;
+       }
+     }
+     pub.publish(trajectory);
+     //std::cerr << "[people_tracker] trajectory ID = " << trajectory.header.seq << ", timestamp = " << trajectory.header.stamp << ", poses size = " << trajectory.poses.size() << std::endl;
+     }
+   }
+ }
+
+ /*** clean up ***/
+ for(int i = 0; i < previous_poses.size(); i++) {
+   if(boost::get<0>(previous_poses[i]) == INVALID_ID)
+     previous_poses.erase(previous_poses.begin()+i);
+ }
+}
+
+void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, std::vector<long> pids, ros::Publisher& pub) {
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < poses.size(); i++) {
         // Create Human Model
         std::vector<visualization_msgs::Marker> human = pm.createHuman(i*10, poses[i], target_frame);
         marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
-        // Create ID marker and trajectory 
+        // Create ID marker and trajectory
     double human_height = 1.9; //meter
     visualization_msgs::Marker tracking_id;
     tracking_id.header.stamp = ros::Time::now();
@@ -359,7 +402,7 @@ void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, 
     tracking_id.text = boost::to_string(pids[i]);
     tracking_id.lifetime = ros::Duration(0.1);
     marker_array.markers.push_back(tracking_id);
-    
+
     /* for FLOBOT - tracking trajectory */
     visualization_msgs::Marker tracking_tr;
     tracking_tr.header.stamp = ros::Time::now();

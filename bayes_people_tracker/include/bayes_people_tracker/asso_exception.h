@@ -4,19 +4,27 @@
 #include <exception>
 using namespace std;
 
-class asso_exception: public exception
+struct asso_exception: public exception
 {
-  virtual const char* what() const throw()
+  const char* what() const throw()
   {
     return "Unknown association algorithm!";
   }
 };
 
-class filter_exception: public exception
+struct filter_exception: public exception
 {
-  virtual const char* what() const throw()
+  const char* what() const throw()
   {
     return "Unknown filter type!";
+  }
+};
+
+struct observ_exception: public exception
+{
+  const char* what() const throw()
+  {
+    return "Unknown observation model!";
   }
 };
 
