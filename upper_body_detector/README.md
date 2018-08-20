@@ -31,3 +31,7 @@ roslaunch:
 ```
 roslaunch upper_body_detector upper_body_detector.launch [parameter_name:=value]
 ```
+
+### Why is it not working??
+
+If the node is running, all input topics are being sent, but no detection is being published, the most likely reason is a very common one all across ROS: [you are running on multiple machines and their times are out-of-sync](https://github.com/strands-project/strands_perception_people/issues/219#issuecomment-413464731). This is a very common error. Do synchronize the machines' clocks, for example using the "chrony" service.
