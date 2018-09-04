@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.7.0 (2018-09-04)
+------------------
 * Adapting to changes in bayestracking (`#220 <https://github.com/strands-project/strands_perception_people/issues/220>`_)
   * Adapted to scosar/bayestracking with 2D Polar Model and Added option to select Particle Filter
   * random fixes
