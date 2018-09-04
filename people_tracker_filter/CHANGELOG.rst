@@ -2,47 +2,88 @@
 Changelog for package people_tracker_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.6.0 (2017-09-01)
-------------------
-* Changed map reception check method
+Forthcoming
+-----------
+* Namespaces and topics specified as parameters. (`#218 <https://github.com/strands-project/strands_perception_people/issues/218>`_)
+  * Merged with ENRICHME branch. Parametrized topics/frame_ids
+  * Undone the timestamp change
+  Hi,
+  It was a careless change. I originally thought that the timestamp should reflect time creation of the data, but it also makes sense the way you made it plus it's better not to change the meaning of a field now.
+  * Reverted changes on original config.
+  * Update detector.h
+  * Default initialization on constructor
+  * Update KConnectedComponentLabeler.cpp
+  * Update KConnectedComponentLabeler.cpp
+  * Update detector.cpp
+  * Suggested change in data interpretation.
+  Still pending to check that 0 corresponds to NaN in ushort
+  * Bug corrected.
+  * commented duplicate code
+* Contributors: Manuel Fernandez-Carmona
 
 1.6.0 (2017-09-01)
 ------------------
+* changelogs
 * changed from cdondrup to marc
 * Contributors: Marc Hanheide
 
 1.5.5 (2017-07-02)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.5.4 (2016-11-03)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.5.3 (2016-07-04)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
-1.5.2 (2016-07-02)
-------------------
+1.5.2 (2016-07-02 20:52)
+------------------------
+* updated changelogs
+* Contributors: Jenkins
 
-1.5.1 (2016-07-02)
-------------------
+1.5.1 (2016-07-02 17:54)
+------------------------
+* updated changelogs
+* Merge branch 'indigo-devel' of https://github.com/strands-project/strands_perception_people into people_sitting_feature
+* Contributors: Ferdian Jovan, Jenkins
 
 1.5.0 (2016-03-15)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.4.0 (2016-02-17)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.3.1 (2016-02-11)
 ------------------
+* updated changelogs
+* Merge remote-tracking branch 'upstream/indigo-devel' into indigo-devel
+* Contributors: Alexander Hermans, Jenkins
 
 1.3.0 (2016-02-01)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.2.1 (2016-01-28)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.2.0 (2015-11-11)
 ------------------
+* updated changelogs
+* Merge pull request `#182 <https://github.com/strands-project/strands_perception_people/issues/182>`_ from cdondrup/ppl_tracker_filter
+  Adding a filter for the people tracker based on a map
 * Updating CMakeLists and package.xml
 * Adding velocities to filter.
 * Actually publishing people message now.
@@ -53,19 +94,7 @@ Changelog for package people_tracker_filter
   * Using new people_marker class to create human markers for filtered tracks.
 * Adding try catch for cell out of bounds
 * Adding people tracker filter based on a map.
-* Contributors: Christian Dondrup
-
-* Updating CMakeLists and package.xml
-* Adding velocities to filter.
-* Actually publishing people message now.
-* Removing occupancy grid utils dependency by copying the relevant functions.
-* Updating launch file to make the map server optional. Also adding more arguments.
-* * People tracker now has the same functionality as all the other components meaning that it lies dormant until someone subscribes to any of its topics.
-  * Filter now filters all the people_tracker topics.
-  * Using new people_marker class to create human markers for filtered tracks.
-* Adding try catch for cell out of bounds
-* Adding people tracker filter based on a map.
-* Contributors: Christian Dondrup
+* Contributors: Christian Dondrup, Jenkins, Marc Hanheide
 
 1.1.8 (2015-09-03)
 ------------------
@@ -110,46 +139,4 @@ Changelog for package people_tracker_filter
 ------------------------
 
 0.1.0 (2015-02-18 16:59)
-------------------------
-
-0.0.14 (2014-11-23)
--------------------
-
-0.0.13 (2014-10-31 16:14)
--------------------------
-
-0.0.12 (2014-10-31 16:07)
--------------------------
-
-0.0.11 (2014-10-30 11:18)
--------------------------
-
-0.0.10 (2014-10-30 10:19)
--------------------------
-
-0.0.9 (2014-10-30 09:52)
-------------------------
-
-0.0.8 (2014-10-30 09:32)
-------------------------
-
-0.0.7 (2014-10-29 20:40)
-------------------------
-
-0.0.6 (2014-10-29 20:32)
-------------------------
-
-0.0.5 (2014-10-29 18:30)
-------------------------
-
-0.0.4 (2014-10-29 18:22)
-------------------------
-
-0.0.3 (2014-10-23)
-------------------
-
-0.0.2 (2014-10-18 17:39)
-------------------------
-
-0.0.1 (2014-10-18 17:28)
 ------------------------

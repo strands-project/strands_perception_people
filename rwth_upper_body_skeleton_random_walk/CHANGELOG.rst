@@ -2,29 +2,50 @@
 Changelog for package rwth_upper_body_skeleton_random_walk
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.6.0 (2017-09-01)
 ------------------
+* changelogs
+* Contributors: Marc Hanheide
 
 1.5.5 (2017-07-02)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.5.4 (2016-11-03)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.5.3 (2016-07-04)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
-1.5.2 (2016-07-02)
-------------------
+1.5.2 (2016-07-02 20:52)
+------------------------
+* updated changelogs
+* Contributors: Jenkins
 
-1.5.1 (2016-07-02)
-------------------
+1.5.1 (2016-07-02 17:54)
+------------------------
+* updated changelogs
+* Merge branch 'indigo-devel' of https://github.com/strands-project/strands_perception_people into people_sitting_feature
+* Contributors: Ferdian Jovan, Jenkins
 
 1.5.0 (2016-03-15)
 ------------------
+* updated changelogs
+* Contributors: Jenkins
 
 1.4.0 (2016-02-17)
 ------------------
+* updated changelogs
+* Merge pull request `#178 <https://github.com/strands-project/strands_perception_people/issues/178>`_ from urafi/indigo-devel
+  added the ros node for upper body skeleton detections
 * rectified version number in right place
 * modified file
 * modified file
@@ -33,17 +54,7 @@ Changelog for package rwth_upper_body_skeleton_random_walk
 * modified files
 * added install targets, Model and README file
 * added the ros node for upper body skeleton
-* Contributors: urafi, urfi
-
-* rectified version number in right place
-* modified file
-* modified file
-* modified file
-* modified files
-* modified files
-* added install targets, Model and README file
-* added the ros node for upper body skeleton
-* Contributors: urafi, urfi
+* Contributors: Jenkins, Marc Hanheide, urafi, urfi
 
 1.3.1 (2016-02-11)
 ------------------
@@ -100,46 +111,4 @@ Changelog for package rwth_upper_body_skeleton_random_walk
 ------------------------
 
 0.1.0 (2015-02-18 16:59)
-------------------------
-
-0.0.14 (2014-11-23)
--------------------
-
-0.0.13 (2014-10-31 16:14)
--------------------------
-
-0.0.12 (2014-10-31 16:07)
--------------------------
-
-0.0.11 (2014-10-30 11:18)
--------------------------
-
-0.0.10 (2014-10-30 10:19)
--------------------------
-
-0.0.9 (2014-10-30 09:52)
-------------------------
-
-0.0.8 (2014-10-30 09:32)
-------------------------
-
-0.0.7 (2014-10-29 20:40)
-------------------------
-
-0.0.6 (2014-10-29 20:32)
-------------------------
-
-0.0.5 (2014-10-29 18:30)
-------------------------
-
-0.0.4 (2014-10-29 18:22)
-------------------------
-
-0.0.3 (2014-10-23)
-------------------
-
-0.0.2 (2014-10-18 17:39)
-------------------------
-
-0.0.1 (2014-10-18 17:28)
 ------------------------
