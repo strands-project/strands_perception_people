@@ -28,6 +28,7 @@
 #include <bayes_tracking/models.h>
 #include <bayes_tracking/ekfilter.h>
 #include <bayes_tracking/ukfilter.h>
+#include <bayes_tracking/pfilter.h>
 #include <cstdio>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
@@ -40,20 +41,24 @@ using namespace Models;
 
 // rule to detect lost track
 template<class FilterType>
-bool MTRK::isLost(const FilterType* filter) {
-    // track lost if var(x)+var(y) > 1
-    if (filter->X(0,0) + filter->X(2,2) > sqr(1.0))
-        return true;
-    return false;
+bool MTRK::isLost(const FilterType* filter, double stdLimit) {
+  //ROS_INFO("var_x: %f, var_y: %f",filter->X(0,0), filter->X(2,2));
+  // track lost if var(x)+var(y) > stdLimit^2
+  if(filter->X(0,0) + filter->X(2,2) > sqr(stdLimit))
+    return true;
+  return false;
 }
 
 // rule to create new track
 template<class FilterType>
-bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq) {
-    assert(obsvSeq.size());
+bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq, observ_model_t om_flag) {
+  assert(obsvSeq.size());
 
+  if(om_flag == CARTESIAN) {
     double dt = obsvSeq.back().time - obsvSeq.front().time;
-    assert(dt); // dt must not be null
+    if(dt == 0) return false;
+    //assert(dt); // dt must not be null
+
     FM::Vec v((obsvSeq.back().vec - obsvSeq.front().vec) / dt);
 
     FM::Vec x(4);
@@ -71,28 +76,62 @@ bool MTRK::initialize(FilterType* &filter, sequence_t& obsvSeq) {
 
     filter = new FilterType(4);
     filter->init(x, X);
+  }
 
-    return true;
+  if(om_flag == POLAR) {
+    double dt = obsvSeq.back().time - obsvSeq.front().time;
+    if(dt == 0) return false;
+    //assert(dt); // dt must not be null
+    double x2 = obsvSeq.back().vec[1]*cos(obsvSeq.back().vec[0]);
+    double y2 = obsvSeq.back().vec[1]*sin(obsvSeq.back().vec[0]);
+    double x1 = obsvSeq.front().vec[1]*cos(obsvSeq.front().vec[0]);
+    double y1 = obsvSeq.front().vec[1]*sin(obsvSeq.front().vec[0]);
+
+    FM::Vec x(4);
+    FM::SymMatrix X(4,4);
+
+    x[0] = x2;
+    x[1] = (x2-x1)/dt;
+    x[2] = y2;
+    x[3] = (y2-y1)/dt;
+    X.clear();
+    X(0,0) = sqr(0.5);
+    X(1,1) = sqr(1.5);
+    X(2,2) = sqr(0.5);
+    X(3,3) = sqr(1.5);
+
+    filter = new FilterType(4);
+    filter->init(x, X);
+  }
+
+  return true;
 }
 
 template<typename FilterType>
 class SimpleTracking
 {
 public:
-    SimpleTracking() {
+    SimpleTracking(double sLimit = 1.0) {
         time = getTime();
         observation = new FM::Vec(2);
+        stdLimit = sLimit;
     }
 
     void createConstantVelocityModel(double vel_noise_x, double vel_noise_y) {
         cvm = new CVModel(vel_noise_x, vel_noise_y);
     }
 
-    void addDetectorModel(std::string name, association_t alg, double pos_noise_x, double pos_noise_y) {
+    void addDetectorModel(std::string name, association_t alg, observ_model_t om_flag, double pos_noise_x, double pos_noise_y, unsigned int seqSize = 5, double seqTime = 0.2) {
         ROS_INFO("Adding detector model for: %s.", name.c_str());
         detector_model det;
+        det.om_flag = om_flag;
         det.alg = alg;
-        det.ctm = new CartesianModel(pos_noise_x, pos_noise_y);
+        if(om_flag == CARTESIAN)
+            det.ctm = new CartesianModel(pos_noise_x, pos_noise_y);
+        if(om_flag == POLAR)
+            det.plm = new PolarModel(pos_noise_x, pos_noise_y);
+        det.seqSize = seqSize;
+        det.seqTime = seqTime;
         detectors[name] = det;
     }
 
@@ -103,16 +142,23 @@ public:
         time += dt;
         if(track_time) *track_time = time;
 
-        for(typename std::map<std::string, detector_model>::const_iterator it = detectors.begin();
-            it != detectors.end();
-            ++it) {
-            // prediction
-            cvm->update(dt);
-            mtrk.template predict<CVModel>(*cvm);
+        // This function is only for the prediction step of the tracker. Thus, the update step is not performed here
+        // Since the update step is related to observations (from detectors), it is performed in addObservation function, when a new observation comes
+        // for(typename std::map<std::string, detector_model>::const_iterator it = detectors.begin();
+        //    it != detectors.end();
+        //    ++it) {
+        //    // prediction
+        //    cvm->update(dt);
+        //    mtrk.template predict<CVModel>(*cvm);
 
-            // process observations (if available) and update tracks
-            mtrk.process(*(it->second.ctm), it->second.alg);
-        }
+        //    // process observations (if available) and update tracks
+        //    mtrk.process(*(it->second.ctm), it->second.alg);
+        //}
+       // prediction
+       cvm->update(dt);
+       mtrk.template predict<CVModel>(*cvm);
+       detector_model dummy_det;
+       mtrk.process(*(dummy_det.ctm));
 
         for (int i = 0; i < mtrk.size(); i++) {
             double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
@@ -122,7 +168,7 @@ public:
                     theta, //orientation
                     sqrt(mtrk[i].filter->X(0,0)), sqrt(mtrk[i].filter->X(2,2))//std dev
                     );
-            geometry_msgs::Pose pose, vel;
+            geometry_msgs::Pose pose, vel, var; // position, velocity, variance
             pose.position.x = mtrk[i].filter->x[0];
             pose.position.y = mtrk[i].filter->x[2];
             pose.orientation.z = sin(theta/2);
@@ -132,6 +178,10 @@ public:
             vel.position.x = mtrk[i].filter->x[1];
             vel.position.y = mtrk[i].filter->x[3];
             result[mtrk[i].id].push_back(vel);
+
+            var.position.x = mtrk[i].filter->X(0,0);
+            var.position.y = mtrk[i].filter->X(2,2);
+            result[mtrk[i].id].push_back(var);
         }
         return result;
     }
@@ -155,15 +205,29 @@ public:
         cvm->update(dt);
         mtrk.template predict<CVModel>(*cvm);
 
-        mtrk.process(*(det.ctm), det.alg);
+        // mtrk.process(*(det.ctm), det.alg);
 
-        std::vector<geometry_msgs::Point>::iterator li, liEnd = obsv.end();
-        for (li = obsv.begin(); li != liEnd; li++) {
-            (*observation)[0] = li->x;
-            (*observation)[1] = li->y;
-            mtrk.addObservation(*observation, obsv_time);
-        }
+    for(std::vector<geometry_msgs::Point>::iterator li = obsv.begin(); li != obsv.end(); ++li) {
+      if(det.om_flag == CARTESIAN) {
+	(*observation)[0] = li->x;
+	(*observation)[1] = li->y;
+      }
+      if(det.om_flag == POLAR) {
+	(*observation)[0] = atan2(li->y, li->x); // bearing
+	(*observation)[1] = sqrt(pow(li->x,2) + pow(li->y,2)); // range
+      }
+      mtrk.addObservation(*observation, obsv_time);
     }
+
+    if(det.om_flag == CARTESIAN) {
+      mtrk.process(*(det.ctm), det.alg, det.seqSize, det.seqTime, stdLimit, det.om_flag);
+    }
+    if(det.om_flag == POLAR) {
+      //det.plm->update(robot_pose.position.x, robot_pose.position.y, robot_pose.orientation.w);
+      det.plm->update(0, 0, 0);
+      mtrk.process(*(det.plm), det.alg, det.seqSize, det.seqTime, stdLimit, det.om_flag);
+    }
+  }
 
 private:
 
@@ -172,10 +236,15 @@ private:
     boost::mutex mutex;
     CVModel *cvm;                   // CV model
     MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
+    double stdLimit;                  // upper limit for the variance of estimation position
 
     typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
+        PolarModel *plm;            // Polar observation model
+        observ_model_t om_flag;     // Observation model flag
         association_t alg;          // Data association algorithm
+        unsigned int seqSize;       // Minimum number of observations for new track creation
+        double seqTime;             // Minimum interval between observations for new track creation
     } detector_model;
     std::map<std::string, detector_model> detectors;
 
