@@ -220,12 +220,12 @@ public:
     }
 
     if(det.om_flag == CARTESIAN) {
-      mtrk.process(*(det.ctm), det.om_flag, det.alg, det.seqSize, det.seqTime, stdLimit);
+      mtrk.process(*(det.ctm), det.alg, det.seqSize, det.seqTime, stdLimit, det.om_flag);
     }
     if(det.om_flag == POLAR) {
       //det.plm->update(robot_pose.position.x, robot_pose.position.y, robot_pose.orientation.w);
       det.plm->update(0, 0, 0);
-      mtrk.process(*(det.plm), det.om_flag, det.alg, det.seqSize, det.seqTime, stdLimit);
+      mtrk.process(*(det.plm), det.alg, det.seqSize, det.seqTime, stdLimit, det.om_flag);
     }
   }
 
