@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
     sensor_msgs 
     std_msgs 
     visualization_msgs
+    spencer_tracking_msgs
+    spencer_diagnostics 
     )
 
 find_package(Boost REQUIRED COMPONENTS thread)

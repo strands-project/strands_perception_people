@@ -31,6 +31,17 @@
 #include "upper_body_detector/UpperBodyDetector.h"
 #include "ground_plane_estimation/GroundPlane.h"
 
+/*
+Same definition... WHY?
+#include <rwth_perception_people_msgs/UpperBodyDetector.h>
+#include <rwth_perception_people_msgs/GroundPlane.h>
+*/
+
+
+#include <spencer_diagnostics/publisher.h>
+#include <spencer_tracking_msgs/DetectedPersons.h>
+
+
 #include <QImage>
 #include <QPainter>
 
@@ -44,6 +55,7 @@ using namespace ground_plane_estimation;
 
 ros::Publisher pub_message, pub_centres, pub_closest, pub_markers;
 image_transport::Publisher pub_result_image;
+spencer_diagnostics::MonitoredPublisher pub_detected_persons;
 image_transport::Publisher pub_roi;
 
 VisualisationMarkers* vm;
@@ -55,6 +67,8 @@ cv_bridge::CvImagePtr cv_depth_ptr;	// cv_bridge for depth image
 Matrix<double>* upper_body_template;
 Detector* detector;
 
+int detection_id_increment, detection_id_offset, current_detection_id; // added for multi-sensor use in SPENCER
+double pose_variance; // used in output spencer_tracking_msgs::DetectedPerson.pose.covariance
 
 void PrintMatrix2File(cv::Mat Mat, char filename[])
 {
@@ -275,7 +289,7 @@ visualization_msgs::MarkerArray createVisualisation(geometry_msgs::PoseArray pos
 void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const GroundPlane::ConstPtr &gp, const CameraInfoConstPtr &info)
 {
     // Check if calculation is necessary
-    bool vis = pub_result_image.getNumSubscribers() > 0 || pub_markers.getNumSubscribers() > 0;
+    bool vis = pub_result_image.getNumSubscribers() > 0 || pub_markers.getNumSubscribers() > 0 || pub_detected_persons.getNumSubscribers() > 0;
 
     // Get depth image as matrix
     cv_depth_ptr = cv_bridge::toCvCopy(depth);
@@ -353,6 +367,9 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     closest.pose.orientation.w = 1;
     bool found = false;
 
+    spencer_tracking_msgs::DetectedPersons detected_persons;
+    detected_persons.header = depth->header;
+
     for(int i = 0; i < detected_bounding_boxes.getSize(); i++)
     {
         // Custom detections message
@@ -378,6 +395,25 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
             closest.pose.position = pose.position;
             found = true;
         }
+
+        // DetectedPerson for SPENCER
+        spencer_tracking_msgs::DetectedPerson detected_person;
+        detected_person.modality = spencer_tracking_msgs::DetectedPerson::MODALITY_GENERIC_RGBD;
+        detected_person.confidence = detected_bounding_boxes(i)(4); // FIXME: normalize
+        detected_person.pose.pose = pose;
+
+        const double LARGE_VARIANCE = 999999999;
+        detected_person.pose.covariance[0*6 + 0] = pose_variance;
+        detected_person.pose.covariance[1*6 + 1] = pose_variance; // up axis (since this is in sensor frame!)
+        detected_person.pose.covariance[2*6 + 2] = pose_variance;
+        detected_person.pose.covariance[3*6 + 3] = LARGE_VARIANCE;
+        detected_person.pose.covariance[4*6 + 4] = LARGE_VARIANCE;
+        detected_person.pose.covariance[5*6 + 5] = LARGE_VARIANCE;
+
+        detected_person.detection_id = current_detection_id;
+        current_detection_id += detection_id_increment;
+
+        detected_persons.detections.push_back(detected_person);  
     }
 
     // Creating a ros image with the detection results an publishing it
@@ -430,6 +466,7 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     // Publishing detections
     pub_message.publish(detection_msg);
     pub_centres.publish(bb_centres);
+    pub_detected_persons.publish(detected_persons);
     if(found) pub_closest.publish(closest);
 
     if(pub_markers.getNumSubscribers())
@@ -446,7 +483,8 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
             && !pub_result_image.getNumSubscribers()
             && !pub_centres.getNumSubscribers()
             && !pub_closest.getNumSubscribers()
-            && !pub_markers.getNumSubscribers()) {
+            && !pub_markers.getNumSubscribers()
+            && !pub_detected_persons.getNumSubscribers()) {
         ROS_DEBUG("Upper Body Detector: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
@@ -481,6 +519,7 @@ int main(int argc, char **argv)
     string pub_topic_closest;
     string pub_topic_ubd;
     string pub_topic_result_image;
+    string pub_topic_detected_persons;
     string pub_topic_roi;
     string pub_markers_topic;
 
@@ -513,6 +552,11 @@ int main(int argc, char **argv)
     string topic_depth_image;
     private_node_handle_.param("depth_image", topic_depth_image, string("/depth/image_rect"));
     topic_depth_image = cam_ns + topic_depth_image;
+
+    // New parameters for SPENCER
+    private_node_handle_.param("detection_id_increment", detection_id_increment, 1);
+    private_node_handle_.param("detection_id_offset",    detection_id_offset, 0);
+    private_node_handle_.param("pose_variance",    pose_variance, 0.05);
 
     // Printing queue size
     ROS_DEBUG("upper_body_detector: Queue size for synchronisation is set to: %i", queue_size);
@@ -577,6 +621,17 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = it.advertise(pub_topic_result_image.c_str(), 1, image_cb, image_cb);
+
+    private_node_handle_.param("detected_persons", pub_topic_detected_persons, string("/detected_persons"));
+    pub_detected_persons = n.advertise<spencer_tracking_msgs::DetectedPersons>(pub_topic_detected_persons, 10, con_cb, con_cb);
+
+    double min_expected_frequency, max_expected_frequency;
+    private_node_handle_.param("min_expected_frequency", min_expected_frequency, 10.0);
+    private_node_handle_.param("max_expected_frequency", max_expected_frequency, 100.0);
+    
+    pub_detected_persons.setExpectedFrequency(min_expected_frequency, max_expected_frequency);
+    pub_detected_persons.setMaximumTimestampOffset(0.3, 0.1);
+    pub_detected_persons.finalizeSetup();
 
     private_node_handle_.param("upper_body_roi", pub_topic_roi, string("/upper_body_detector/roi"));
     pub_roi = it.advertise(pub_topic_roi.c_str(), 1, image_cb, image_cb);

@@ -17,6 +17,10 @@
     <arg name="upper_body_roi" default="/upper_body_detector/roi" />
     <arg name="upper_body_closest_bb_centres" default="/upper_body_detector/closest_bounding_box_centre" />
     <arg name="ground_plane" default="/ground_plane" />
+    <arg name="detected_persons" default="/detected_persons"/>
+    <arg name="detection_id_offset" default="0"/>
+    <arg name="detection_id_increment" default="1"/>
+
     <arg name="machine" default="localhost" />
     <arg name="user" default="" />
 
@@ -35,6 +39,9 @@
         <param name="upper_body_roi" value="$(arg upper_body_roi)" type="string"/>
         <param name="upper_body_closest_bb_centres" value="$(arg upper_body_closest_bb_centres)" type="string"/>
         <param name="ground_plane" value="$(arg ground_plane)" type="string"/>
+        <param name="detected_persons" value="$(arg detected_persons)" type="string"/>
+        <param name="detection_id_offset" value="$(arg detection_id_offset)"/>
+        <param name="detection_id_increment" value="$(arg detection_id_increment)"/>
     </node>
 
 </launch> 
