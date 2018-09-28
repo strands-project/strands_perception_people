@@ -186,7 +186,7 @@ public:
         return result;
     }
 
-    void addObservation(std::string detector_name, std::vector<geometry_msgs::Point> obsv, double obsv_time) {
+    void addObservation(std::string detector_name, std::vector<geometry_msgs::Point> obsv, double obsv_time, std::vector<std::string> tags) {
         boost::mutex::scoped_lock lock(mutex);
         ROS_DEBUG("Adding new observations for detector: %s", detector_name.c_str());
         // add last observation/s to tracker
@@ -207,6 +207,7 @@ public:
 
         // mtrk.process(*(det.ctm), det.alg);
 
+    int count = 0;
     for(std::vector<geometry_msgs::Point>::iterator li = obsv.begin(); li != obsv.end(); ++li) {
       if(det.om_flag == CARTESIAN) {
 	(*observation)[0] = li->x;
@@ -216,7 +217,10 @@ public:
 	(*observation)[0] = atan2(li->y, li->x); // bearing
 	(*observation)[1] = sqrt(pow(li->x,2) + pow(li->y,2)); // range
       }
-      mtrk.addObservation(*observation, obsv_time);
+      if (count < tags.size())
+        mtrk.addObservation(*observation, obsv_time, tags[count]);
+      else 
+        mtrk.addObservation(*observation, obsv_time);
     }
 
     if(det.om_flag == CARTESIAN) {
@@ -227,6 +231,7 @@ public:
       det.plm->update(0, 0, 0);
       mtrk.process(*(det.plm), det.alg, det.seqSize, det.seqTime, stdLimit, det.om_flag);
     }
+    count++;
   }
 
 private:

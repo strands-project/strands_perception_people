@@ -64,6 +64,7 @@ private:
     void createVisualisation(std::vector<geometry_msgs::Pose> points, std::vector<long> pids, ros::Publisher& pub);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
+    void detectorCallback_people(const people_msgs::People::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
     void parseParams(ros::NodeHandle);
 
@@ -106,6 +107,7 @@ private:
     SimpleTracking<UKFilter> *ukf = NULL;
     SimpleTracking<PFilter> *pf = NULL;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
+    std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers_people;
     std::vector<boost::tuple<long, geometry_msgs::Pose, geometry_msgs::Pose, geometry_msgs::Pose> > previous_poses;
 };
 
