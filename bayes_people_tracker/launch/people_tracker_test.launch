@@ -16,7 +16,9 @@
     <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
     
     <node pkg="tf" name="tf_map_base_link" type="static_transform_publisher" args="0 0 0 0 0 0 /map /base_link 10" />
-    <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen" respawn="true">
+    <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen" 
+        launch-prefix-off="ddd --args"
+        respawn="false">
         <param name="target_frame" value="$(arg target_frame)" type="string"/>
         <param name="base_frame" value="$(arg base_frame)" type="string"/>
         <param name="positions" value="$(arg positions)" type="string"/>

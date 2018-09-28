@@ -1,20 +1,20 @@
 bayes_people_tracker:
     filter_type: "UKF"                                         # The Kalman filter type: EKF = Extended Kalman Filter, UKF = Uncented Kalman Filter
     cv_noise_params:                                           # The noise for the constant velocity prediction model
-        x: 1.4
-        y: 1.4
+        x: 0.4
+        y: 0.4
     detectors:                                                 # Add detectors under this namespace
-        # identifying_detector:                                   # Name of detector (used internally to identify them). Has to be unique.
-        #     people_topic: "/people" # The topic on which the geometry_msgs/PoseArray is published
-        #     cartesian_noise_params:                            # The noise for the cartesian observation model
-        #         x: 0.5
-        #         y: 0.5
-        #     observation_model: "CARTESIAN"
-        #     matching_algorithm: "NN"                   # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
+        identifying_detector:                                   # Name of detector (used internally to identify them). Has to be unique.
+            people_topic: "/people" # The topic on which the geometry_msgs/PoseArray is published
+            noise_params:                            # The noise for the cartesian observation model
+                x: 0.5
+                y: 0.5
+            observation_model: "CARTESIAN"
+            matching_algorithm: "NN"                   # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
         anonymous_detector:                                          # Name of detector (used internally to identify them). Has to be unique.
             topic: "/poses"               # The topic on which the geometry_msgs/PoseArray is published
-            cartesian_noise_params:                            # The noise for the cartesian observation model
-                x: 0.2
-                y: 0.2
+            noise_params:                            # The noise for the cartesian observation model
+                x: 0.02
+                y: 0.02
             observation_model: "CARTESIAN"
             matching_algorithm: "NN"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association

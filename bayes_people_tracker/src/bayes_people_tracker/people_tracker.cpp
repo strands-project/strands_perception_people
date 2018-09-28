@@ -258,7 +258,7 @@ void PeopleTracker::trackingThread() {
     	publishDetections(time_sec, closest_person_point, poses, vels, uuids, distances, angles, min_dist, angle);
 
                 if(pub_marker.getNumSubscribers())
-                    createVisualisation(poses, pids, pub_marker);
+                    createVisualisation(poses, pids, pub_marker, uuids);
 
                 //if(pub_trajectory.getNumSubscribers())
                 publishTrajectory(poses, vels, vars, pids, pub_trajectory);
@@ -392,7 +392,7 @@ void PeopleTracker::publishTrajectory(std::vector<geometry_msgs::Pose> poses,
  }
 }
 
-void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, std::vector<long> pids, ros::Publisher& pub) {
+void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids) {
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < poses.size(); i++) {
@@ -415,7 +415,7 @@ void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, 
     tracking_id.color.r = 1.0;
     tracking_id.color.g = 0.2;
     tracking_id.color.b = 0.0;
-    tracking_id.text = boost::to_string(pids[i]);
+    tracking_id.text = uuids[i] + " " + boost::to_string(pids[i]);
     tracking_id.lifetime = ros::Duration(0.1);
     marker_array.markers.push_back(tracking_id);
 
