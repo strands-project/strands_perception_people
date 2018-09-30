@@ -229,15 +229,15 @@ def talker():
 
     walkers = [
         CircularWalker('marc', start_coords=[5, 5], omega_deg=10),
-        LinearWalker('zoe', start_coords=[0, 0]),
-        CircularWalker('greg', start_coords=[2, 2])
+        LinearWalker('vicky', start_coords=[0, 0]),
+        LinearWalker('greg', start_coords=[2, 2])
     ]
 
     for w in walkers:
         w.start()
 
     Sensor(
-        'marvelmind', walkers[:1],          # not all walkers of this sensor
+        'marvelmind', walkers[:2],          # not all walkers of this sensor
         anonymous=False,                    # this sensor provides IDs
         noise=[.2, .2],                     # cartesian noise
         delayed_start=0,                    # start only after N seconds

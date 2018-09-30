@@ -432,9 +432,9 @@ void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, 
         vars_ellipse.scale.z = 0.2;
         vars_ellipse.scale.x = sqrt(vars[i].position.x);
         vars_ellipse.scale.y = sqrt(vars[i].position.y);
-        vars_ellipse.color.a = 0.5;
-        vars_ellipse.color.r = 0.0;
-        vars_ellipse.color.g = 1.0;
+        vars_ellipse.color.a = 0.8;
+        vars_ellipse.color.r = 1.0 - (1.0/(sqrt(vars[i].position.x+vars[i].position.y)+1.0));
+        vars_ellipse.color.g = (1.0/(sqrt(vars[i].position.x+vars[i].position.y)+1.0));
         vars_ellipse.color.b = 0.0;
         vars_ellipse.text = boost::to_string(vars[i].position.x) + ", " + boost::to_string(vars[i].position.y);
         //ROS_INFO_STREAM(vars_ellipse.text);
