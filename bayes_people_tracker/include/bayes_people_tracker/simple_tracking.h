@@ -222,6 +222,7 @@ public:
         mtrk.addObservation(*observation, obsv_time, tags[count]);
       else 
         mtrk.addObservation(*observation, obsv_time);
+      count++;
     }
 
     if(det.om_flag == CARTESIAN) {
