@@ -61,7 +61,7 @@ private:
 			 std::vector<geometry_msgs::Pose> vars,
 			 std::vector<long> pids,
 			 ros::Publisher& pub);
-    void createVisualisation(std::vector<geometry_msgs::Pose> points, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids);
+    void createVisualisation(std::vector<geometry_msgs::Pose> points, std::vector<geometry_msgs::Pose> vars, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
     void detectorCallback_people(const people_msgs::People::ConstPtr &pta, string detector);

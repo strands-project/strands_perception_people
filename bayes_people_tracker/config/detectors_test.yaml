@@ -3,16 +3,16 @@ bayes_people_tracker:
     cv_noise_params:                                           # The noise for the constant velocity prediction model
         x: 0.7
         y: 0.7
-    std_limit: 10.0
+    std_limit: 1.0
     detectors:                                                 # Add detectors under this namespace
         gps:                                   # Name of detector (used internally to identify them). Has to be unique.
             people_topic: "/tracker_tester/sensor/people/gps" # The topic on which the people_msgs/People is published
             noise_params:                            # The noise for the cartesian observation model
-                x: 1.0
-                y: 1.0
+                x: 2.0
+                y: 2.0
             observation_model: "CARTESIAN"
-            seq_size: 1
-            seq_time: 3.0
+            seq_size: 3
+            seq_time: 10.0
             matching_algorithm: "NN_LABELED"          # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
         marvelmind:                                   # Name of detector (used internally to identify them). Has to be unique.
             people_topic: "/tracker_tester/sensor/people/marvelmind" # The topic on which the people_msgs/People is published
@@ -20,13 +20,15 @@ bayes_people_tracker:
                 x: .2
                 y: .2
             observation_model: "CARTESIAN"
-            seq_size: 3
-            seq_time: 3.0
+            seq_size: 2
+            seq_time: 6.0
             matching_algorithm: "NN_LABELED"                   # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
         vision:                                          # Name of detector (used internally to identify them). Has to be unique.
             topic: "/tracker_tester/sensor/pose_array/serhan"               # The topic on which the geometry_msgs/PoseArray is published
             noise_params:                            # The noise for the cartesian observation model
                 x: 0.04
                 y: 0.04
+            seq_size: 5
+            seq_time: 1.0
             observation_model: "CARTESIAN"
             matching_algorithm: "NN"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association

@@ -243,21 +243,21 @@ void PeopleTracker::trackingThread() {
                         poseInRobotCoords = poseInTargetCoords;
                     }
 
-    	if(pub_detect.getNumSubscribers() || pub_pose.getNumSubscribers() || pub_pose_array.getNumSubscribers() || pub_people.getNumSubscribers()) {
-                    std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
-                    distances.push_back(polar[0]);
-                    angles.push_back(polar[1]);
-                    angle = polar[0] < min_dist ? polar[1] : angle;
-                    closest_person_point = polar[0] < min_dist ? it->second[0] : closest_person_point;
-                    min_dist = polar[0] < min_dist ? polar[0] : min_dist;
+            	    if(pub_detect.getNumSubscribers() || pub_pose.getNumSubscribers() || pub_pose_array.getNumSubscribers() || pub_people.getNumSubscribers()) {
+                        std::vector<double> polar = cartesianToPolar(poseInRobotCoords.pose.position);
+                        distances.push_back(polar[0]);
+                        angles.push_back(polar[1]);
+                        angle = polar[0] < min_dist ? polar[1] : angle;
+                        closest_person_point = polar[0] < min_dist ? it->second[0] : closest_person_point;
+                        min_dist = polar[0] < min_dist ? polar[0] : min_dist;
+                    }
                 }
-          }
 
-          if(pub_detect.getNumSubscribers() || pub_pose.getNumSubscribers() || pub_pose_array.getNumSubscribers() || pub_people.getNumSubscribers())
-    	publishDetections(time_sec, closest_person_point, poses, vels, uuids, distances, angles, min_dist, angle);
+                if(pub_detect.getNumSubscribers() || pub_pose.getNumSubscribers() || pub_pose_array.getNumSubscribers() || pub_people.getNumSubscribers())
+        	        publishDetections(time_sec, closest_person_point, poses, vels, uuids, distances, angles, min_dist, angle);
 
                 if(pub_marker.getNumSubscribers())
-                    createVisualisation(poses, pids, pub_marker, uuids);
+                    createVisualisation(poses, vars, pids, pub_marker, uuids);
 
                 //if(pub_trajectory.getNumSubscribers())
                 publishTrajectory(poses, vels, vars, pids, pub_trajectory);
@@ -391,7 +391,7 @@ void PeopleTracker::publishTrajectory(std::vector<geometry_msgs::Pose> poses,
  }
 }
 
-void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids) {
+void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, std::vector<geometry_msgs::Pose> vars, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids) {
     ROS_DEBUG("Creating markers");
     visualization_msgs::MarkerArray marker_array;
     for(int i = 0; i < poses.size(); i++) {
@@ -399,47 +399,69 @@ void PeopleTracker::createVisualisation(std::vector<geometry_msgs::Pose> poses, 
         std::vector<visualization_msgs::Marker> human = pm.createHuman(i*10, poses[i], target_frame);
         marker_array.markers.insert(marker_array.markers.begin(), human.begin(), human.end());
         // Create ID marker and trajectory
-    double human_height = 1.9; //meter
-    visualization_msgs::Marker tracking_id;
-    tracking_id.header.stamp = ros::Time::now();
-    tracking_id.header.frame_id = target_frame;
-    tracking_id.ns = "people_id";
-    tracking_id.id = pids[i];
-    tracking_id.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-    tracking_id.pose.position.x = poses[i].position.x;
-    tracking_id.pose.position.y = poses[i].position.y;
-    tracking_id.pose.position.z = human_height;
-    tracking_id.scale.z = 0.7;
-    tracking_id.color.a = 1.0;
-    tracking_id.color.r = 1.0;
-    tracking_id.color.g = 0.2;
-    tracking_id.color.b = 0.0;
-    tracking_id.text = uuids[i] + " " + boost::to_string(pids[i]);
-    tracking_id.lifetime = ros::Duration(0.1);
-    marker_array.markers.push_back(tracking_id);
+        double human_height = 1.9; //meter
+        visualization_msgs::Marker tracking_id;
+        tracking_id.header.stamp = ros::Time::now();
+        tracking_id.header.frame_id = target_frame;
+        tracking_id.ns = "people_id";
+        tracking_id.id = pids[i];
+        tracking_id.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        tracking_id.pose.position.x = poses[i].position.x;
+        tracking_id.pose.position.y = poses[i].position.y;
+        tracking_id.pose.position.z = human_height;
+        tracking_id.scale.z = 0.7;
+        tracking_id.color.a = 1.0;
+        tracking_id.color.r = 1.0;
+        tracking_id.color.g = 0.2;
+        tracking_id.color.b = 0.0;
+        tracking_id.text = uuids[i] + " (" + boost::to_string(pids[i]) + ")";
+        tracking_id.lifetime = ros::Duration(0.1);
+        marker_array.markers.push_back(tracking_id);
 
-    /* for FLOBOT - tracking trajectory */
-    visualization_msgs::Marker tracking_tr;
-    tracking_tr.header.stamp = ros::Time::now();
-    tracking_tr.header.frame_id = target_frame;
-    tracking_tr.ns = "people_trajectory";
-    tracking_tr.id = pids[i];
-    tracking_tr.type = visualization_msgs::Marker::LINE_STRIP;
-    geometry_msgs::Point p;
-    for(int j = 0; j < previous_poses.size(); j++) {
-      if(boost::get<0>(previous_poses[j]) == pids[i]) {
-	p.x = boost::get<3>(previous_poses[j]).position.x;
-	p.y = boost::get<3>(previous_poses[j]).position.y;
-	tracking_tr.points.push_back(p);
-      }
-    }
-    tracking_tr.scale.x = 0.1;
-    tracking_tr.color.a = 1.0;
-    tracking_tr.color.r = std::max(0.3,(double)(pids[i]%3)/3.0);
-    tracking_tr.color.g = std::max(0.3,(double)(pids[i]%6)/6.0);
-    tracking_tr.color.b = std::max(0.3,(double)(pids[i]%9)/9.0);
-    tracking_tr.lifetime = ros::Duration(1.0);
-    marker_array.markers.push_back(tracking_tr);
+        visualization_msgs::Marker vars_ellipse;
+        vars_ellipse.header.stamp = ros::Time::now();
+        vars_ellipse.header.frame_id = target_frame;
+        vars_ellipse.ns = "vars_ellipse";
+        vars_ellipse.id = pids[i];
+        vars_ellipse.type = visualization_msgs::Marker::CYLINDER;
+        vars_ellipse.pose.position.x = poses[i].position.x;
+        vars_ellipse.pose.position.y = poses[i].position.y;
+        vars_ellipse.pose.position.z = 0.0;
+        vars_ellipse.scale.z = 0.2;
+        vars_ellipse.scale.x = sqrt(vars[i].position.x);
+        vars_ellipse.scale.y = sqrt(vars[i].position.y);
+        vars_ellipse.color.a = 0.5;
+        vars_ellipse.color.r = 0.0;
+        vars_ellipse.color.g = 1.0;
+        vars_ellipse.color.b = 0.0;
+        vars_ellipse.text = boost::to_string(vars[i].position.x) + ", " + boost::to_string(vars[i].position.y);
+        //ROS_INFO_STREAM(vars_ellipse.text);
+        vars_ellipse.lifetime = ros::Duration(0.1);
+        marker_array.markers.push_back(vars_ellipse);
+
+
+        /* for FLOBOT - tracking trajectory */
+        visualization_msgs::Marker tracking_tr;
+        tracking_tr.header.stamp = ros::Time::now();
+        tracking_tr.header.frame_id = target_frame;
+        tracking_tr.ns = "people_trajectory";
+        tracking_tr.id = pids[i];
+        tracking_tr.type = visualization_msgs::Marker::LINE_STRIP;
+        geometry_msgs::Point p;
+        for(int j = 0; j < previous_poses.size(); j++) {
+            if(boost::get<0>(previous_poses[j]) == pids[i]) {
+            	p.x = boost::get<3>(previous_poses[j]).position.x;
+            	p.y = boost::get<3>(previous_poses[j]).position.y;
+            	tracking_tr.points.push_back(p);
+            }
+        }
+        tracking_tr.scale.x = 0.1;
+        tracking_tr.color.a = 1.0;
+        tracking_tr.color.r = std::max(0.3,(double)(pids[i]%3)/3.0);
+        tracking_tr.color.g = std::max(0.3,(double)(pids[i]%6)/6.0);
+        tracking_tr.color.b = std::max(0.3,(double)(pids[i]%9)/9.0);
+        tracking_tr.lifetime = ros::Duration(1.0);
+        marker_array.markers.push_back(tracking_tr);
     }
     pub.publish(marker_array);
 }

@@ -8,7 +8,7 @@ from math import pi, sin, cos, sqrt
 from threading import Thread, RLock
 from random import randint, random
 from numpy import random as nprnd
-
+from collections import defaultdict
 
 class Walker(Thread):
     def __init__(
@@ -90,7 +90,7 @@ class CircularWalker(Walker):
     def __init__(
         self, name,
         start_coords=[0, 0],
-        arena=[-10, -10, 10, 10],
+        arena=[-5, -5, 5, 5],
         omega_deg=5, scale=[2, 1]
     ):
         Walker.__init__(
@@ -148,15 +148,20 @@ class Sensor(Thread):
         anonymous=True,
         noise=[.4, .4],
         avg_rate=10, std_rate=2,
-        prob_seeing=.5
+        prob_switch_visible=0.0,
+        prob_visible=1.0,
+        delayed_start=0.0
     ):
         Thread.__init__(self, name=name)
         self.noise = noise
         self.avg_rate = avg_rate
         self.std_rate = std_rate
         self.anonymous = anonymous
-        self.prob_seeing = prob_seeing
+        self.prob_switch_visible = prob_switch_visible / self.avg_rate
+        self.prob_visible = prob_visible
+        self.visible = defaultdict(lambda: random() < self.prob_visible)
         self.walkers = walkers
+        self.delayed_start = delayed_start
         self.pub_poses = rospy.Publisher(
             'tracker_tester/sensor/pose_array/%s' % name,
             PoseArray,
@@ -169,11 +174,27 @@ class Sensor(Thread):
             )
 
     def run(self):
+        self.start_time = rospy.Time.now()
         while not rospy.is_shutdown():
+            if (
+                rospy.Time.now() - self.start_time <
+                rospy.Duration(self.delayed_start)
+            ):
+                rospy.sleep(0.1)
+                continue
             poses = []
             persons = []
+
             for w in self.walkers:
-                if random() <= self.prob_seeing:
+                if random() < self.prob_switch_visible:
+                    self.visible[w.name] = (random() < self.prob_visible)
+                    if self.visible[w.name]:
+                        rospy.loginfo(
+                            "switch sensor %s to see %s" % (self.name, w.name))
+                    else:
+                        rospy.loginfo(
+                            "switch sensor %s to NOT see %s" % (self.name, w.name))
+                if self.visible[w.name]:
                     ps = w.get_pose()
                     ps.position.x += nprnd.randn() * self.noise[0]
                     ps.position.y += nprnd.randn() * self.noise[1]
@@ -206,11 +227,10 @@ class Sensor(Thread):
 def talker():
     rospy.init_node('tracker_tester', anonymous=True)
 
-
     walkers = [
-        CircularWalker('marc'),
-        LinearWalker('zoe'),
-        CircularWalker('greg')
+        CircularWalker('marc', start_coords=[5, 5], omega_deg=10),
+        LinearWalker('zoe', start_coords=[0, 0]),
+        CircularWalker('greg', start_coords=[2, 2])
     ]
 
     for w in walkers:
@@ -220,20 +240,24 @@ def talker():
         'marvelmind', walkers,
         anonymous=False,
         noise=[.2, .2],
-        avg_rate=2, std_rate=.2,
-        prob_seeing=.99).start()
-    # Sensor(
-    #     'serhan', walkers,
-    #     anonymous=True,
-    #     noise=[.04, .04],
-    #     avg_rate=20, std_rate=2,
-    #     prob_seeing=.03).start()
+        delayed_start=0,
+        avg_rate=2, std_rate=.2).start()
+    Sensor(
+        'serhan', walkers,
+        anonymous=True,
+        noise=[.04, .04],
+        delayed_start=20,
+        avg_rate=20, std_rate=2,
+        prob_visible=.3,
+        prob_switch_visible=.2).start()
     Sensor(
         'gps', walkers,
         anonymous=False,
-        noise=[.5, .5],
-        avg_rate=.5, std_rate=.001,
-        prob_seeing=.99).start()
+        noise=[2, 2],
+        delayed_start=1,
+        avg_rate=.5, std_rate=.1,
+        prob_visible=.9,
+        prob_switch_visible=.1).start()
 
     rospy.spin()
 
