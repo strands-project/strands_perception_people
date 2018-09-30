@@ -57,9 +57,11 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     n.getParam("filter_type", filter);
     ROS_INFO_STREAM("Found filter type: " << filter);
 
-    double stdLimit = 1.0;
-    if (n.hasParam("std_limit"))
+    float stdLimit = 1.0;
+    if (n.hasParam("std_limit")) {
         n.getParam("std_limit", stdLimit);
+        ROS_INFO_STREAM("std_limit pruneTracks with " << stdLimit);       
+    }
 
     if (filter == "EKF") {
         ekf = new SimpleTracking<EKFilter>(stdLimit);

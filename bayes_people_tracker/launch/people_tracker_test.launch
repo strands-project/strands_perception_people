@@ -22,7 +22,6 @@
     <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen" 
         launch-prefix-off="ddd --args"
         respawn="false">
-        <param name="std_limit" value="1.0"/>
         <param name="target_frame" value="$(arg target_frame)" type="string"/>
         <param name="base_frame" value="$(arg base_frame)" type="string"/>
         <param name="positions" value="$(arg positions)" type="string"/>

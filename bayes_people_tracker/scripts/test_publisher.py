@@ -237,26 +237,29 @@ def talker():
         w.start()
 
     Sensor(
-        'marvelmind', walkers,
-        anonymous=False,
-        noise=[.2, .2],
-        delayed_start=0,
-        avg_rate=2, std_rate=.2).start()
+        'marvelmind', walkers[:1],          # not all walkers of this sensor
+        anonymous=False,                    # this sensor provides IDs
+        noise=[.2, .2],                     # cartesian noise
+        delayed_start=0,                    # start only after N seconds
+        prob_visible=.9,                    # probability of sensor being
+                                            # on when switched
+        prob_switch_visible=.2,             # prob of switching (per sec)
+        avg_rate=1, std_rate=.1).start()   # avg/std of publish rate
     Sensor(
         'serhan', walkers,
         anonymous=True,
         noise=[.04, .04],
-        delayed_start=20,
+        delayed_start=0,
         avg_rate=20, std_rate=2,
-        prob_visible=.3,
+        prob_visible=.2,
         prob_switch_visible=.2).start()
     Sensor(
         'gps', walkers,
         anonymous=False,
-        noise=[2, 2],
-        delayed_start=1,
-        avg_rate=.5, std_rate=.1,
-        prob_visible=.9,
+        noise=[1, 1],
+        delayed_start=0,
+        avg_rate=1, std_rate=.2,
+        prob_visible=.5,
         prob_switch_visible=.1).start()
 
     rospy.spin()

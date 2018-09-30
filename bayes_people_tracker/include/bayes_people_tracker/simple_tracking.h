@@ -155,10 +155,15 @@ public:
         //    mtrk.process(*(it->second.ctm), it->second.alg);
         //}
        // prediction
-       cvm->update(dt);
-       mtrk.template predict<CVModel>(*cvm);
-       detector_model dummy_det;
-       mtrk.process(*(dummy_det.ctm));
+        cvm->update(dt);
+        mtrk.template predict<CVModel>(*cvm);
+        //detector_model dummy_det;
+        //mtrk.process(*(dummy_det.ctm));
+        mtrk.pruneTracks(stdLimit);
+
+        for (int i = 0; i < mtrk.size(); i++) {
+            double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
+        }
 
         for (int i = 0; i < mtrk.size(); i++) {
             double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
