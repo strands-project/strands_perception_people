@@ -1,20 +1,32 @@
 bayes_people_tracker:
     filter_type: "UKF"                                         # The Kalman filter type: EKF = Extended Kalman Filter, UKF = Uncented Kalman Filter
     cv_noise_params:                                           # The noise for the constant velocity prediction model
-        x: 0.4
-        y: 0.4
+        x: 0.7
+        y: 0.7
+    std_limit: 10.0
     detectors:                                                 # Add detectors under this namespace
-        identifying_detector:                                   # Name of detector (used internally to identify them). Has to be unique.
-            people_topic: "/people" # The topic on which the geometry_msgs/PoseArray is published
+        gps:                                   # Name of detector (used internally to identify them). Has to be unique.
+            people_topic: "/tracker_tester/sensor/people/gps" # The topic on which the people_msgs/People is published
             noise_params:                            # The noise for the cartesian observation model
-                x: 0.5
-                y: 0.5
+                x: 1.0
+                y: 1.0
             observation_model: "CARTESIAN"
-            matching_algorithm: "NN"                   # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
-        anonymous_detector:                                          # Name of detector (used internally to identify them). Has to be unique.
-            topic: "/poses"               # The topic on which the geometry_msgs/PoseArray is published
+            seq_size: 1
+            seq_time: 3.0
+            matching_algorithm: "NN_LABELED"          # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
+        marvelmind:                                   # Name of detector (used internally to identify them). Has to be unique.
+            people_topic: "/tracker_tester/sensor/people/marvelmind" # The topic on which the people_msgs/People is published
             noise_params:                            # The noise for the cartesian observation model
-                x: 0.02
-                y: 0.02
+                x: .2
+                y: .2
+            observation_model: "CARTESIAN"
+            seq_size: 3
+            seq_time: 3.0
+            matching_algorithm: "NN_LABELED"                   # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association
+        vision:                                          # Name of detector (used internally to identify them). Has to be unique.
+            topic: "/tracker_tester/sensor/pose_array/serhan"               # The topic on which the geometry_msgs/PoseArray is published
+            noise_params:                            # The noise for the cartesian observation model
+                x: 0.04
+                y: 0.04
             observation_model: "CARTESIAN"
             matching_algorithm: "NN"                       # The algorthim to match different detections. NN = Nearest Neighbour, NNJPDA = NN Joint Probability Data Association

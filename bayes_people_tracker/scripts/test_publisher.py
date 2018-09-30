@@ -206,10 +206,11 @@ class Sensor(Thread):
 def talker():
     rospy.init_node('tracker_tester', anonymous=True)
 
+
     walkers = [
-        #CircularWalker('marc'),
+        CircularWalker('marc'),
         LinearWalker('zoe'),
-        #CircularWalker('greg')
+        CircularWalker('greg')
     ]
 
     for w in walkers:
@@ -219,18 +220,18 @@ def talker():
         'marvelmind', walkers,
         anonymous=False,
         noise=[.2, .2],
-        avg_rate=1, std_rate=.2,
+        avg_rate=2, std_rate=.2,
         prob_seeing=.99).start()
-    Sensor(
-        'serhan', walkers,
-        anonymous=True,
-        noise=[.04, .04],
-        avg_rate=10, std_rate=2,
-        prob_seeing=.1).start()
+    # Sensor(
+    #     'serhan', walkers,
+    #     anonymous=True,
+    #     noise=[.04, .04],
+    #     avg_rate=20, std_rate=2,
+    #     prob_seeing=.03).start()
     Sensor(
         'gps', walkers,
         anonymous=False,
-        noise=[1, 1],
+        noise=[.5, .5],
         avg_rate=.5, std_rate=.001,
         prob_seeing=.99).start()
 

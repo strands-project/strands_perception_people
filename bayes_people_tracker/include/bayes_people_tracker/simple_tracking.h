@@ -135,7 +135,7 @@ public:
         detectors[name] = det;
     }
 
-    std::map<long, std::vector<geometry_msgs::Pose> > track(double* track_time = NULL) {
+    std::map<long, std::vector<geometry_msgs::Pose> > track(double* track_time, std::map<long, std::string>& tags) {
         boost::mutex::scoped_lock lock(mutex);
         std::map<long, std::vector<geometry_msgs::Pose> > result;
         dt = getTime() - time;
@@ -182,6 +182,7 @@ public:
             var.position.x = mtrk[i].filter->X(0,0);
             var.position.y = mtrk[i].filter->X(2,2);
             result[mtrk[i].id].push_back(var);
+            tags[mtrk[i].id] = mtrk[i].tag;
         }
         return result;
     }

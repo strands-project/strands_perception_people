@@ -1,5 +1,7 @@
 #include "bayes_people_tracker/people_tracker.h"
 #include <tf/transform_datatypes.h>
+#include <XmlRpc.h>
+
 
 PeopleTracker::PeopleTracker() : detect_seq(0), marker_seq(0)
 {
@@ -54,50 +56,34 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     std::string filter;
     n.getParam("filter_type", filter);
     ROS_INFO_STREAM("Found filter type: " << filter);
+
+    double stdLimit = 1.0;
+    if (n.hasParam("std_limit"))
+        n.getParam("std_limit", stdLimit);
+
     if (filter == "EKF") {
-        if (n.hasParam("std_limit")) {
-            double stdLimit;
-            n.getParam("std_limit", stdLimit);
-            ROS_INFO("std_limit: %f ",stdLimit);
-            ekf = new SimpleTracking<EKFilter>(stdLimit);
-        } else {
-        ekf = new SimpleTracking<EKFilter>();
-    }
+        ekf = new SimpleTracking<EKFilter>(stdLimit);
     } else if (filter == "UKF") {
-    if (n.hasParam("std_limit")) {
-      double stdLimit;
-      n.getParam("std_limit", stdLimit);
-      ROS_INFO("std_limit: %f ",stdLimit);
-      ukf = new SimpleTracking<UKFilter>(stdLimit);
+        ukf = new SimpleTracking<UKFilter>(stdLimit);
+    } else if (filter == "PF") {
+        pf = new SimpleTracking<PFilter>(stdLimit);
     } else {
-      ukf = new SimpleTracking<UKFilter>();
+        ROS_FATAL_STREAM("Filter type " << filter << " is not specified. Unable to create the tracker. Please use either EKF, UKF or PF.");
+        return;
     }
-  } else if (filter == "PF") {
-    if (n.hasParam("std_limit")) {
-      double stdLimit;
-      n.getParam("std_limit", stdLimit);
-      ROS_INFO("std_limit: %f ",stdLimit);
-      pf = new SimpleTracking<PFilter>(stdLimit);
-    } else {
-      pf = new SimpleTracking<PFilter>();
-    }
-  } else {
-    ROS_FATAL_STREAM("Filter type " << filter << " is not specified. Unable to create the tracker. Please use either EKF, UKF or PF.");
-    return;
-  }
 
     XmlRpc::XmlRpcValue cv_noise;
     n.getParam("cv_noise_params", cv_noise);
     ROS_ASSERT(cv_noise.getType() == XmlRpc::XmlRpcValue::TypeStruct);
     ROS_INFO_STREAM("Constant Velocity Model noise: " << cv_noise);
-    if (ekf == NULL) {
-        if (ukf == NULL) {
-            pf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
-        } else {
-            ukf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
-       }
-    } else {
+    if (ekf != NULL) {
         ekf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+    } else if (ukf != NULL) {
+        ukf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+    } else if (pf != NULL) {
+        pf->createConstantVelocityModel(cv_noise["x"], cv_noise["y"]);
+    } else {
+        ROS_FATAL_STREAM("no filter configured.");
     }
     ROS_INFO_STREAM("Created " << filter << " based tracker using constant velocity prediction model.");
 
@@ -106,75 +92,86 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
     ROS_ASSERT(detectors.getType() == XmlRpc::XmlRpcValue::TypeStruct);
     for(XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = detectors.begin(); it != detectors.end(); ++it) {
         ROS_INFO_STREAM("Found detector: " << (std::string)(it->first) << " ==> " << detectors[it->first]);
+        observ_model_t om_flag;
+        double pos_noise_x = .2;
+        double pos_noise_y = .2;
+        int seq_size = 5;
+        double seq_time = 0.2;
+        association_t association = NN;
+        om_flag = CARTESIAN;
+
         try {
-            if (ekf == NULL) {
-	if (ukf == NULL) {
-	  if (detectors[it->first].hasMember("seq_size") && detectors[it->first].hasMember("seq_time")) {
-	    int seq_size = detectors[it->first]["seq_size"];
-	    pf->addDetectorModel(it->first,
-				 detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-				 detectors[it->first]["observation_model"] == "CARTESIAN" ? CARTESIAN : detectors[it->first]["observation_model"] == "POLAR" ? POLAR : throw(observ_exception()),
-				 detectors[it->first]["noise_params"]["x"],
-				 detectors[it->first]["noise_params"]["y"],(unsigned int) seq_size, detectors[it->first]["seq_time"]);
-	  } else {
-	    pf->addDetectorModel(it->first,
-				 detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-				 detectors[it->first]["observation_model"] == "CARTESIAN" ? CARTESIAN : detectors[it->first]["observation_model"] == "POLAR" ? POLAR : throw(observ_exception()),
-				 detectors[it->first]["noise_params"]["x"],
-				 detectors[it->first]["noise_params"]["y"]);
-	  }
-	} else {
-	  if (detectors[it->first].hasMember("seq_size") && detectors[it->first].hasMember("seq_time")) {
-	    int seq_size = detectors[it->first]["seq_size"];
-	    ukf->addDetectorModel(it->first,
-				  detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-				  detectors[it->first]["observation_model"] == "CARTESIAN" ? CARTESIAN : detectors[it->first]["observation_model"] == "POLAR" ? POLAR : throw(observ_exception()),
-				  detectors[it->first]["noise_params"]["x"],
-				  detectors[it->first]["noise_params"]["y"],(unsigned int) seq_size,detectors[it->first]["seq_time"]);
-	  } else {
-	    ukf->addDetectorModel(it->first,
-				  detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-				  detectors[it->first]["observation_model"] == "CARTESIAN" ? CARTESIAN : detectors[it->first]["observation_model"] == "POLAR" ? POLAR : throw(observ_exception()),
-				  detectors[it->first]["noise_params"]["x"],
-				  detectors[it->first]["noise_params"]["y"]);
-	  }
-	}
-      } else {
-	if (detectors[it->first].hasMember("seq_size") && detectors[it->first].hasMember("seq_time")) {
-	  int seq_size = detectors[it->first]["seq_size"];
-	  ekf->addDetectorModel(it->first,
-				detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-				detectors[it->first]["observation_model"] == "CARTESIAN" ? CARTESIAN : detectors[it->first]["observation_model"] == "POLAR" ? POLAR : throw(observ_exception()),
-				detectors[it->first]["noise_params"]["x"],
-				detectors[it->first]["noise_params"]["y"],(unsigned int) seq_size,detectors[it->first]["seq_time"]);
-	} else {
-	  ekf->addDetectorModel(it->first,
-				detectors[it->first]["matching_algorithm"] == "NN" ? NN : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA : throw(asso_exception()),
-				detectors[it->first]["observation_model"] == "CARTESIAN" ? CARTESIAN : detectors[it->first]["observation_model"] == "POLAR" ? POLAR : throw(observ_exception()),
-				detectors[it->first]["noise_params"]["x"],
-				detectors[it->first]["noise_params"]["y"]);
-	}
-      }
-    } catch (asso_exception& e) {
-      ROS_FATAL_STREAM(""
-		       << e.what()
-		       << " "
-		       << detectors[it->first]["matching_algorithm"]
-		       << " is not specified. Unable to add "
-		       << (std::string)(it->first)
-		       << " to the tracker. Please use either NN or NNJPDA as association algorithms."
-		       );
-      return;
-    } catch (observ_exception& e) {
-      ROS_FATAL_STREAM(""
-		       << e.what()
-		       << " "
-		       << detectors[it->first]["observation_model"]
-		       << " is not specified. Unable to add "
-		       << (std::string)(it->first)
-		       << " to the tracker. Please use either CARTESIAN or POLAR as observation models."
-		       );
+            if (detectors[it->first].hasMember("seq_size"))
+                seq_size = (int) detectors[it->first]["seq_size"];
+            if (detectors[it->first].hasMember("seq_time"))
+                seq_time = (double) detectors[it->first]["seq_time"];
+            if (detectors[it->first].hasMember("matching_algorithm"))
+                association = detectors[it->first]["matching_algorithm"] == "NN" ? NN 
+                    : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA 
+                    : detectors[it->first]["matching_algorithm"] == "NN_LABELED" ? NN_LABELED 
+                    : throw(asso_exception());
+            if (detectors[it->first].hasMember("noise_params")) {
+                pos_noise_x = detectors[it->first]["noise_params"]["x"];
+                pos_noise_y = detectors[it->first]["noise_params"]["y"];
+            }
+        } catch (XmlRpc::XmlRpcException& e) {
+            ROS_FATAL_STREAM("XmlRpc::XmlRpcException: '"
+                   << e.getMessage()
+                   << "'\n"
+                   << "Failed to parse definition for '"
+                   << (std::string)(it->first)
+                   << "'. Check your parameters."
+                   );
+            throw(e);
+
+        }
+
+        try {
+            if (ekf != NULL) {
+                ekf->addDetectorModel(
+                    it->first,
+                    association,
+                    om_flag,
+                    pos_noise_x, pos_noise_y,
+                    seq_size, seq_time
+                    );
+            } else if (ukf != NULL) {
+                ukf->addDetectorModel(
+                    it->first,
+                    association,
+                    om_flag,
+                    pos_noise_x, pos_noise_y,
+                    seq_size, seq_time
+                    );                
+            } else if (pf != NULL) {
+                pf->addDetectorModel(
+                    it->first,
+                    association,
+                    om_flag,
+                    pos_noise_x, pos_noise_y,
+                    seq_size, seq_time
+                    );                
+            }
+        } catch (asso_exception& e) {
+            ROS_FATAL_STREAM(""
+                   << e.what()
+                   << " "
+                   << detectors[it->first]["matching_algorithm"]
+                   << " is not specified. Unable to add "
+                   << (std::string)(it->first)
+                   << " to the tracker. Please use either NN or NNJPDA as association algorithms."
+                   );
             return;
+        } catch (observ_exception& e) {
+            ROS_FATAL_STREAM(""
+                   << e.what()
+                   << " "
+                   << detectors[it->first]["observation_model"]
+                   << " is not specified. Unable to add "
+                   << (std::string)(it->first)
+                   << " to the tracker. Please use either CARTESIAN or POLAR as observation models."
+                   );
+                return;
         }
         ros::Subscriber sub;
         if (detectors[it->first].hasMember("topic")) {
@@ -192,16 +189,15 @@ void PeopleTracker::trackingThread() {
     double time_sec = 0.0;
 
     while(ros::ok()) {
+        std::map<long, std::string> tags;
         try {
             std::map<long, std::vector<geometry_msgs::Pose> > ppl;
-            if(ekf == NULL) {
-                if(ukf == NULL) {
-                	ppl = pf->track(&time_sec);
-                } else {
-                	ppl = ukf->track(&time_sec);
-                }
-            } else {
-                ppl = ekf->track(&time_sec);
+            if (ekf != NULL) { 
+                ppl = ekf->track(&time_sec, tags);
+            } else if (ukf != NULL) {
+                ppl = ukf->track(&time_sec, tags);
+            } else if (pf != NULL) {
+                ppl = pf->track(&time_sec, tags);
             }
 
             if(ppl.size()) {
@@ -221,7 +217,10 @@ void PeopleTracker::trackingThread() {
                     poses.push_back(it->second[0]);
                     vels.push_back(it->second[1]);
                     vars.push_back(it->second[2]);
-                    uuids.push_back(generateUUID(startup_time_str, it->first));
+                    if (tags[it->first] == "")
+                        uuids.push_back(generateUUID(startup_time_str, it->first));
+                    else
+                        uuids.push_back(tags[it->first]);
                     pids.push_back(it->first);
 
                     geometry_msgs::PoseStamped poseInRobotCoords;
