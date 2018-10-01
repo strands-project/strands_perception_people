@@ -119,6 +119,10 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
                     : detectors[it->first]["matching_algorithm"] == "NNJPDA" ? NNJPDA 
                     : detectors[it->first]["matching_algorithm"] == "NN_LABELED" ? NN_LABELED 
                     : throw(asso_exception());
+            if (detectors[it->first].hasMember("cartesian_noise_params")) { // legacy support
+                pos_noise_x = detectors[it->first]["cartesian_noise_params"]["x"];
+                pos_noise_y = detectors[it->first]["cartesian_noise_params"]["y"];
+            }
             if (detectors[it->first].hasMember("noise_params")) {
                 pos_noise_x = detectors[it->first]["noise_params"]["x"];
                 pos_noise_y = detectors[it->first]["noise_params"]["y"];
