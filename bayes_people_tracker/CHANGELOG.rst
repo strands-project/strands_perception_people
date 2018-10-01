@@ -2,6 +2,23 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* WIP: working towards tag-aware tracking (`#221 <https://github.com/strands-project/strands_perception_people/issues/221>`_)
+  * WIP
+  * WIP
+  * wip
+  * good testing node
+  * WIP
+  * Fixed count
+  * WIP
+  * more documentation and testing
+  * colors for variances
+  * added rviz config
+  * prune_named added
+  * legacy param support
+* Contributors: Marc Hanheide
+
 1.7.0 (2018-09-04)
 ------------------
 * Adapting to changes in bayestracking (`#220 <https://github.com/strands-project/strands_perception_people/issues/220>`_)

@@ -2,6 +2,9 @@
 Changelog for package people_tracker_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.7.0 (2018-09-04)
 ------------------
 * Namespaces and topics specified as parameters. (`#218 <https://github.com/strands-project/strands_perception_people/issues/218>`_)
