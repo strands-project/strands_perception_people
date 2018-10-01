@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.8.0 (2018-10-01)
+------------------
 * WIP: working towards tag-aware tracking (`#221 <https://github.com/strands-project/strands_perception_people/issues/221>`_)
   * WIP
   * WIP
