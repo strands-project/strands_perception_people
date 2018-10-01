@@ -63,12 +63,19 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
         ROS_INFO_STREAM("std_limit pruneTracks with " << stdLimit);       
     }
 
+    bool prune_named = false;
+    if (n.hasParam("prune_named")) {
+        n.getParam("prune_named", prune_named);
+        ROS_INFO_STREAM("prune_named with " << prune_named);       
+    }
+
+
     if (filter == "EKF") {
-        ekf = new SimpleTracking<EKFilter>(stdLimit);
+        ekf = new SimpleTracking<EKFilter>(stdLimit, prune_named);
     } else if (filter == "UKF") {
-        ukf = new SimpleTracking<UKFilter>(stdLimit);
+        ukf = new SimpleTracking<UKFilter>(stdLimit, prune_named);
     } else if (filter == "PF") {
-        pf = new SimpleTracking<PFilter>(stdLimit);
+        pf = new SimpleTracking<PFilter>(stdLimit, prune_named);
     } else {
         ROS_FATAL_STREAM("Filter type " << filter << " is not specified. Unable to create the tracker. Please use either EKF, UKF or PF.");
         return;

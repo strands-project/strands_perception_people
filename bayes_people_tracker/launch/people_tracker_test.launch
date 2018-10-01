@@ -18,6 +18,8 @@
     <node pkg="tf" name="tf_map_base_link" type="static_transform_publisher" args="0 0 0 0 0 0 /map /base_link 10" />
 
     <node pkg="bayes_people_tracker" type="test_publisher.py" name="test_publisher" output="screen" />
+    
+    <node pkg="rviz" type="rviz" name="rviz_people_tracker" args="-d $(find bayes_people_tracker)/config/default.rviz" output="screen" />
 
     <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen" 
         launch-prefix-off="ddd --args"

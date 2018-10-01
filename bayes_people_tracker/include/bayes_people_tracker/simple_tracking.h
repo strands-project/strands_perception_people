@@ -111,10 +111,11 @@ template<typename FilterType>
 class SimpleTracking
 {
 public:
-    SimpleTracking(double sLimit = 1.0) {
+    SimpleTracking(double sLimit = 1.0, bool prune_named_tracks = false) {
         time = getTime();
         observation = new FM::Vec(2);
         stdLimit = sLimit;
+        prune_named = prune_named_tracks;
     }
 
     void createConstantVelocityModel(double vel_noise_x, double vel_noise_y) {
@@ -160,6 +161,9 @@ public:
         //detector_model dummy_det;
         //mtrk.process(*(dummy_det.ctm));
         mtrk.pruneTracks(stdLimit);
+        if (prune_named) {
+            mtrk.pruneNamedTracks();  
+        }
 
         for (int i = 0; i < mtrk.size(); i++) {
             double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
@@ -248,7 +252,8 @@ private:
     boost::mutex mutex;
     CVModel *cvm;                   // CV model
     MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
-    double stdLimit;                  // upper limit for the variance of estimation position
+    double stdLimit;
+    bool prune_named;                  // upper limit for the variance of estimation position
 
     typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
