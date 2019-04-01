@@ -30,6 +30,7 @@
 #include <math.h>
 
 #include "bayes_people_tracker/PeopleTracker.h"
+#include "bayes_people_tracker/PeopleStamped.h"
 #include "bayes_people_tracker/simple_tracking.h"
 #include "bayes_people_tracker/asso_exception.h"
 #include "bayes_people_tracker/people_marker.h"
@@ -64,7 +65,7 @@ private:
     void createVisualisation(std::vector<geometry_msgs::Pose> points, std::vector<geometry_msgs::Pose> vars, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
-    void detectorCallback_people(const people_msgs::People::ConstPtr &pta, string detector);
+    void detectorCallback_people(const bayes_people_tracker::PeopleStamped::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
     void parseParams(ros::NodeHandle);
 
