@@ -373,7 +373,7 @@ void PeopleTracker::publishTrajectory(std::vector<geometry_msgs::Pose> poses,
      for(int j = 0; j < pids.size(); j++) {
      if(pids[j] == boost::get<0>(previous_poses[i])) {
        last_pose = false;
-       break;
+       //break;
      }
      }
      if(last_pose) {
@@ -546,7 +546,7 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
   }
 }
 
-void PeopleTracker::detectorCallback_people(const people_msgs::People::ConstPtr &people, std::string detector)
+void PeopleTracker::detectorCallback_people(const bayes_people_tracker::PeopleStamped::ConstPtr &people, std::string detector)
 {
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
@@ -562,14 +562,15 @@ void PeopleTracker::detectorCallback_people(const people_msgs::People::ConstPtr 
     std::vector<geometry_msgs::Point> ppl;
     std::vector<std::string> tags;
     for(int i = 0; i < people->people.size(); i++) {
-        people_msgs::Person pt = people->people[i];
+        people_msgs::PersonStamped pt = people->people[i];
+	
 
         //Create stamped pose for tf
         geometry_msgs::PoseStamped poseInCamCoords;
         geometry_msgs::PoseStamped poseInTargetCoords;
         poseInCamCoords.header = people->header;
 
-        poseInCamCoords.pose.position = pt.position;
+        poseInCamCoords.pose.position = pt.person.position;
         tf::Quaternion temp_quat;
         temp_quat.setRPY( 0, 0, 0 ); // detections don't have an orientation
         tf::quaternionTFToMsg(temp_quat, poseInCamCoords.pose.orientation);
@@ -592,8 +593,12 @@ void PeopleTracker::detectorCallback_people(const people_msgs::People::ConstPtr 
 
         poseInTargetCoords.pose.position.z = 0.0;
         ppl.push_back(poseInTargetCoords.pose.position);
-        tags.push_back(pt.name);
-
+	tags.push_back(pt.person.name);
+	/*if (pt.person.reliability < 3.1) {
+            tags.push_back(pt.person.name);
+	    } else {
+	      tags.push_back("unreliable");	
+	      } */
     }
   if(ppl.size()) {
     if(ekf == NULL) {
@@ -627,7 +632,7 @@ void PeopleTracker::connectCallback(ros::NodeHandle &n) {
         for(it = subscribers.begin(); it != subscribers.end(); ++it)
             subscribers[it->first] = n.subscribe<geometry_msgs::PoseArray>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback, this, _1, it->first.first));
         for(it = subscribers_people.begin(); it != subscribers_people.end(); ++it)
-            subscribers_people[it->first] = n.subscribe<people_msgs::People>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback_people, this, _1, it->first.first));
+            subscribers_people[it->first] = n.subscribe<bayes_people_tracker::PeopleStamped>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback_people, this, _1, it->first.first));
     }
 }
 
