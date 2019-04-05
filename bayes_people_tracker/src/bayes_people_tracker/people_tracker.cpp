@@ -594,11 +594,6 @@ void PeopleTracker::detectorCallback_people(const bayes_people_tracker::PeopleSt
         poseInTargetCoords.pose.position.z = 0.0;
         ppl.push_back(poseInTargetCoords.pose.position);
 	tags.push_back(pt.person.name);
-	/*if (pt.person.reliability < 3.1) {
-            tags.push_back(pt.person.name);
-	    } else {
-	      tags.push_back("unreliable");	
-	      } */
     }
   if(ppl.size()) {
     if(ekf == NULL) {
