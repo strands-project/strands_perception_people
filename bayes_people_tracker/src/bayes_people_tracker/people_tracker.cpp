@@ -618,7 +618,7 @@ void PeopleTracker::connectCallback(ros::NodeHandle &n) {
     bool pose_array = pub_pose_array.getNumSubscribers();
     bool trajectory = pub_trajectory.getNumSubscribers();
     std::map<std::pair<std::string, std::string>, ros::Subscriber>::const_iterator it;
-    if(!loc && !markers && !trajectory && !pose && !pose_array) {
+    if(!loc && !markers && !people && !trajectory && !pose && !pose_array) {
         ROS_DEBUG("Pedestrian Localisation: No subscribers. Unsubscribing.");
         for(it = subscribers.begin(); it != subscribers.end(); ++it)
             const_cast<ros::Subscriber&>(it->second).shutdown();
