@@ -48,6 +48,7 @@ private:
     void publishDetections(geometry_msgs::PoseStamped msg);
     void publishDetections(geometry_msgs::PoseArray msg);
     void publishDetections(people_msgs::People msg);
+    void publishDetections(bayes_people_tracker::PeopleStamped msg);
     void publishDetections(double time_sec,
                            geometry_msgs::Pose closest,
                            std::vector<geometry_msgs::Pose> ppl,
@@ -65,7 +66,8 @@ private:
     void createVisualisation(std::vector<geometry_msgs::Pose> points, std::vector<geometry_msgs::Pose> vars, std::vector<long> pids, ros::Publisher& pub, std::vector<std::string> uuids);
     std::vector<double> cartesianToPolar(geometry_msgs::Point point);
     void detectorCallback(const geometry_msgs::PoseArray::ConstPtr &pta, string detector);
-    void detectorCallback_people(const bayes_people_tracker::PeopleStamped::ConstPtr &pta, string detector);
+    void detectorCallback_people(const people_msgs::People::ConstPtr &pta, string detector);
+    void detectorCallback_peoplestamped(const bayes_people_tracker::PeopleStamped::ConstPtr &pta, string detector);
     void connectCallback(ros::NodeHandle &n);
     void parseParams(ros::NodeHandle);
 
@@ -87,6 +89,7 @@ private:
     ros::Publisher pub_pose;
     ros::Publisher pub_pose_array;
     ros::Publisher pub_people;
+    ros::Publisher pub_peoplestamped;
     ros::Publisher pub_trajectory;
     ros::Publisher pub_marker;
     tf::TransformListener* listener;
@@ -109,6 +112,7 @@ private:
     SimpleTracking<PFilter> *pf = NULL;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers;
     std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers_people;
+    std::map<std::pair<std::string, std::string>, ros::Subscriber> subscribers_peoplestamped;
     std::vector<boost::tuple<long, geometry_msgs::Pose, geometry_msgs::Pose, geometry_msgs::Pose> > previous_poses;
 };
 

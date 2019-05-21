@@ -193,6 +193,9 @@ void PeopleTracker::parseParams(ros::NodeHandle n) {
         else if (detectors[it->first].hasMember("people_topic")) {
             subscribers_people[std::pair<std::string, std::string>(it->first, detectors[it->first]["people_topic"])] = sub;
         }
+	else if (detectors[it->first].hasMember("peoplestamped_topic")) {
+            subscribers_peoplestamped[std::pair<std::string, std::string>(it->first, detectors[it->first]["peoplestamped_topic"])] = sub;
+        }
     }
 }
 
@@ -358,6 +361,10 @@ void PeopleTracker::publishDetections(geometry_msgs::PoseArray msg) {
 }
 
 void PeopleTracker::publishDetections(people_msgs::People msg) {
+    pub_people.publish(msg);
+}
+
+void PeopleTracker::publishDetections(bayes_people_tracker::PeopleStamped msg) {
     pub_people.publish(msg);
 }
 
@@ -546,7 +553,68 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
   }
 }
 
-void PeopleTracker::detectorCallback_people(const bayes_people_tracker::PeopleStamped::ConstPtr &people, std::string detector)
+void PeopleTracker::detectorCallback_people(const people_msgs::People::ConstPtr &people, std::string detector)
+{
+    // Publish an empty message to trigger callbacks even when there are no detections.
+    // This can be used by nodes which might also want to know when there is no human detected.
+    if(people->people.size() == 0) {
+        bayes_people_tracker::PeopleTracker empty;
+        empty.header.stamp = ros::Time::now();
+        empty.header.frame_id = target_frame;
+        empty.header.seq = ++detect_seq;
+        publishDetections(empty);
+        return;
+    }
+
+    std::vector<geometry_msgs::Point> ppl;
+    std::vector<std::string> tags;
+    for(int i = 0; i < people->people.size(); i++) {
+        people_msgs::Person pt = people->people[i];
+	
+        //Create stamped pose for tf
+        geometry_msgs::PoseStamped poseInCamCoords;
+        geometry_msgs::PoseStamped poseInTargetCoords;
+        poseInCamCoords.header = people->header;
+
+        poseInCamCoords.pose.position = pt.position;
+        tf::Quaternion temp_quat;
+        temp_quat.setRPY( 0, 0, 0 ); // detections don't have an orientation
+        tf::quaternionTFToMsg(temp_quat, poseInCamCoords.pose.orientation);
+
+        if (target_frame == poseInCamCoords.header.frame_id) {
+            poseInTargetCoords = poseInCamCoords;
+        } else {
+        //Transform
+            try {
+                // Transform into given traget frame. Default /map
+                ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
+                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
+            }
+            catch(tf::TransformException ex) {
+                ROS_WARN("Failed transform: %s", ex.what());
+                return;
+            }
+        }
+
+        poseInTargetCoords.pose.position.z = 0.0;
+        ppl.push_back(poseInTargetCoords.pose.position);
+	tags.push_back(pt.name);
+    }
+  if(ppl.size()) {
+    if(ekf == NULL) {
+      if(ukf == NULL) {
+    pf->addObservation(detector, ppl, people->header.stamp.toSec(), tags);
+      } else {
+    ukf->addObservation(detector, ppl, people->header.stamp.toSec(), tags);
+      }
+    } else {
+      ekf->addObservation(detector, ppl, people->header.stamp.toSec(), tags);
+    }
+  }
+}
+
+void PeopleTracker::detectorCallback_peoplestamped(const bayes_people_tracker::PeopleStamped::ConstPtr &people, std::string detector)
 {
     // Publish an empty message to trigger callbacks even when there are no detections.
     // This can be used by nodes which might also want to know when there is no human detected.
@@ -609,6 +677,7 @@ void PeopleTracker::detectorCallback_people(const bayes_people_tracker::PeopleSt
 }
 
 
+
 // Connection callback that unsubscribes from the tracker if no one is subscribed.
 void PeopleTracker::connectCallback(ros::NodeHandle &n) {
     bool loc = pub_detect.getNumSubscribers();
@@ -627,7 +696,9 @@ void PeopleTracker::connectCallback(ros::NodeHandle &n) {
         for(it = subscribers.begin(); it != subscribers.end(); ++it)
             subscribers[it->first] = n.subscribe<geometry_msgs::PoseArray>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback, this, _1, it->first.first));
         for(it = subscribers_people.begin(); it != subscribers_people.end(); ++it)
-            subscribers_people[it->first] = n.subscribe<bayes_people_tracker::PeopleStamped>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback_people, this, _1, it->first.first));
+            subscribers_people[it->first] = n.subscribe<people_msgs::People>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback_people, this, _1, it->first.first));
+	for (it = subscribers_peoplestamped.begin(); it != subscribers_peoplestamped.end(); ++it)
+            subscribers_peoplestamped[it->first] = n.subscribe<bayes_people_tracker::PeopleStamped>(it->first.second.c_str(), 1000, boost::bind(&PeopleTracker::detectorCallback_peoplestamped, this, _1, it->first.first));
     }
 }
 
