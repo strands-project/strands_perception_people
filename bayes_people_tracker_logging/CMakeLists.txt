@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   mdl_people_tracker
   tf
   upper_body_detector
+  people_msgs
 )
 
 ################################################
@@ -33,6 +34,7 @@ generate_messages(
     upper_body_detector
     std_msgs
     mdl_people_tracker
+    people_msgs
 )
 
 ###################################
