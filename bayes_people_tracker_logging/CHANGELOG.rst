@@ -2,6 +2,17 @@
 Changelog for package bayes_people_tracker_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Message type change. (`#225 <https://github.com/strands-project/strands_perception_people/issues/225>`_)
+  * Peoplestamped.msg added for cellphone GPS data. Composed of an array of PersonStamped.msg
+  * People msg chsnged to PeopleStamped message
+  * People msg changed to PeopleStamped msg
+  * code cleaned
+  * people_msgs dependency added
+  * Now supports both People and PeopleStamped msg types
+* Contributors: Khan
+
 1.8.0 (2018-10-01)
 ------------------
 

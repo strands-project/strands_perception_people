@@ -2,6 +2,9 @@
 Changelog for package vision_people_logging
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.8.0 (2018-10-01)
 ------------------
 
