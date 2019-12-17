@@ -378,8 +378,6 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
             closest.pose.position = pose.position;
             found = true;
         }
-
-
     }
 
     // Creating a ros image with the detection results an publishing it
@@ -579,7 +577,6 @@ int main(int argc, char **argv)
 
     private_node_handle_.param("upper_body_image", pub_topic_result_image, string("/upper_body_detector/image"));
     pub_result_image = it.advertise(pub_topic_result_image.c_str(), 1, image_cb, image_cb);
-
 
     private_node_handle_.param("upper_body_roi", pub_topic_roi, string("/upper_body_detector/roi"));
     pub_roi = it.advertise(pub_topic_roi.c_str(), 1, image_cb, image_cb);
