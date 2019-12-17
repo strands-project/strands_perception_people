@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(people_tracker_filter)
 
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+
+
 find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   roscpp
   std_msgs
   tf
+  tf2
+  tf2_geometry_msgs  
+  grid_map_ros
+  grid_map_msgs
   geometry_msgs
   visualization_msgs
   bayes_people_tracker

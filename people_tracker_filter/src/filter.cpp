@@ -3,6 +3,8 @@
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
 #include <bayes_people_tracker/PeopleTracker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <people_msgs/People.h>
@@ -13,78 +15,73 @@
 #include <bayes_people_tracker/people_marker.h>
 #include <tf/transform_datatypes.h>
 #include <nav_msgs/MapMetaData.h>
+// - grid map
+#include <grid_map_core/grid_map_core.hpp>
+#include <grid_map_ros/grid_map_ros.hpp>
 
 ros::Publisher pt_pub, ma_pub, ps_pub, pa_pub, p_pub;
-nav_msgs::OccupancyGrid ppl_map;
+grid_map::GridMap gridMap;
 PeopleMarker pm;
 bool map_received;
 
-typedef uint32_t index_t;
-typedef int16_t coord_t;
-
-struct Cell
-{
-  Cell(const coord_t x=0, const coord_t y=0) : x(x), y(y) {}
-  coord_t x;
-  coord_t y;
-
-  bool operator== (const Cell& c) const;
-  bool operator< (const Cell& c) const;
-};
-
-inline
-tf::Transform mapToWorld (const nav_msgs::MapMetaData& info)
-{
-  tf::Transform world_to_map;
-  tf::poseMsgToTF (info.origin, world_to_map);
-  return world_to_map;
-}
-
-inline
-tf::Transform worldToMap (const nav_msgs::MapMetaData& info)
-{
-  return mapToWorld(info).inverse();
-}
-
-inline
-bool withinBounds (const nav_msgs::MapMetaData& info, const Cell& c)
-{
-  return (c.x >= 0) && (c.y >= 0) && (c.x < (coord_t) info.width) && (c.y < (coord_t) info.height);
-}
-
-inline
-Cell pointCell (const nav_msgs::MapMetaData& info, const geometry_msgs::Point& p)
-{
-  tf::Point pt;
-  tf::pointMsgToTF(p, pt);
-  tf::Point p2 = worldToMap(info)*pt;
-  return Cell(floor(p2.x()/info.resolution), floor(p2.y()/info.resolution));
-}
-
-struct CellOutOfBoundsException
-{
-  CellOutOfBoundsException () {}
-};
-
-inline
-index_t cellIndex (const nav_msgs::MapMetaData& info, const Cell& c)
-{
-  if (!withinBounds(info, c))
-    throw CellOutOfBoundsException();
-  return c.x + c.y*info.width;
-}
-
-inline
-index_t pointIndex (const nav_msgs::MapMetaData& info, const geometry_msgs::Point& p)
-{
-  return cellIndex(info, pointCell(info, p));
-}
-
 void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
-    ppl_map = *msg;
+  
     map_received = true;
     ROS_DEBUG("Map received");
+
+    // cast map into grid_map
+    grid_map::GridMapRosConverter::fromOccupancyGrid(*msg, "layer", gridMap);
+}
+
+// frames in tf2 do not start with slash
+std::string purgueSlash(std::string inStr){
+      std::string ans;              
+      ans =  std::string(inStr);                
+      if (ans.front() == '/'){            
+        ans =  ans.erase(0,1);
+      } 
+            
+      return ans;              
+}
+
+ geometry_msgs::PoseStamped transformPose(std::string frame_id, geometry_msgs::PoseStamped poseIn){
+          geometry_msgs::PoseStamped poseOut;
+          geometry_msgs::TransformStamped pose_to_frame_tf;
+
+          tf2_ros::Buffer tfBuffer2;
+          tf2_ros::TransformListener tf2_listener(tfBuffer2);
+
+          frame_id = purgueSlash(frame_id);
+          poseIn.header.frame_id = purgueSlash(poseIn.header.frame_id);
+          
+          try{
+              geometry_msgs::TransformStamped pose_to_frame_tf = tfBuffer2.lookupTransform(frame_id,  poseIn.header.frame_id, ros::Time(0), ros::Duration(1.0) );
+              tf2::doTransform(poseIn, poseOut, pose_to_frame_tf); 
+          }catch(tf2::TransformException &ex) {
+            ROS_ERROR("[%s]: Failed to cast pose from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), poseIn.header.frame_id.c_str(), frame_id.c_str() ,ex.what());
+          }
+          return poseOut;
+
+    }
+
+
+bool isHumanAllowed(grid_map::GridMap* gm, geometry_msgs::PoseStamped humanPos ){
+  bool ans = false;
+  float val;
+  // make humanPos to be in same frame
+  if (humanPos.header.frame_id!=gm->getFrameId()){
+      humanPos=transformPose(gm->getFrameId(), humanPos);
+  }
+
+  grid_map::Position map_pose = grid_map::Position(humanPos.pose.position.x,humanPos.pose.position.y);
+
+  if ( gm->isInside(map_pose) ){
+      val = gm->atPosition("layer", map_pose);
+      ans = (val == 0.0);
+  }
+
+  return ans;
 }
 
 void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
@@ -101,10 +98,13 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
         pa_out.header = pa->header;
         people_msgs::People p_out;
         p_out.header = p->header;
+        geometry_msgs::PoseStamped humanPose;
+        humanPose.header = pt->header;
 
         for(int i = 0; i < pt->poses.size(); i++){
-            try {
-                if(int(ppl_map.data.at(pointIndex(ppl_map.info, pt->poses[i].position))) == 0) { // Check if detection is in allowed area
+                humanPose.pose = pt->poses[i];
+                //if(int(ppl_map.data.at(pointIndex(ppl_map.info, pt->poses[i].position))) == 0) { // Check if detection is in allowed area
+                if(isHumanAllowed(&gridMap, humanPose)) { // Check if detection is in allowed area
                     pt_out.distances.push_back(pt->distances[i]);
                     pt_out.angles.push_back(pt->angles[i]);
                     pt_out.poses.push_back(pt->poses[i]);
@@ -113,10 +113,6 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
 
                     p_out.people.push_back(p->people[i]); // Both arrays are in the same order.
                 }
-            } catch (CellOutOfBoundsException) {
-                ROS_WARN("Cell out of bounds");
-                continue;
-            }
         }
         if(pt_out.distances.size() != 0){
             pt_out.min_distance = *std::min_element(pt_out.distances.begin(), pt_out.distances.end());
