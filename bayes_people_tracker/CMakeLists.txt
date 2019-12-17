@@ -23,12 +23,14 @@ find_package(Boost REQUIRED COMPONENTS thread)
 add_message_files(
   FILES
   PeopleTracker.msg
+  PeopleStamped.msg
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
+  people_msgs
 )
 
 ###################################
@@ -36,7 +38,7 @@ generate_messages(
 ###################################
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS bayes_tracking geometry_msgs roscpp std_msgs tf visualization_msgs
+  CATKIN_DEPENDS bayes_tracking geometry_msgs roscpp std_msgs tf visualization_msgs message_runtime
 )
 
 ###########
@@ -68,6 +70,10 @@ install(TARGETS bayes_people_tracker
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(FILES scripts/test_publisher.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 install(DIRECTORY include/${PROJECT_NAME}/

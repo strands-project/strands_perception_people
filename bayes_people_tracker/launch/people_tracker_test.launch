@@ -1,0 +1,36 @@
+<launch>
+    <arg name="param_file" default="$(find bayes_people_tracker)/config/detectors_test.yaml" />
+    <rosparam command="load" file="$(arg param_file)"/>
+
+    <arg name="target_frame" default="/base_link" />
+    <arg name="base_frame" default="/base_link" />
+
+    <arg name="positions" default="/people_tracker/positions" />
+    <arg name="pose" default="/people_tracker/pose" />
+    <arg name="pose_array" default="/people_tracker/pose_array" />
+    <arg name="people" default="/people_tracker/people" />
+    <arg name="marker" default="/people_tracker/marker_array" />
+    <arg name="machine" default="localhost" />
+    <arg name="user" default="" />
+
+    <machine name="$(arg machine)" address="$(arg machine)" env-loader="$(optenv ROS_ENV_LOADER )" user="$(arg user)" default="true"/>
+    
+    <node pkg="tf" name="tf_map_base_link" type="static_transform_publisher" args="0 0 0 0 0 0 /map /base_link 10" />
+
+    <node pkg="bayes_people_tracker" type="test_publisher.py" name="test_publisher" output="screen" />
+    
+    <node pkg="rviz" type="rviz" name="rviz_people_tracker" args="-d $(find bayes_people_tracker)/config/default.rviz" output="screen" />
+
+    <node pkg="bayes_people_tracker" type="bayes_people_tracker" name="bayes_people_tracker" output="screen" 
+        launch-prefix-off="ddd --args"
+        respawn="false">
+        <param name="target_frame" value="$(arg target_frame)" type="string"/>
+        <param name="base_frame" value="$(arg base_frame)" type="string"/>
+        <param name="positions" value="$(arg positions)" type="string"/>
+        <param name="pose" value="$(arg pose)" type="string"/>
+        <param name="pose_array" value="$(arg pose_array)" type="string"/>
+        <param name="people" value="$(arg people)" type="string"/>
+        <param name="marker" value="$(arg marker)" type="string"/>
+    </node>
+
+</launch> 

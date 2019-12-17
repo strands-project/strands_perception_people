@@ -2,6 +2,34 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.8.1 (2019-05-21)
+------------------
+* Message type change. (`#225 <https://github.com/strands-project/strands_perception_people/issues/225>`_)
+  * Peoplestamped.msg added for cellphone GPS data. Composed of an array of PersonStamped.msg
+  * People msg chsnged to PeopleStamped message
+  * People msg changed to PeopleStamped msg
+  * code cleaned
+  * people_msgs dependency added
+  * Now supports both People and PeopleStamped msg types
+* Contributors: Khan
+
+1.8.0 (2018-10-01)
+------------------
+* WIP: working towards tag-aware tracking (`#221 <https://github.com/strands-project/strands_perception_people/issues/221>`_)
+  * WIP
+  * WIP
+  * wip
+  * good testing node
+  * WIP
+  * Fixed count
+  * WIP
+  * more documentation and testing
+  * colors for variances
+  * added rviz config
+  * prune_named added
+  * legacy param support
+* Contributors: Marc Hanheide
+
 1.7.0 (2018-09-04)
 ------------------
 * Adapting to changes in bayestracking (`#220 <https://github.com/strands-project/strands_perception_people/issues/220>`_)

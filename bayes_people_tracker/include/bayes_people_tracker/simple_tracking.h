@@ -111,10 +111,11 @@ template<typename FilterType>
 class SimpleTracking
 {
 public:
-    SimpleTracking(double sLimit = 1.0) {
+    SimpleTracking(double sLimit = 1.0, bool prune_named_tracks = false) {
         time = getTime();
         observation = new FM::Vec(2);
         stdLimit = sLimit;
+        prune_named = prune_named_tracks;
     }
 
     void createConstantVelocityModel(double vel_noise_x, double vel_noise_y) {
@@ -135,7 +136,7 @@ public:
         detectors[name] = det;
     }
 
-    std::map<long, std::vector<geometry_msgs::Pose> > track(double* track_time = NULL) {
+    std::map<long, std::vector<geometry_msgs::Pose> > track(double* track_time, std::map<long, std::string>& tags) {
         boost::mutex::scoped_lock lock(mutex);
         std::map<long, std::vector<geometry_msgs::Pose> > result;
         dt = getTime() - time;
@@ -155,10 +156,18 @@ public:
         //    mtrk.process(*(it->second.ctm), it->second.alg);
         //}
        // prediction
-       cvm->update(dt);
-       mtrk.template predict<CVModel>(*cvm);
-       detector_model dummy_det;
-       mtrk.process(*(dummy_det.ctm));
+        cvm->update(dt);
+        mtrk.template predict<CVModel>(*cvm);
+        //detector_model dummy_det;
+        //mtrk.process(*(dummy_det.ctm));
+        mtrk.pruneTracks(stdLimit);
+        if (prune_named) {
+            mtrk.pruneNamedTracks();  
+        }
+
+        for (int i = 0; i < mtrk.size(); i++) {
+            double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
+        }
 
         for (int i = 0; i < mtrk.size(); i++) {
             double theta = atan2(mtrk[i].filter->x[3], mtrk[i].filter->x[1]);
@@ -182,11 +191,12 @@ public:
             var.position.x = mtrk[i].filter->X(0,0);
             var.position.y = mtrk[i].filter->X(2,2);
             result[mtrk[i].id].push_back(var);
+            tags[mtrk[i].id] = mtrk[i].tag;
         }
         return result;
     }
 
-    void addObservation(std::string detector_name, std::vector<geometry_msgs::Point> obsv, double obsv_time) {
+    void addObservation(std::string detector_name, std::vector<geometry_msgs::Point> obsv, double obsv_time, std::vector<std::string> tags) {
         boost::mutex::scoped_lock lock(mutex);
         ROS_DEBUG("Adding new observations for detector: %s", detector_name.c_str());
         // add last observation/s to tracker
@@ -207,6 +217,7 @@ public:
 
         // mtrk.process(*(det.ctm), det.alg);
 
+    int count = 0;
     for(std::vector<geometry_msgs::Point>::iterator li = obsv.begin(); li != obsv.end(); ++li) {
       if(det.om_flag == CARTESIAN) {
 	(*observation)[0] = li->x;
@@ -216,7 +227,11 @@ public:
 	(*observation)[0] = atan2(li->y, li->x); // bearing
 	(*observation)[1] = sqrt(pow(li->x,2) + pow(li->y,2)); // range
       }
-      mtrk.addObservation(*observation, obsv_time);
+      if (count < tags.size())
+        mtrk.addObservation(*observation, obsv_time, tags[count]);
+      else 
+        mtrk.addObservation(*observation, obsv_time);
+      count++;
     }
 
     if(det.om_flag == CARTESIAN) {
@@ -227,6 +242,7 @@ public:
       det.plm->update(0, 0, 0);
       mtrk.process(*(det.plm), det.alg, det.seqSize, det.seqTime, stdLimit, det.om_flag);
     }
+    count++;
   }
 
 private:
@@ -236,7 +252,8 @@ private:
     boost::mutex mutex;
     CVModel *cvm;                   // CV model
     MultiTracker<FilterType, 4> mtrk; // state [x, v_x, y, v_y]
-    double stdLimit;                  // upper limit for the variance of estimation position
+    double stdLimit;
+    bool prune_named;                  // upper limit for the variance of estimation position
 
     typedef struct {
         CartesianModel *ctm;        // Cartesian observation model
