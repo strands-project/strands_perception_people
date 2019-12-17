@@ -353,9 +353,6 @@ void callback(const ImageConstPtr &depth, const ImageConstPtr &color,const Groun
     closest.pose.orientation.w = 1;
     bool found = false;
 
-    spencer_tracking_msgs::DetectedPersons detected_persons;
-    detected_persons.header = depth->header;
-
     for(int i = 0; i < detected_bounding_boxes.getSize(); i++)
     {
         // Custom detections message
@@ -451,7 +448,7 @@ void connectCallback(message_filters::Subscriber<CameraInfo> &sub_cam,
             && !pub_result_image.getNumSubscribers()
             && !pub_centres.getNumSubscribers()
             && !pub_closest.getNumSubscribers()
-            && !pub_markers.getNumSubscribers() ) {
+            && !pub_markers.getNumSubscribers()) {
         ROS_DEBUG("Upper Body Detector: No subscribers. Unsubscribing.");
         sub_cam.unsubscribe();
         sub_gp.unsubscribe();
