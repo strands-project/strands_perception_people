@@ -20,20 +20,14 @@
 #include <grid_map_ros/grid_map_ros.hpp>
 
 ros::Publisher pt_pub, ma_pub, ps_pub, pa_pub, p_pub;
-grid_map::GridMap gridMap;
 PeopleMarker pm;
 bool map_received;
 
+geometry_msgs::TransformStamped curr_tf;
+grid_map::GridMap gridMap;
+std::string frame_id_map = "";
+std::string frame_id_people = "";
 
-void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
-{
-  
-    map_received = true;
-    ROS_DEBUG("Map received");
-
-    // cast map into grid_map
-    grid_map::GridMapRosConverter::fromOccupancyGrid(*msg, "layer", gridMap);
-}
 
 // frames in tf2 do not start with slash
 std::string purgueSlash(std::string inStr){
@@ -46,31 +40,27 @@ std::string purgueSlash(std::string inStr){
       return ans;              
 }
 
-    geometry_msgs::TransformStamped getTransform(std::string frame_id_out, std::string frame_id_in){
-          geometry_msgs::PoseStamped poseOut;
-          geometry_msgs::TransformStamped pose_to_frame_tf;
+void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+{
+  
+    map_received = true;
 
-          tf2_ros::Buffer tfBuffer2;
-          tf2_ros::TransformListener tf2_listener(tfBuffer2);
+    ROS_DEBUG("Map received");
 
-          frame_id_out = purgueSlash(frame_id_out);
-          frame_id_in= purgueSlash(frame_id_in);
-          
-          try{
-              geometry_msgs::TransformStamped pose_to_frame_tf = tfBuffer2.lookupTransform(frame_id_out,  frame_id_in, ros::Time(0), ros::Duration(0.5) ); 
-          }catch(tf2::TransformException &ex) {
-            ROS_ERROR("[%s]: Failed to retrieve TF from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), frame_id_in.c_str(), frame_id_out.c_str() ,ex.what());
-          }
-          return pose_to_frame_tf;
+    // cast map into grid_map
+    grid_map::GridMapRosConverter::fromOccupancyGrid(*msg, "layer", gridMap);
+    frame_id_map = purgueSlash(gridMap.getFrameId());
+}
 
-    }
 
- geometry_msgs::PoseStamped transformPose(geometry_msgs::TransformStamped curr_tf, geometry_msgs::PoseStamped poseIn){
+
+
+ geometry_msgs::PoseStamped transformPose(geometry_msgs::TransformStamped human_2_map_tf, geometry_msgs::PoseStamped poseIn){
           geometry_msgs::PoseStamped poseOut;
           try{
-              tf2::doTransform(poseIn, poseOut, curr_tf); 
+              tf2::doTransform(poseIn, poseOut, human_2_map_tf); 
           }catch(tf2::TransformException &ex) {
-            ROS_ERROR("[%s]: Failed to cast pose from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), poseIn.header.frame_id.c_str(), curr_tf.header.frame_id.c_str() ,ex.what());
+            ROS_ERROR("[%s]: Failed to cast pose from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), poseIn.header.frame_id.c_str(), human_2_map_tf.header.frame_id.c_str() ,ex.what());
           }
           return poseOut;
     }
@@ -110,14 +100,13 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
         geometry_msgs::PoseStamped humanPose;
         humanPose.header = pt->header;
 
-        // update transform
-        geometry_msgs::TransformStamped new_tf;
-        new_tf =  getTransform(gridMap.getFrameId(), humanPose.header.frame_id);    
+        // update tf, just in case
+        frame_id_people = purgueSlash(pt->header.frame_id);
 
         for(int i = 0; i < pt->poses.size(); i++){
                 humanPose.pose = pt->poses[i];
                 //if(int(ppl_map.data.at(pointIndex(ppl_map.info, pt->poses[i].position))) == 0) { // Check if detection is in allowed area
-                if(isHumanAllowed(&gridMap, humanPose, new_tf)) { // Check if detection is in allowed area
+                if(isHumanAllowed(&gridMap, humanPose, curr_tf)) { // Check if detection is in allowed area
                     pt_out.distances.push_back(pt->distances[i]);
                     pt_out.angles.push_back(pt->angles[i]);
                     pt_out.poses.push_back(pt->poses[i]);
@@ -193,8 +182,12 @@ int main(int argc, char **argv)
     map_received = false;
 
     pn.param("map_topic", map_topic, std::string("/ppl_filter_map"));
-    ROS_DEBUG("Looking for map in topic [%s]",map_topic.c_str());
+    pn.param("frame_id_map", frame_id_map, std::string("/map"));
+    pn.param("frame_id_people", frame_id_people, std::string("robot5/base_link"));
 
+    ROS_DEBUG("Looking for map in topic [%s], frame [%s]",map_topic.c_str(), frame_id_map.c_str());
+    ROS_DEBUG("Expecting people tracker positions in frame [%s]",frame_id_people.c_str());
+    
     ros::Subscriber sub = n.subscribe(map_topic, 1, map_callback);
     while((!map_received) and ros::ok()){
         ROS_INFO_NAMED(n.getNamespace(), "Waiting for map");
@@ -242,9 +235,24 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), pt_sub, ps_sub, pa_sub, p_sub);
     sync.registerCallback(boost::bind(&callback, _1, _2, _3, _4));
 
+    // robot5/base_link
+    tf2_ros::Buffer tfBuffer2;
+    tf2_ros::TransformListener tf2_listener(tfBuffer2);
 
+    ros::Rate r(100); // 100 hz. Max publication speed is around 25 Hz. so we may reduce this ...
+    while (ros::ok()) {
+          //hopefully we get our tfs
+          ros::spinOnce();
 
-    ros::spin();
+          if ((frame_id_map != "" ) && (frame_id_people != "") && (frame_id_people != frame_id_map)  ) {         
+            try{
+                curr_tf = tfBuffer2.lookupTransform(frame_id_map,  frame_id_people, ros::Time(0)); 
+            }catch(tf2::TransformException &ex) {
+                ROS_ERROR("[%s]: Failed to retrieve TF from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), frame_id_people.c_str(), frame_id_map.c_str() ,ex.what());
+            }
+          }
+        r.sleep();
+    }
 
     return 0;
 }
