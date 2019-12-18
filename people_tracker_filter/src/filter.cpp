@@ -24,6 +24,7 @@ grid_map::GridMap gridMap;
 PeopleMarker pm;
 bool map_received;
 
+
 void map_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {
   
@@ -45,33 +46,41 @@ std::string purgueSlash(std::string inStr){
       return ans;              
 }
 
- geometry_msgs::PoseStamped transformPose(std::string frame_id, geometry_msgs::PoseStamped poseIn){
+    geometry_msgs::TransformStamped getTransform(std::string frame_id_out, std::string frame_id_in){
           geometry_msgs::PoseStamped poseOut;
           geometry_msgs::TransformStamped pose_to_frame_tf;
 
           tf2_ros::Buffer tfBuffer2;
           tf2_ros::TransformListener tf2_listener(tfBuffer2);
 
-          frame_id = purgueSlash(frame_id);
-          poseIn.header.frame_id = purgueSlash(poseIn.header.frame_id);
+          frame_id_out = purgueSlash(frame_id_out);
+          frame_id_in= purgueSlash(frame_id_in);
           
           try{
-              geometry_msgs::TransformStamped pose_to_frame_tf = tfBuffer2.lookupTransform(frame_id,  poseIn.header.frame_id, ros::Time(0), ros::Duration(1.0) );
-              tf2::doTransform(poseIn, poseOut, pose_to_frame_tf); 
+              geometry_msgs::TransformStamped pose_to_frame_tf = tfBuffer2.lookupTransform(frame_id_out,  frame_id_in, ros::Time(0), ros::Duration(0.5) ); 
           }catch(tf2::TransformException &ex) {
-            ROS_ERROR("[%s]: Failed to cast pose from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), poseIn.header.frame_id.c_str(), frame_id.c_str() ,ex.what());
+            ROS_ERROR("[%s]: Failed to retrieve TF from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), frame_id_in.c_str(), frame_id_out.c_str() ,ex.what());
           }
-          return poseOut;
+          return pose_to_frame_tf;
 
     }
 
+ geometry_msgs::PoseStamped transformPose(geometry_msgs::TransformStamped curr_tf, geometry_msgs::PoseStamped poseIn){
+          geometry_msgs::PoseStamped poseOut;
+          try{
+              tf2::doTransform(poseIn, poseOut, curr_tf); 
+          }catch(tf2::TransformException &ex) {
+            ROS_ERROR("[%s]: Failed to cast pose from (%s) to (%s), skipping.\nReason: (%s)",ros::this_node::getName().c_str(), poseIn.header.frame_id.c_str(), curr_tf.header.frame_id.c_str() ,ex.what());
+          }
+          return poseOut;
+    }
 
-bool isHumanAllowed(grid_map::GridMap* gm, geometry_msgs::PoseStamped humanPos ){
+bool isHumanAllowed(grid_map::GridMap* gm, geometry_msgs::PoseStamped humanPos, geometry_msgs::TransformStamped map_2_h_tf ){
   bool ans = false;
   float val;
   // make humanPos to be in same frame
   if (humanPos.header.frame_id!=gm->getFrameId()){
-      humanPos=transformPose(gm->getFrameId(), humanPos);
+      humanPos=transformPose(map_2_h_tf, humanPos);
   }
 
   grid_map::Position map_pose = grid_map::Position(humanPos.pose.position.x,humanPos.pose.position.y);
@@ -101,10 +110,14 @@ void callback(const bayes_people_tracker::PeopleTracker::ConstPtr& pt,
         geometry_msgs::PoseStamped humanPose;
         humanPose.header = pt->header;
 
+        // update transform
+        geometry_msgs::TransformStamped new_tf;
+        new_tf =  getTransform(gridMap.getFrameId(), humanPose.header.frame_id);    
+
         for(int i = 0; i < pt->poses.size(); i++){
                 humanPose.pose = pt->poses[i];
                 //if(int(ppl_map.data.at(pointIndex(ppl_map.info, pt->poses[i].position))) == 0) { // Check if detection is in allowed area
-                if(isHumanAllowed(&gridMap, humanPose)) { // Check if detection is in allowed area
+                if(isHumanAllowed(&gridMap, humanPose, new_tf)) { // Check if detection is in allowed area
                     pt_out.distances.push_back(pt->distances[i]);
                     pt_out.angles.push_back(pt->angles[i]);
                     pt_out.poses.push_back(pt->poses[i]);
@@ -228,6 +241,8 @@ int main(int argc, char **argv)
 
     message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), pt_sub, ps_sub, pa_sub, p_sub);
     sync.registerCallback(boost::bind(&callback, _1, _2, _3, _4));
+
+
 
     ros::spin();
 
