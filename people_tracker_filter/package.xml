@@ -24,6 +24,11 @@
   <build_depend>people_msgs</build_depend>
   <build_depend>message_filters</build_depend>
 
+  <build_depend>tf2</build_depend>
+  <build_depend>tf2_geometry_msgs</build_depend>
+  <build_depend>grid_map_core</build_depend>
+  <build_depend>grid_map_ros</build_depend>
+
   <run_depend>nav_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
@@ -33,6 +38,11 @@
   <run_depend>bayes_people_tracker</run_depend>
   <run_depend>people_msgs</run_depend>
   <run_depend>message_filters</run_depend>
+
+  <run_depend>tf2</run_depend>
+  <run_depend>tf2_geometry_msgs</run_depend>
+  <run_depend>grid_map_core</run_depend>
+  <run_depend>grid_map_ros</run_depend>
 
   <export/>
 </package>
