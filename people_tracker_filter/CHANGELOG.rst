@@ -2,8 +2,8 @@
 Changelog for package people_tracker_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.9.0 (2019-12-19)
+------------------
 * Frame_id fix (`#228 <https://github.com/strands-project/strands_perception_people/issues/228>`_)
   * Added SPENCER topics to upper_body_detector
   * UN-spencerization

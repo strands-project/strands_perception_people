@@ -2,8 +2,8 @@
 Changelog for package bayes_people_tracker
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.9.0 (2019-12-19)
+------------------
 * Merge pull request `#226 <https://github.com/strands-project/strands_perception_people/issues/226>`_ from semeyerz/people-check
   readd people to subscription check
 * readd people to subscription check
