@@ -2,6 +2,18 @@
 Changelog for package people_tracker_filter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Frame_id fix (`#228 <https://github.com/strands-project/strands_perception_people/issues/228>`_)
+  * Added SPENCER topics to upper_body_detector
+  * UN-spencerization
+  * UN-spencerization 2
+  * UN-spencerization 3
+  * First draft using grid_map
+  * Using same tf for all received points
+  * Detached tf lookup from callback. Publication speeds are now comparable to original approach
+* Contributors: Manuel Fernandez-Carmona
+
 1.8.1 (2019-05-21)
 ------------------
 
