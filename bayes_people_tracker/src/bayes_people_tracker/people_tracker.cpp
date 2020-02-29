@@ -249,7 +249,7 @@ void PeopleTracker::trackingThread() {
                     if(strcmp(target_frame.c_str(), base_frame.c_str())) {
                         try{
                             ROS_DEBUG("Transforming received position into %s coordinate system.", base_frame.c_str());
-                            listener->waitForTransform(poseInTargetCoords.header.frame_id, base_frame, poseInTargetCoords.header.stamp, ros::Duration(3.0));
+                            listener->waitForTransform(poseInTargetCoords.header.frame_id, base_frame, ros::Time(0), ros::Duration(3.0));
                             listener->transformPose(base_frame, ros::Time(0), poseInTargetCoords, poseInTargetCoords.header.frame_id, poseInRobotCoords);
                         } catch(tf::TransformException ex) {
                             ROS_WARN("Failed transform: %s", ex.what());
@@ -527,7 +527,7 @@ void PeopleTracker::detectorCallback(const geometry_msgs::PoseArray::ConstPtr &p
                 try {
                     // Transform into given traget frame. Default /map
                     ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
-                    listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                    listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, ros::Time(0), ros::Duration(3.0));
                     listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
                 }
                 catch(tf::TransformException ex) {
@@ -588,7 +588,7 @@ void PeopleTracker::detectorCallback_people(const people_msgs::People::ConstPtr 
             try {
                 // Transform into given traget frame. Default /map
                 ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
-                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, ros::Time(0), ros::Duration(3.0));
                 listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
             }
             catch(tf::TransformException ex) {
@@ -650,7 +650,7 @@ void PeopleTracker::detectorCallback_peoplestamped(const bayes_people_tracker::P
             try {
                 // Transform into given traget frame. Default /map
                 ROS_DEBUG("Transforming received position into %s coordinate system.", target_frame.c_str());
-                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, poseInCamCoords.header.stamp, ros::Duration(3.0));
+                listener->waitForTransform(poseInCamCoords.header.frame_id, target_frame, ros::Time(0), ros::Duration(3.0));
                 listener->transformPose(target_frame, ros::Time(0), poseInCamCoords, poseInCamCoords.header.frame_id, poseInTargetCoords);
             }
             catch(tf::TransformException ex) {
