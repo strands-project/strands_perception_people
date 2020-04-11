@@ -63,15 +63,20 @@ include_directories(include
 
 add_executable(ground_plane_estimated src/estimated_gp.cpp src/Camera.cpp src/Globals.cpp src/groundplaneestimator.cpp src/Math.cpp src/pointcloud.cpp)
 add_executable(ground_plane_fixed src/fixed_gp.cpp)
+add_executable(ground_plane_fixed_no_ptu src/fixed_gp_no_ptu.cpp)
 
 add_dependencies(ground_plane_estimated ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 add_dependencies(ground_plane_fixed ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+add_dependencies(ground_plane_fixed_no_ptu ${PROJECT_NAME}_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(ground_plane_estimated
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )
 target_link_libraries(ground_plane_fixed
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(ground_plane_fixed_no_ptu
   ${catkin_LIBRARIES}
 )
 
