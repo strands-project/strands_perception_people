@@ -19,13 +19,7 @@ string _frame_id;
 void callback(const sensor_msgs::JointState::ConstPtr &msg) {
     double tilt = 0.0;
     for(int i = 0; i < msg->name.size(); i++){
-        if(strcmp(msg->name[i].c_str(),"tilt") == 0) {
-            tilt = msg->position[i];
-            ROS_DEBUG_STREAM("Received tilt of: " << tilt);
-            break;
-        } else {
-            ROS_DEBUG_STREAM("Received no tilt value. Will use default: " << tilt);
-        }
+        ROS_DEBUG_STREAM("PTU ignored. Will use default: " << tilt);
     }
 
     ROS_DEBUG_STREAM("Normal before rotation: " << _normal.getX() << ", " << _normal.getY() << ", " << _normal.getZ());
@@ -97,4 +91,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
